@@ -1,3 +1,11 @@
+# ShapeMe in 100 Days
+
+100일 고정 운동 프로그램을 수행하고 눈바디 변화를 기록하는 모바일 우선 Next.js 웹앱입니다.
+
+설치 및 Supabase 적용 방법은 [`SHAPEME_100DAYS_SETUP.md`](./SHAPEME_100DAYS_SETUP.md)를 먼저 확인하세요.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
