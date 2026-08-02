@@ -23,8 +23,22 @@ export function HomeWaterCard({
   const router = useRouter();
   const [localEntries, setLocalEntries] = useState(entries);
   const [localTotal, setLocalTotal] = useState(totalMl);
+  const [syncedEntries, setSyncedEntries] = useState(entries);
+  const [syncedTotal, setSyncedTotal] = useState(totalMl);
   const [pending, setPending] = useState<"add" | "remove" | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // useState only reads its initial value on mount — after router.refresh()
+  // this component isn't remounted, so newly-fetched props wouldn't
+  // otherwise replace stale local state (e.g. after a KST midnight rollover).
+  // Adjusting state during render (React's recommended pattern) instead of
+  // useEffect avoids an extra post-paint render.
+  if (entries !== syncedEntries || totalMl !== syncedTotal) {
+    setSyncedEntries(entries);
+    setSyncedTotal(totalMl);
+    setLocalEntries(entries);
+    setLocalTotal(totalMl);
+  }
   const percent = Math.min(100, Math.round((localTotal / goalMl) * 100));
   const lastEntry = localEntries[localEntries.length - 1];
 

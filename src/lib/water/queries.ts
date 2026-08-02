@@ -15,8 +15,11 @@ function toTime(iso: string) {
 /** All water logs for the given local date (YYYY-MM-DD), oldest first. */
 export async function getWaterLogs(userId: string, date: string): Promise<WaterDay> {
   const supabase = await createClient();
-  const start = `${date}T00:00:00`;
-  const end = `${date}T23:59:59.999`;
+  // Explicit +09:00 (KST) offset — Supabase's Postgres session runs in UTC,
+  // so an unzoned timestamp string here would be parsed as a UTC day
+  // boundary and drift 9 hours from the actual KST calendar day.
+  const start = `${date}T00:00:00+09:00`;
+  const end = `${date}T23:59:59.999+09:00`;
 
   const { data, error } = await supabase
     .from("water_logs")

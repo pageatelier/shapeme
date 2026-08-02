@@ -21,8 +21,10 @@ export async function removeLastWaterLog(date: string) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("로그인이 필요해요.");
 
-  const start = `${date}T00:00:00`;
-  const end = `${date}T23:59:59.999`;
+  // Explicit +09:00 (KST) offset — see the matching comment in
+  // src/lib/water/queries.ts for why the offset is required here.
+  const start = `${date}T00:00:00+09:00`;
+  const end = `${date}T23:59:59.999+09:00`;
 
   const { data, error: selectError } = await supabase
     .from("water_logs")

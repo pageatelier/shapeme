@@ -49,8 +49,10 @@ export async function getCalendarMonth(
       .from("water_logs")
       .select("amount_ml, logged_at")
       .eq("user_id", userId)
-      .gte("logged_at", `${start}T00:00:00`)
-      .lte("logged_at", `${end}T23:59:59.999`),
+      // Explicit +09:00 (KST) offset — see the matching comment in
+      // src/lib/water/queries.ts for why the offset is required here.
+      .gte("logged_at", `${start}T00:00:00+09:00`)
+      .lte("logged_at", `${end}T23:59:59.999+09:00`),
     supabase
       .from("meal_logs")
       .select("meal_date")
