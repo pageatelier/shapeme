@@ -228,6 +228,10 @@ body {
   --surface-soft: rgba(255, 255, 255, 0.06);
   --surface-solid: #241f1c;
 
+  /* Only consumer is the Story Viewer sheet — the light version is a warm
+     cream/pink gradient that stayed hardcoded-light without this override. */
+  --gradient-soft: linear-gradient(145deg, #241f1c 0%, #2a2124 52%, #26201d 100%);
+
   --glass-background: rgba(40, 34, 31, 0.58);
   --glass-background-strong: rgba(40, 34, 31, 0.78);
   --glass-border: rgba(255, 255, 255, 0.08);

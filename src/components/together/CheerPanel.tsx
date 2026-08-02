@@ -68,9 +68,9 @@ export function CheerPanel({
                 active
                   ? { background: "var(--gradient-primary)", color: "#fff", border: "1px solid transparent" }
                   : {
-                      background: "rgba(255,255,255,0.55)",
+                      background: "var(--surface-soft)",
                       color: "var(--color-text-primary)",
-                      border: "1px solid rgba(255,255,255,0.7)",
+                      border: "var(--border-soft)",
                     }
               }
             >
