@@ -160,7 +160,14 @@ begin
     raise exception 'cannot_add_self';
   end if;
 
-  if exists (select 1 from public.friendships where user_id = v_me and friend_id = v_friend) then
+  -- Table-qualify both columns: this function's `returns table` declares an
+  -- OUT parameter also named friend_id, which made the bare column
+  -- reference ambiguous against friendships.friend_id (caught via live
+  -- testing — see git history for the exact error).
+  if exists (
+    select 1 from public.friendships fr
+    where fr.user_id = v_me and fr.friend_id = v_friend
+  ) then
     raise exception 'already_friends';
   end if;
 
