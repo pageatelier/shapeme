@@ -9,6 +9,7 @@ export type CalendarDay = {
   waterDone: boolean;
   mealDone: boolean;
   body?: BodyEntry;
+  memo?: string;
 };
 
 export type MonthlyReport = {

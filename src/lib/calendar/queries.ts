@@ -1,5 +1,7 @@
 import { getBodyEntries } from "@/lib/body/queries";
+import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { water } from "@/lib/mock-data";
+import { getDailyNotesForRange } from "@/lib/notes/queries";
 import { createClient } from "@/lib/supabase/server";
 import { WEEKDAYS } from "@/lib/workout/types";
 import type { CalendarDay, MonthlyReport } from "./types";
@@ -34,7 +36,7 @@ export async function getCalendarMonth(
   const end = `${year}-${pad(month)}-${pad(daysInMonth)}`;
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const [bodyEntries, setLogsRes, waterLogsRes, mealLogsRes] = await Promise.all([
+  const [bodyEntries, setLogsRes, waterLogsRes, mealLogsRes, notesByDate] = await Promise.all([
     getBodyEntries(userId),
     supabase
       .from("workout_set_logs")
@@ -54,6 +56,7 @@ export async function getCalendarMonth(
       .eq("user_id", userId)
       .gte("meal_date", start)
       .lte("meal_date", end),
+    getDailyNotesForRange(userId, start, end),
   ]);
 
   if (setLogsRes.error) throw setLogsRes.error;
@@ -109,7 +112,7 @@ export async function getCalendarMonth(
 
     const completionRate = isFuture
       ? null
-      : Math.round((workoutPct + waterPct + mealPct + bodyPct) / 4);
+      : dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
 
     if (!isFuture) {
       const weekday = WEEKDAYS[new Date(`${isoDate}T00:00:00`).getDay()];
@@ -127,6 +130,7 @@ export async function getCalendarMonth(
       waterDone,
       mealDone,
       body,
+      memo: notesByDate.get(isoDate),
     });
   }
 

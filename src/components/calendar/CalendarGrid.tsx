@@ -109,6 +109,15 @@ export function CalendarGrid({ days, firstWeekday }: { days: CalendarDay[]; firs
           ) : (
             <p className="text-xs text-text-muted">기록된 눈바디 사진이 없어요.</p>
           )}
+
+          {selectedDay.memo && (
+            <>
+              <p className="font-en mt-4 mb-2 text-[11px] font-semibold tracking-[0.08em] text-text-muted lowercase">
+                오늘의 메모
+              </p>
+              <p className="text-[13px] leading-relaxed text-text-secondary">{selectedDay.memo}</p>
+            </>
+          )}
         </section>
       )}
     </>
