@@ -5,7 +5,6 @@ import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { SetDots } from "@/components/SetDots";
-import { TodayBodyCard } from "@/components/body/TodayBodyCard";
 import { DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/icons";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
@@ -91,8 +90,6 @@ export default async function TodayPage() {
           {dailyMessage}
         </h1>
       </div>
-
-      <TodayBodyCard entry={todayBodyEntry} />
 
       {settings.selfLoveMessageEnabled && (
         <div className="glass-card flex items-start gap-3 p-6">
