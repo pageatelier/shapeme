@@ -17,8 +17,9 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-4 left-1/2 z-10 flex w-[calc(100%-32px)] max-w-[calc(var(--container-sm)-32px)] -translate-x-1/2 items-center justify-between rounded-full border px-2.5 py-2"
+      className="fixed left-1/2 z-10 flex w-[calc(100%-32px)] max-w-[calc(var(--container-sm)-32px)] -translate-x-1/2 items-center justify-between rounded-full border px-2.5 py-2"
       style={{
+        bottom: "calc(1rem + env(safe-area-inset-bottom))",
         background: "var(--glass-background-strong)",
         borderColor: "var(--glass-border)",
         boxShadow: "var(--shadow-floating)",
