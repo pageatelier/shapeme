@@ -1,3 +1,4 @@
+import { AppSplash } from "@/components/AppSplash";
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
 import "./globals.css";
