@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
+import { Toast } from "@/components/Toast";
 import type { FriendCard } from "@/lib/friends/types";
 import { StoryAvatar } from "./StoryAvatar";
 import { StoryViewer } from "./StoryViewer";
@@ -16,6 +17,7 @@ export function TogetherStories({
 }) {
   const router = useRouter();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   return (
     <section>
@@ -70,8 +72,11 @@ export function TogetherStories({
           index={openIndex}
           onIndexChange={setOpenIndex}
           onClose={() => setOpenIndex(null)}
+          onCheerSent={(name) => setToast(`${name}님에게 응원을 보냈어요 🌷`)}
         />
       )}
+
+      {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}
     </section>
   );
 }

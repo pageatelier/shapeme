@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ProgressRing } from "@/components/ProgressRing";
 import type { FriendCard } from "@/lib/friends/types";
-import { CheerButton } from "./CheerButton";
+import { CheerPanel } from "./CheerPanel";
 
-function statusMessage(friend: FriendCard): string {
-  if (!friend.hasActivityToday) return "아직 오늘의 기록을 시작하지 않았어요.";
-  if (friend.todayProgress >= 100) return "오늘의 나를 온전히 채웠어요.";
-  return "오늘도 천천히 나를 채워가고 있어요.";
+function statusMessage(pct: number): string {
+  if (pct <= 0) return "아직 오늘의 기록을 시작하지 않았어요.";
+  if (pct >= 100) return "오늘의 루틴을 모두 완료했어요 ✨";
+  return `오늘 ${pct}%를 채웠어요.`;
 }
 
 export function StoryViewer({
@@ -17,13 +17,18 @@ export function StoryViewer({
   index,
   onIndexChange,
   onClose,
+  onCheerSent,
 }: {
   friends: FriendCard[];
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  onCheerSent: (displayName: string) => void;
 }) {
   const friend = friends[index];
+  const [showPetals, setShowPetals] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const petalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -33,10 +38,45 @@ export function StoryViewer({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+      if (petalTimerRef.current) clearTimeout(petalTimerRef.current);
+    };
+  }, []);
+
   if (!friend) return null;
 
   const hasPrev = index > 0;
   const hasNext = index < friends.length - 1;
+
+  function clearPendingClose() {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setShowPetals(false);
+  }
+
+  function goPrev() {
+    if (!hasPrev) return;
+    clearPendingClose();
+    onIndexChange(index - 1);
+  }
+
+  function goNext() {
+    if (!hasNext) return;
+    clearPendingClose();
+    onIndexChange(index + 1);
+  }
+
+  function handleCheerSent() {
+    setShowPetals(true);
+    onCheerSent(friend.displayName);
+    // Modal doesn't slam shut — a short beat to see the flourish, then close.
+    petalTimerRef.current = setTimeout(() => setShowPetals(false), 800);
+    closeTimerRef.current = setTimeout(() => onClose(), 800);
+  }
 
   return (
     <div
@@ -81,19 +121,19 @@ export function StoryViewer({
           <button
             type="button"
             aria-label="이전 친구"
-            onClick={() => hasPrev && onIndexChange(index - 1)}
+            onClick={goPrev}
             disabled={!hasPrev}
             className="absolute inset-y-0 left-0 w-1/3"
           />
           <button
             type="button"
             aria-label="다음 친구"
-            onClick={() => hasNext && onIndexChange(index + 1)}
+            onClick={goNext}
             disabled={!hasNext}
             className="absolute inset-y-0 right-0 w-1/3"
           />
 
-          <div className="h-16 w-16 overflow-hidden rounded-full" style={{ background: "var(--gradient-primary)" }}>
+          <div className="relative h-16 w-16 overflow-hidden rounded-full" style={{ background: "var(--gradient-primary)" }}>
             {friend.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={friend.avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -104,20 +144,28 @@ export function StoryViewer({
             )}
           </div>
 
-          {friend.hasActivityToday && (
+          {showPetals && (
+            <div className="petal-burst pointer-events-none absolute top-4 left-1/2 h-16 w-16 -translate-x-1/2">
+              <span style={{ left: "6px", top: "8px", fontSize: 14, animationDelay: "0ms" }}>🌷</span>
+              <span style={{ left: "26px", top: "0px", fontSize: 14, animationDelay: "90ms" }}>💗</span>
+              <span style={{ left: "44px", top: "10px", fontSize: 14, animationDelay: "160ms" }}>🌷</span>
+            </div>
+          )}
+
+          {friend.todayProgress > 0 && (
             <ProgressRing percent={friend.todayProgress} size={140} strokeWidth={12} />
           )}
 
           <p className="max-w-[260px] text-center text-[14px] leading-relaxed text-text-secondary">
-            {statusMessage(friend)}
+            {statusMessage(friend.todayProgress)}
           </p>
         </div>
 
-        <CheerButton
+        <CheerPanel
           key={friend.friendId}
           receiverId={friend.friendId}
           cheeredInitially={friend.cheeredByMe}
-          idleLabel={friend.hasActivityToday ? "응원하기" : "가볍게 응원하기"}
+          onSent={handleCheerSent}
         />
       </div>
     </div>

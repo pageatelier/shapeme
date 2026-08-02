@@ -48,7 +48,7 @@ export async function removeFriend(friendId: string): Promise<void> {
   if (b.error) throw b.error;
 }
 
-export async function sendCheer(receiverId: string): Promise<void> {
+export async function sendCheer(receiverId: string, encouragementType: string): Promise<void> {
   const supabase = createClient();
   const {
     data: { user },
@@ -59,6 +59,7 @@ export async function sendCheer(receiverId: string): Promise<void> {
     sender_id: user.id,
     receiver_id: receiverId,
     cheer_date: todayIsoDate(),
+    encouragement_type: encouragementType,
   });
   if (error && error.code !== "23505") {
     // 23505 = unique_violation — already cheered today; treat as success.

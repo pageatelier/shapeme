@@ -279,6 +279,27 @@ body {
   display: none;
 }
 
+/* Brief, non-confetti "cheer sent" flourish — a couple of petals/hearts
+   drifting up and fading near the friend's avatar. */
+@keyframes petal-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1.05);
+  }
+}
+
+.petal-burst span {
+  position: absolute;
+  animation: petal-float 800ms ease-out forwards;
+}
+
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {
