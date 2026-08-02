@@ -13,15 +13,17 @@ export async function createRoutine({
   name,
   days,
   orderIndex,
+  challengeId,
 }: {
   name: string;
   days: string[];
   orderIndex: number;
+  challengeId?: string | null;
 }): Promise<string> {
   const { supabase, userId } = await requireUserId();
   const { data, error } = await supabase
     .from("workout_routines")
-    .insert({ user_id: userId, name, days, order_index: orderIndex })
+    .insert({ user_id: userId, name, days, order_index: orderIndex, challenge_id: challengeId ?? null })
     .select("id")
     .single();
   if (error) throw error;

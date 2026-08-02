@@ -11,7 +11,7 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "쉐잎미 ShapeMe",
   description:
-    "운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
+    "100일 운동 프로그램을 수행하고 눈바디 변화를 기록하는 AI 퍼스널 트레이닝 웹앱",
 };
 
 export const viewport: Viewport = {

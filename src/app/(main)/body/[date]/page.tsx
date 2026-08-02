@@ -11,8 +11,8 @@ const slots: { id: BodyPhotoSlot; label: string }[] = [
   { id: "back", label: "Back" },
 ];
 
-export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]">) {
-  const { date } = await props.params;
+export default async function BodyEntryDetailPage({ params }: { params: Promise<{ date: string }> }) {
+  const { date } = await params;
 
   const supabase = await createClient();
   const {

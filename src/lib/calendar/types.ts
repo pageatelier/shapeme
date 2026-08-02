@@ -1,22 +1,24 @@
 import type { BodyEntry } from "@/lib/body/types";
 
+export type CalendarStatus = "future" | "workout" | "recovery" | "partial" | "empty";
+
 export type CalendarDay = {
-  date: number; // day of month, 1-31
+  date: number;
   isoDate: string;
   isToday: boolean;
-  completionRate: number | null; // null for future days
-  workoutDone: boolean;
-  waterDone: boolean;
-  mealDone: boolean;
+  challengeDay: number | null;
+  status: CalendarStatus;
+  completedSets: number;
+  totalSets: number;
+  routineName?: string | null;
+  recoveryReason?: string | null;
   body?: BodyEntry;
   memo?: string;
 };
 
 export type MonthlyReport = {
-  avgCompletion: number;
   workoutDays: number;
-  waterGoalDays: number;
-  mealLogDays: number;
+  recoveryDays: number;
   bodyPhotoDays: number;
-  bestStreakDay: string | null;
+  completedSets: number;
 };

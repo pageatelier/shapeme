@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
+import { challengeDayNumber } from "@/lib/challenge/date";
 
 const slots: BodyPhotoSlot[] = ["front", "side", "back"];
 
@@ -11,7 +12,7 @@ const slots: BodyPhotoSlot[] = ["front", "side", "back"];
  * swapped for real data later, so the slider can land without touching
  * callers.
  */
-export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
+export function BodyCompare({ entries, challengeStartDate }: { entries: BodyEntry[]; challengeStartDate?: string }) {
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
   const [leftDate, setLeftDate] = useState(sorted[0]?.date ?? "");
   const [rightDate, setRightDate] = useState(sorted[sorted.length - 1]?.date ?? "");
@@ -19,7 +20,7 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
   if (sorted.length < 2) {
     return (
       <section>
-        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
+        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
         <div className="surface-card p-5 text-center text-[13px] text-text-muted">
           비교하려면 눈바디 기록이 2개 이상 필요해요.
         </div>
@@ -32,11 +33,11 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
 
   return (
     <section>
-      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
+      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
       <div className="glass-card p-5">
         <div className="mb-4 grid grid-cols-2 gap-3">
-          <DateSelect value={leftDate} onChange={setLeftDate} entries={sorted} />
-          <DateSelect value={rightDate} onChange={setRightDate} entries={sorted} />
+          <DateSelect value={leftDate} onChange={setLeftDate} entries={sorted} challengeStartDate={challengeStartDate} />
+          <DateSelect value={rightDate} onChange={setRightDate} entries={sorted} challengeStartDate={challengeStartDate} />
         </div>
 
         {slots.map((slot) => (
@@ -59,10 +60,12 @@ function DateSelect({
   value,
   onChange,
   entries,
+  challengeStartDate,
 }: {
   value: string;
   onChange: (v: string) => void;
   entries: BodyEntry[];
+  challengeStartDate?: string;
 }) {
   return (
     <select
@@ -71,11 +74,15 @@ function DateSelect({
       className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-primary"
       style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
     >
-      {entries.map((e) => (
-        <option key={e.date} value={e.date}>
-          {e.dateLabel}
-        </option>
-      ))}
+      {entries.map((e) => {
+        const day = challengeStartDate ? challengeDayNumber(challengeStartDate, e.date) : null;
+        const dayLabel = day !== null && day >= 1 && day <= 100 ? `Day ${day} · ` : "";
+        return (
+          <option key={e.date} value={e.date}>
+            {dayLabel}{e.dateLabel}
+          </option>
+        );
+      })}
     </select>
   );
 }

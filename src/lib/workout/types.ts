@@ -14,6 +14,7 @@ export type WorkoutExercise = {
 
 export type WorkoutRoutine = {
   id: string;
+  challengeId: string | null;
   name: string;
   days: string[];
   orderIndex: number;

@@ -5,7 +5,7 @@ import { todayIsoDate } from "@/lib/body/date";
 import type { BodyEntry } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
 
-export function TodayBodyCard({ entry }: { entry: BodyEntry | null }) {
+export function TodayBodyCard({ entry, challengeDay }: { entry: BodyEntry | null; challengeDay?: number }) {
   const today = todayIsoDate();
   const hasAny = !!entry && (entry.front || entry.side || entry.back);
 
@@ -13,7 +13,7 @@ export function TodayBodyCard({ entry }: { entry: BodyEntry | null }) {
     <div className="glass-card p-6">
       <div className="mb-4 flex items-center justify-between">
         <p className="font-en text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
-          today&apos;s body
+          today&apos;s body{challengeDay ? ` · day ${challengeDay}` : ""}
         </p>
         <Link href="/body" className="font-en text-[11px] font-semibold text-text-muted lowercase">
           전체 보기

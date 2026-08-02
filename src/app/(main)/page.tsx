@@ -1,19 +1,21 @@
 import Link from "next/link";
-import { DailyMemo } from "@/components/DailyMemo";
-import { ProgressRing } from "@/components/ProgressRing";
-import { SetDots } from "@/components/SetDots";
 import { TodayBodyCard } from "@/components/body/TodayBodyCard";
-import { CameraIcon, DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/icons";
+import { TodayPlanCard } from "@/components/challenge/TodayPlanCard";
+import { HeartIcon } from "@/components/icons";
 import { todayIsoDate } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
-import { dayCompletionPercent } from "@/lib/dailyCompletion";
-import { getMealLogsSafe } from "@/lib/meal/queries";
-import { completionMessages, today, water as waterGoalMock } from "@/lib/mock-data";
-import { getDailyNoteSafe } from "@/lib/notes/queries";
+import { challengeDayNumber, challengePhase } from "@/lib/challenge/date";
+import { getActiveChallengeSafe, getChallengeDayLogsSafe } from "@/lib/challenge/queries";
+import { GOAL_LABELS } from "@/lib/challenge/types";
 import { createClient } from "@/lib/supabase/server";
-import { getWaterLogsSafe } from "@/lib/water/queries";
 import { getRoutinesSafe } from "@/lib/workout/queries";
-import { WEEKDAYS } from "@/lib/workout/types";
+
+function startOfWeekIso(dateIso: string) {
+  const date = new Date(`${dateIso}T00:00:00`);
+  const diff = date.getDay() === 0 ? 6 : date.getDay() - 1;
+  date.setDate(date.getDate() - diff);
+  return date.toISOString().slice(0, 10);
+}
 
 export default async function TodayPage() {
   const supabase = await createClient();
@@ -22,207 +24,109 @@ export default async function TodayPage() {
   } = await supabase.auth.getUser();
 
   const avatarUrl = (user?.user_metadata as { avatar_url?: string } | undefined)?.avatar_url ?? null;
-
   const todayIso = todayIsoDate();
   const bodyEntries = user ? await getBodyEntriesSafe(user.id) : [];
-  const todayBodyEntry = bodyEntries.find((e) => e.date === todayIso) ?? null;
+  const todayBodyEntry = bodyEntries.find((entry) => entry.date === todayIso) ?? null;
+  const challenge = user ? await getActiveChallengeSafe(user.id) : null;
 
-  const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
-  const todayWeekday = WEEKDAYS[new Date(`${todayIso}T00:00:00`).getDay()];
-  // Strict match only — if nothing is scheduled for today's weekday, that's
-  // a real "no workout today", not a reason to fall back to some other routine.
-  const todayRoutine = routines.find((r) => r.days.includes(todayWeekday)) ?? null;
-  const todayExercises = todayRoutine?.exercises ?? [];
-  const workoutDoneSets = todayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
-  const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
-  const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
+  if (!challenge) {
+    return (
+      <div className="flex flex-col gap-5">
+        <Header avatarUrl={avatarUrl} />
+        <section className="glass-card overflow-hidden p-7">
+          <p className="font-en mb-3 text-[11px] font-semibold tracking-[0.13em] text-pink-500 uppercase">Shape Me in 100 Days</p>
+          <h1 className="mb-3 text-[31px] leading-[1.18] font-bold tracking-[-0.06em] text-text-primary">나를 위한 100일을 시작해볼까요?</h1>
+          <p className="mb-7 text-[14px] leading-[1.75] text-text-secondary">현재 상태와 목표를 등록하면 반복해서 수행할 100일 운동 프로그램을 만들어드려요.</p>
+          <Link href="/start" className="flex min-h-[54px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}>
+            나의 100일 프로그램 만들기
+          </Link>
+        </section>
+        <TodayBodyCard entry={todayBodyEntry} />
+      </div>
+    );
+  }
 
-  const water = user ? await getWaterLogsSafe(user.id, todayIso) : { entries: [], totalMl: 0 };
-  const waterPercent = Math.round((water.totalMl / waterGoalMock.goalMl) * 100);
-  const waterPct = Math.min(100, waterPercent);
-
-  const meals = user
-    ? await getMealLogsSafe(user.id, todayIso)
-    : ["morning", "lunch", "dinner", "snack"].map((type) => ({ type, date: todayIso, filled: false }) as const);
-  const mealsFilledCount = meals.filter((m) => m.filled).length;
-  const mealPct = Math.min(100, (mealsFilledCount / 4) * 100);
-
-  const bodyPct = todayBodyEntry && (todayBodyEntry.front || todayBodyEntry.side || todayBodyEntry.back) ? 100 : 0;
-
-  const completionRate = dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
-  const heroMessage = completionMessages.find((m) => completionRate >= m.min)?.message ?? "";
-
-  const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : null;
+  const day = Math.max(1, Math.min(100, challengeDayNumber(challenge.startDate, todayIso)));
+  const phase = challengePhase(day);
+  const logs = user ? await getChallengeDayLogsSafe(user.id, challenge.id, challenge.startDate, todayIso) : [];
+  const routines = user ? await getRoutinesSafe(user.id, todayIso, challenge.id) : [];
+  const todayLog = logs.find((log) => log.logDate === todayIso) ?? null;
+  const completedWorkoutCount = logs.filter((log) => log.status === "workout" && log.logDate !== todayIso).length;
+  const activeRoutine = todayLog?.routineId
+    ? routines.find((routine) => routine.id === todayLog.routineId) ?? routines[completedWorkoutCount % Math.max(1, routines.length)] ?? null
+    : routines[completedWorkoutCount % Math.max(1, routines.length)] ?? null;
+  const totalSets = activeRoutine?.exercises.reduce((sum, exercise) => sum + exercise.targetSets, 0) ?? 0;
+  const weekStart = startOfWeekIso(todayIso);
+  const weekWorkouts = logs.filter((log) => log.status === "workout" && log.logDate >= weekStart && log.logDate <= todayIso).length;
+  const recoveryDays = logs.filter((log) => log.status === "recovery").length;
+  const programProgress = Math.min(100, day);
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <span className="font-en text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
-          shapeme
-        </span>
-        <Link
-          href="/my"
-          className="block h-10 w-10 overflow-hidden rounded-full"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-xs)" }}
-        >
-          {avatarUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="프로필 사진" className="h-full w-full object-cover" />
-          )}
-        </Link>
-      </div>
+      <Header avatarUrl={avatarUrl} />
 
-      <TodayBodyCard entry={todayBodyEntry} />
-
-      <div>
-        <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
-          {today.dateLabel}
-        </p>
-        <h1 className="text-[clamp(22px,5vw,26px)] leading-[1.3] font-bold tracking-[-0.04em] whitespace-pre-line text-text-primary">
-          {today.greeting}
-        </h1>
-      </div>
-
-      <div className="glass-card flex items-start gap-3 p-6">
-        <HeartIcon className="mt-1 h-5 w-5 shrink-0 text-pink-500" />
-        <p className="text-[clamp(17px,4vw,20px)] leading-[1.65] font-light tracking-[-0.035em] text-text-primary">
-          {today.selfLoveMessage}
-        </p>
-      </div>
-
-      <div className="glass-card flex items-center gap-6 px-6 py-7">
-        <ProgressRing percent={completionRate} />
-        <div>
-          <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
-            today&apos;s progress
-          </p>
-          <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
-            오늘 {completionRate}% 완료했어요
-          </p>
-          <p className="text-[13px] leading-[1.55] tracking-[-0.01em] text-text-secondary">
-            {heroMessage}
-          </p>
+      <section className="glass-card p-6">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p className="font-en mb-1 text-[11px] font-semibold tracking-[0.12em] text-pink-500 uppercase">Shape Me in 100 Days</p>
+            <h1 className="text-[31px] font-semibold tracking-[-0.065em] text-text-primary">Day {day} <span className="text-[18px] font-medium text-text-muted">of 100</span></h1>
+          </div>
+          <span className="rounded-full px-3 py-1.5 text-[11px] font-semibold text-text-secondary" style={{ background: "var(--surface-card)" }}>{phase.title}</span>
         </div>
-      </div>
+        <div className="mb-3 h-2.5 overflow-hidden rounded-full" style={{ background: "var(--progress-track)" }}>
+          <div className="h-full rounded-full" style={{ width: `${programProgress}%`, background: "var(--gradient-primary)" }} />
+        </div>
+        <div className="flex items-center justify-between text-[11px] text-text-muted">
+          <span>{GOAL_LABELS[challenge.goal]}</span>
+          <span>{programProgress}%</span>
+        </div>
+      </section>
+
+      <TodayBodyCard entry={todayBodyEntry} challengeDay={day} />
+
+      <TodayPlanCard
+        challengeId={challenge.id}
+        date={todayIso}
+        routineName={activeRoutine?.name ?? null}
+        exerciseCount={activeRoutine?.exercises.length ?? 0}
+        totalSets={totalSets}
+        sessionMinutes={challenge.sessionMinutes}
+        todayLog={todayLog}
+      />
 
       <div className="grid grid-cols-3 gap-3">
-        <Link href="/workout" className="surface-card flex flex-col items-center p-4 text-center">
-          <DumbbellIcon className="mb-2 h-[22px] w-[22px] text-peach-400" />
-          <p className="font-en text-lg font-semibold tracking-[-0.03em] text-text-primary">
-            {workoutDoneSets}/{workoutTotalSets}
-          </p>
-          <p className="text-[11px] text-text-muted">workout</p>
-        </Link>
-        <Link href="/water" className="surface-card flex flex-col items-center p-4 text-center">
-          <WaterDropIcon className="mb-2 h-[22px] w-[22px] text-pink-400" />
-          <p className="font-en text-lg font-semibold tracking-[-0.03em] text-text-primary">
-            {(water.totalMl / 1000).toFixed(1)}L
-          </p>
-          <p className="text-[11px] text-text-muted">water</p>
-        </Link>
-        <Link href="/meal" className="surface-card flex flex-col items-center p-4 text-center">
-          <MealIcon className="mb-2 h-[22px] w-[22px] text-peach-400" />
-          <p className="font-en text-lg font-semibold tracking-[-0.03em] text-text-primary">
-            {mealsFilledCount}/4
-          </p>
-          <p className="text-[11px] text-text-muted">meals</p>
-        </Link>
+        <StatCard value={`${weekWorkouts}/${challenge.workoutDaysPerWeek}`} label="이번 주 운동" />
+        <StatCard value={`${completedWorkoutCount + (todayLog?.status === "workout" ? 1 : 0)}`} label="완료 세션" />
+        <StatCard value={`${recoveryDays}`} label="회복일" />
       </div>
 
-      <section>
-        <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
-          오늘의 운동 {todayRoutine && <span className="text-text-muted">· {todayRoutine.name}</span>}
-          <Link href="/workout" className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase">
-            edit
-          </Link>
-        </div>
-        <div className="flex flex-col gap-3">
-          {todayExercises.length === 0 && (
-            <Link href="/workout" className="surface-card p-4 text-center text-[13px] text-text-muted">
-              {routines.length === 0
-                ? "아직 운동 루틴이 없어요. 눌러서 만들어보세요."
-                : "오늘 요일에 예정된 루틴이 없어요."}
-            </Link>
-          )}
-          {todayExercises.map((exercise) => (
-            <div key={exercise.id} className="surface-card flex items-center gap-4 p-4">
-              <div className="min-w-0 flex-1">
-                <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
-                  {exercise.name}
-                </p>
-                <p className="text-[13px] text-text-muted">
-                  {exercise.sets.filter(Boolean).length} / {exercise.targetSets}세트 · {exercise.targetReps}회
-                </p>
-              </div>
-              <SetDots sets={exercise.sets} />
-            </div>
-          ))}
+      <section className="surface-card flex items-start gap-3 p-5">
+        <HeartIcon className="mt-0.5 h-5 w-5 shrink-0 text-pink-500" />
+        <div>
+          <p className="mb-1 text-[13px] font-bold text-text-primary">{phase.description}</p>
+          <p className="text-[12px] leading-relaxed text-text-secondary">완벽하게 해내는 것보다 다시 이어가는 힘이 더 중요해요.</p>
         </div>
       </section>
+    </div>
+  );
+}
 
-      <section>
-        <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
-          오늘의 식단
-          <Link href="/meal" className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase">
-            add
-          </Link>
-        </div>
-        <Link href="/meal" className="grid grid-cols-4 gap-3">
-          {meals.map((meal) => (
-            <div
-              key={meal.type}
-              className="flex aspect-square flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[16px]"
-              style={
-                meal.filled
-                  ? {
-                      background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))",
-                      color: "var(--color-text-inverse)",
-                      boxShadow: "var(--shadow-xs)",
-                    }
-                  : {
-                      background: "var(--surface-card)",
-                      border: "1px dashed rgba(86, 62, 58, 0.16)",
-                      color: "var(--color-text-muted)",
-                    }
-              }
-            >
-              <CameraIcon className="h-[18px] w-[18px]" />
-              <span className="font-en text-[10px] font-semibold tracking-[0.04em] lowercase">
-                {meal.type}
-              </span>
-            </div>
-          ))}
-        </Link>
-      </section>
+function Header({ avatarUrl }: { avatarUrl: string | null }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="font-en text-2xl font-medium tracking-[-0.055em] text-text-primary">ShapeMe</span>
+      <Link href="/my" className="block h-10 w-10 overflow-hidden rounded-full" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-xs)" }}>
+        {avatarUrl && <img src={avatarUrl} alt="프로필 사진" className="h-full w-full object-cover" />}
+      </Link>
+    </div>
+  );
+}
 
-      <section>
-        <Link href="/water" className="surface-card block p-4">
-          <p className="mb-3 flex items-center gap-1.5 text-[13px] font-bold tracking-[-0.02em] text-text-secondary">
-            <WaterDropIcon className="h-[15px] w-[15px] text-pink-400" />
-            물 마시기
-          </p>
-          <p className="font-en mb-2 text-xl font-semibold tracking-[-0.03em] text-text-primary">
-            {water.totalMl.toLocaleString()}
-            <span className="text-xs font-medium text-text-muted"> / {waterGoalMock.goalMl.toLocaleString()}ml</span>
-          </p>
-          <div className="mb-3 h-2 overflow-hidden rounded-full" style={{ background: "var(--progress-track)" }}>
-            <div
-              className="h-full rounded-full"
-              style={{ width: `${Math.min(100, waterPercent)}%`, background: "var(--gradient-primary)" }}
-            />
-          </div>
-          <div className="flex min-h-[34px] items-center justify-center rounded-full border text-xs font-semibold text-text-primary" style={{ borderColor: "rgba(86, 62, 58, 0.07)", background: "rgba(255,255,255,0.7)" }}>
-            + {waterGoalMock.cupMl}ml 추가
-          </div>
-        </Link>
-      </section>
-
-      <section>
-        <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
-          오늘의 메모
-        </p>
-        <DailyMemo date={todayIso} memo={dailyNote} />
-      </section>
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="surface-card px-3 py-4 text-center">
+      <p className="font-en mb-1 text-[20px] font-semibold tracking-[-0.045em] text-text-primary">{value}</p>
+      <p className="text-[10px] text-text-muted">{label}</p>
     </div>
   );
 }

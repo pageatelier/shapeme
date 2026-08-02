@@ -3,6 +3,7 @@ import type { WorkoutExercise, WorkoutRoutine } from "./types";
 
 type RoutineRow = {
   id: string;
+  challenge_id: string | null;
   name: string;
   days: string[];
   order_index: number;
@@ -31,25 +32,31 @@ function normalizeSets(sets: boolean[] | undefined, targetSets: number): boolean
 }
 
 /**
- * All of a user's routines with their exercises and that day's
- * set-completion filled in, ordered by order_index. `logDate` defaults to
- * today when omitted by the caller.
+ * A user's routines with exercises and one day's set-completion. When a
+ * challengeId is supplied, legacy routines stay untouched and are excluded
+ * from the current 100-day program.
  */
-export async function getRoutines(userId: string, logDate: string): Promise<WorkoutRoutine[]> {
+export async function getRoutines(
+  userId: string,
+  logDate: string,
+  challengeId?: string,
+): Promise<WorkoutRoutine[]> {
   const supabase = await createClient();
 
-  const { data: routineRows, error: routineError } = await supabase
+  let routineQuery = supabase
     .from("workout_routines")
-    .select("id, name, days, order_index")
+    .select("id, challenge_id, name, days, order_index")
     .eq("user_id", userId)
     .order("order_index", { ascending: true });
+  if (challengeId) routineQuery = routineQuery.eq("challenge_id", challengeId);
+
+  const { data: routineRows, error: routineError } = await routineQuery;
   if (routineError) throw routineError;
 
   const routines = (routineRows ?? []) as RoutineRow[];
   if (routines.length === 0) return [];
 
   const routineIds = routines.map((r) => r.id);
-
   const { data: exerciseRows, error: exerciseError } = await supabase
     .from("workout_exercises")
     .select("id, routine_id, name, target_sets, target_reps, weight_kg, rest_seconds, memo, order_index")
@@ -68,7 +75,7 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
       .eq("log_date", logDate)
       .in("exercise_id", exerciseIds);
     if (logError) throw logError;
-    logsByExerciseId = new Map((logRows as SetLogRow[] | null ?? []).map((r) => [r.exercise_id, r.sets]));
+    logsByExerciseId = new Map(((logRows as SetLogRow[] | null) ?? []).map((r) => [r.exercise_id, r.sets]));
   }
 
   const exercisesByRoutineId = new Map<string, WorkoutExercise[]>();
@@ -92,6 +99,7 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
 
   return routines.map((r) => ({
     id: r.id,
+    challengeId: r.challenge_id,
     name: r.name,
     days: r.days,
     orderIndex: r.order_index,
@@ -99,10 +107,9 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
   }));
 }
 
-/** Same as getRoutines, but resolves to [] instead of throwing — used on pages that must still render if the workout migration (supabase/migrations/0002_workout.sql) hasn't been applied yet. */
-export async function getRoutinesSafe(userId: string, logDate: string): Promise<WorkoutRoutine[]> {
+export async function getRoutinesSafe(userId: string, logDate: string, challengeId?: string) {
   try {
-    return await getRoutines(userId, logDate);
+    return await getRoutines(userId, logDate, challengeId);
   } catch (error) {
     console.error("[workout] getRoutines failed, falling back to empty:", error);
     return [];

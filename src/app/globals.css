@@ -256,3 +256,27 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 100-day challenge additions */
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+textarea::placeholder,
+input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+@media (min-width: 481px) {
+  body {
+    background: #f2ece8;
+  }
+
+  .app-shell {
+    box-shadow: 0 0 80px rgba(91, 64, 58, 0.1);
+  }
+}

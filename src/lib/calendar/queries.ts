@@ -1,9 +1,10 @@
+import { todayIsoDate } from "@/lib/body/date";
 import { getBodyEntries } from "@/lib/body/queries";
-import { dayCompletionPercent } from "@/lib/dailyCompletion";
-import { water } from "@/lib/mock-data";
+import { challengeDayNumber } from "@/lib/challenge/date";
+import { getChallengeDayLogs } from "@/lib/challenge/queries";
+import type { Challenge } from "@/lib/challenge/types";
 import { getDailyNotesForRange } from "@/lib/notes/queries";
 import { createClient } from "@/lib/supabase/server";
-import { WEEKDAYS } from "@/lib/workout/types";
 import type { CalendarDay, MonthlyReport } from "./types";
 
 type SetLogRow = {
@@ -12,21 +13,13 @@ type SetLogRow = {
   workout_exercises: { target_sets: number } | { target_sets: number }[] | null;
 };
 
-type WaterLogRow = { amount_ml: number; logged_at: string };
-type MealLogRow = { meal_date: string };
-
-function pad(n: number) {
-  return String(n).padStart(2, "0");
+function pad(value: number) {
+  return String(value).padStart(2, "0");
 }
 
-/**
- * Real per-day status for one calendar month, aggregated across
- * body_entries / workout_set_logs / water_logs / meal_logs. `completionRate`
- * is a simple average of the four category percentages — a v1 formula, not
- * a tuned scoring model.
- */
 export async function getCalendarMonth(
   userId: string,
+  challenge: Challenge | null,
   year: number,
   month: number,
 ): Promise<{ days: CalendarDay[]; report: MonthlyReport }> {
@@ -34,9 +27,9 @@ export async function getCalendarMonth(
   const daysInMonth = new Date(year, month, 0).getDate();
   const start = `${year}-${pad(month)}-01`;
   const end = `${year}-${pad(month)}-${pad(daysInMonth)}`;
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = todayIsoDate();
 
-  const [bodyEntries, setLogsRes, waterLogsRes, mealLogsRes, notesByDate] = await Promise.all([
+  const [bodyEntries, setLogsRes, notesByDate, challengeLogs] = await Promise.all([
     getBodyEntries(userId),
     supabase
       .from("workout_set_logs")
@@ -44,154 +37,84 @@ export async function getCalendarMonth(
       .eq("user_id", userId)
       .gte("log_date", start)
       .lte("log_date", end),
-    supabase
-      .from("water_logs")
-      .select("amount_ml, logged_at")
-      .eq("user_id", userId)
-      .gte("logged_at", `${start}T00:00:00`)
-      .lte("logged_at", `${end}T23:59:59.999`),
-    supabase
-      .from("meal_logs")
-      .select("meal_date")
-      .eq("user_id", userId)
-      .gte("meal_date", start)
-      .lte("meal_date", end),
     getDailyNotesForRange(userId, start, end),
+    challenge ? getChallengeDayLogs(userId, challenge.id, start, end) : Promise.resolve([]),
   ]);
 
   if (setLogsRes.error) throw setLogsRes.error;
-  if (waterLogsRes.error) throw waterLogsRes.error;
-  if (mealLogsRes.error) throw mealLogsRes.error;
 
-  const bodyByDate = new Map(bodyEntries.map((e) => [e.date, e]));
+  const bodyByDate = new Map(bodyEntries.map((entry) => [entry.date, entry]));
+  const challengeLogByDate = new Map(challengeLogs.map((log) => [log.logDate, log]));
+  const partialByDate = new Map<string, { completed: number; total: number }>();
 
-  const workoutByDate = new Map<string, { done: number; target: number }>();
   for (const row of (setLogsRes.data ?? []) as SetLogRow[]) {
-    const target = Array.isArray(row.workout_exercises)
-      ? (row.workout_exercises[0]?.target_sets ?? row.sets.length)
-      : (row.workout_exercises?.target_sets ?? row.sets.length);
-    const done = row.sets.filter(Boolean).length;
-    const bucket = workoutByDate.get(row.log_date) ?? { done: 0, target: 0 };
-    bucket.done += done;
-    bucket.target += target;
-    workoutByDate.set(row.log_date, bucket);
-  }
-
-  const waterByDate = new Map<string, number>();
-  for (const row of (waterLogsRes.data ?? []) as WaterLogRow[]) {
-    const date = row.logged_at.slice(0, 10);
-    waterByDate.set(date, (waterByDate.get(date) ?? 0) + row.amount_ml);
-  }
-
-  const mealCountByDate = new Map<string, number>();
-  for (const row of (mealLogsRes.data ?? []) as MealLogRow[]) {
-    mealCountByDate.set(row.meal_date, (mealCountByDate.get(row.meal_date) ?? 0) + 1);
+    const relation = Array.isArray(row.workout_exercises) ? row.workout_exercises[0] : row.workout_exercises;
+    const target = relation?.target_sets ?? row.sets.length;
+    const bucket = partialByDate.get(row.log_date) ?? { completed: 0, total: 0 };
+    bucket.completed += row.sets.filter(Boolean).length;
+    bucket.total += target;
+    partialByDate.set(row.log_date, bucket);
   }
 
   const days: CalendarDay[] = [];
-  const rateByWeekday = new Map<string, number[]>();
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const isoDate = `${year}-${pad(month)}-${pad(d)}`;
+  for (let dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++) {
+    const isoDate = `${year}-${pad(month)}-${pad(dayOfMonth)}`;
     const isFuture = isoDate > todayIso;
+    const log = challengeLogByDate.get(isoDate);
+    const partial = partialByDate.get(isoDate);
+    const dayNumber = challenge ? challengeDayNumber(challenge.startDate, isoDate) : null;
+    const withinChallenge = dayNumber !== null && dayNumber >= 1 && dayNumber <= 100;
 
-    const workout = workoutByDate.get(isoDate);
-    const workoutPct = workout && workout.target > 0 ? (workout.done / workout.target) * 100 : 0;
-    const workoutDone = workoutPct > 0;
-
-    const waterMl = waterByDate.get(isoDate) ?? 0;
-    const waterPct = Math.min(100, (waterMl / water.goalMl) * 100);
-    const waterDone = waterMl >= water.goalMl;
-
-    const mealCount = mealCountByDate.get(isoDate) ?? 0;
-    const mealPct = Math.min(100, (mealCount / 4) * 100);
-    const mealDone = mealCount > 0;
-
-    const body = bodyByDate.get(isoDate);
-    const bodyPct = body && (body.front || body.side || body.back) ? 100 : 0;
-
-    const completionRate = isFuture
-      ? null
-      : dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
-
-    if (!isFuture) {
-      const weekday = WEEKDAYS[new Date(`${isoDate}T00:00:00`).getDay()];
-      const bucket = rateByWeekday.get(weekday) ?? [];
-      bucket.push(completionRate ?? 0);
-      rateByWeekday.set(weekday, bucket);
-    }
+    let status: CalendarDay["status"] = isFuture ? "future" : "empty";
+    if (!isFuture && log?.status === "workout") status = "workout";
+    else if (!isFuture && log?.status === "recovery") status = "recovery";
+    else if (!isFuture && partial && partial.completed > 0) status = "partial";
 
     days.push({
-      date: d,
+      date: dayOfMonth,
       isoDate,
       isToday: isoDate === todayIso,
-      completionRate,
-      workoutDone,
-      waterDone,
-      mealDone,
-      body,
+      challengeDay: withinChallenge ? dayNumber : null,
+      status,
+      completedSets: log?.completedSets ?? partial?.completed ?? 0,
+      totalSets: log?.totalSets ?? partial?.total ?? 0,
+      routineName: log?.routineName,
+      recoveryReason: log?.recoveryReason,
+      body: bodyByDate.get(isoDate),
       memo: notesByDate.get(isoDate),
     });
   }
 
-  const pastDays = days.filter((d) => d.completionRate !== null);
-  const avgCompletion =
-    pastDays.length === 0
-      ? 0
-      : Math.round(pastDays.reduce((sum, d) => sum + (d.completionRate ?? 0), 0) / pastDays.length);
-
-  let bestStreakDay: string | null = null;
-  let bestAvg = -1;
-  for (const [weekday, rates] of rateByWeekday) {
-    const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
-    if (avg > bestAvg) {
-      bestAvg = avg;
-      bestStreakDay = weekday;
-    }
-  }
-
   const report: MonthlyReport = {
-    avgCompletion,
-    workoutDays: pastDays.filter((d) => d.workoutDone).length,
-    waterGoalDays: pastDays.filter((d) => d.waterDone).length,
-    mealLogDays: pastDays.filter((d) => d.mealDone).length,
-    bodyPhotoDays: pastDays.filter((d) => d.body).length,
-    bestStreakDay: bestStreakDay ? `${bestStreakDay}요일` : null,
+    workoutDays: days.filter((day) => day.status === "workout").length,
+    recoveryDays: days.filter((day) => day.status === "recovery").length,
+    bodyPhotoDays: days.filter((day) => day.body).length,
+    completedSets: days.reduce((sum, day) => sum + day.completedSets, 0),
   };
 
   return { days, report };
 }
 
-export async function getCalendarMonthSafe(userId: string, year: number, month: number) {
+export async function getCalendarMonthSafe(userId: string, challenge: Challenge | null, year: number, month: number) {
   try {
-    return await getCalendarMonth(userId, year, month);
+    return await getCalendarMonth(userId, challenge, year, month);
   } catch (error) {
-    console.error("[calendar] getCalendarMonth failed, falling back to empty:", error);
+    console.error("[calendar] getCalendarMonth failed:", error);
     const daysInMonth = new Date(year, month, 0).getDate();
-    const todayIso = new Date().toISOString().slice(0, 10);
-    const days: CalendarDay[] = Array.from({ length: daysInMonth }, (_, i) => {
-      const d = i + 1;
-      const isoDate = `${year}-${pad(month)}-${pad(d)}`;
+    const todayIso = todayIsoDate();
+    const days: CalendarDay[] = Array.from({ length: daysInMonth }, (_, index) => {
+      const dayOfMonth = index + 1;
+      const isoDate = `${year}-${pad(month)}-${pad(dayOfMonth)}`;
       return {
-        date: d,
+        date: dayOfMonth,
         isoDate,
         isToday: isoDate === todayIso,
-        completionRate: isoDate > todayIso ? null : 0,
-        workoutDone: false,
-        waterDone: false,
-        mealDone: false,
+        challengeDay: challenge ? challengeDayNumber(challenge.startDate, isoDate) : null,
+        status: isoDate > todayIso ? "future" : "empty",
+        completedSets: 0,
+        totalSets: 0,
       };
     });
-    return {
-      days,
-      report: {
-        avgCompletion: 0,
-        workoutDays: 0,
-        waterGoalDays: 0,
-        mealLogDays: 0,
-        bodyPhotoDays: 0,
-        bestStreakDay: null,
-      } satisfies MonthlyReport,
-    };
+    return { days, report: { workoutDays: 0, recoveryDays: 0, bodyPhotoDays: 0, completedSets: 0 } satisfies MonthlyReport };
   }
 }

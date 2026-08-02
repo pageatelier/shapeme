@@ -29,7 +29,7 @@ export default function SignupPage() {
     }
 
     if (data.session) {
-      router.push("/");
+      router.push("/start");
       router.refresh();
     } else {
       setCheckEmail(true);
@@ -57,7 +57,7 @@ export default function SignupPage() {
           shapeme
         </p>
         <p className="text-[13px] text-text-secondary">
-          운동, 식단, 물, 눈바디를 한곳에서 기록해보세요.
+          100일 운동 프로그램과 눈바디 변화를 함께 기록해보세요.
         </p>
       </div>
 
