@@ -1,3 +1,4 @@
+import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntries } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { water } from "@/lib/mock-data";
@@ -34,7 +35,7 @@ export async function getCalendarMonth(
   const daysInMonth = new Date(year, month, 0).getDate();
   const start = `${year}-${pad(month)}-01`;
   const end = `${year}-${pad(month)}-${pad(daysInMonth)}`;
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = todayIsoDate();
 
   const [bodyEntries, setLogsRes, waterLogsRes, mealLogsRes, notesByDate] = await Promise.all([
     getBodyEntries(userId),
@@ -115,7 +116,7 @@ export async function getCalendarMonth(
       : dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
 
     if (!isFuture) {
-      const weekday = WEEKDAYS[new Date(`${isoDate}T00:00:00`).getDay()];
+      const weekday = WEEKDAYS[weekdayIndex(isoDate)];
       const bucket = rateByWeekday.get(weekday) ?? [];
       bucket.push(completionRate ?? 0);
       rateByWeekday.set(weekday, bucket);
@@ -168,7 +169,7 @@ export async function getCalendarMonthSafe(userId: string, year: number, month: 
   } catch (error) {
     console.error("[calendar] getCalendarMonth failed, falling back to empty:", error);
     const daysInMonth = new Date(year, month, 0).getDate();
-    const todayIso = new Date().toISOString().slice(0, 10);
+    const todayIso = todayIsoDate();
     const days: CalendarDay[] = Array.from({ length: daysInMonth }, (_, i) => {
       const d = i + 1;
       const isoDate = `${year}-${pad(month)}-${pad(d)}`;

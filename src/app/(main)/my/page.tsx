@@ -48,13 +48,28 @@ export default async function MyPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const metadata = (user?.user_metadata ?? {}) as { display_name?: string; avatar_url?: string };
+  const metadata = (user?.user_metadata ?? {}) as {
+    display_name?: string;
+    avatar_url?: string;
+    bio?: string;
+    height_cm?: number;
+    weight_kg?: number;
+  };
   const displayName = metadata.display_name || user?.email?.split("@")[0] || profile.nickname;
   const avatarUrl = metadata.avatar_url ?? null;
+  const bio = metadata.bio ?? null;
+  const heightCm = metadata.height_cm ?? null;
+  const weightKg = metadata.weight_kg ?? null;
 
   return (
     <div className="flex flex-col gap-6">
-      <ProfileHeader displayName={displayName} avatarUrl={avatarUrl} />
+      <ProfileHeader
+        displayName={displayName}
+        avatarUrl={avatarUrl}
+        bio={bio}
+        heightCm={heightCm}
+        weightKg={weightKg}
+      />
 
       <SettingsGroup title="나의 목표">
         <SettingsRow

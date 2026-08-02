@@ -5,9 +5,15 @@ const AVATAR_BUCKET = "avatars";
 export async function updateProfile({
   displayName,
   avatarFile,
+  bio,
+  heightCm,
+  weightKg,
 }: {
   displayName?: string;
   avatarFile?: File;
+  bio?: string;
+  heightCm?: number | null;
+  weightKg?: number | null;
 }) {
   const supabase = createClient();
   const {
@@ -35,6 +41,9 @@ export async function updateProfile({
     data: {
       ...(displayName !== undefined && { display_name: displayName }),
       ...(avatarUrl !== undefined && { avatar_url: avatarUrl }),
+      ...(bio !== undefined && { bio }),
+      ...(heightCm !== undefined && { height_cm: heightCm }),
+      ...(weightKg !== undefined && { weight_kg: weightKg }),
     },
   });
   if (error) throw error;

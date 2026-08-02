@@ -4,7 +4,7 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { SetDots } from "@/components/SetDots";
 import { TodayBodyCard } from "@/components/body/TodayBodyCard";
 import { CameraIcon, DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/icons";
-import { todayIsoDate } from "@/lib/body/date";
+import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getMealLogsSafe } from "@/lib/meal/queries";
@@ -28,7 +28,7 @@ export default async function TodayPage() {
   const todayBodyEntry = bodyEntries.find((e) => e.date === todayIso) ?? null;
 
   const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
-  const todayWeekday = WEEKDAYS[new Date(`${todayIso}T00:00:00`).getDay()];
+  const todayWeekday = WEEKDAYS[weekdayIndex(todayIso)];
   // Strict match only — if nothing is scheduled for today's weekday, that's
   // a real "no workout today", not a reason to fall back to some other routine.
   const todayRoutine = routines.find((r) => r.days.includes(todayWeekday)) ?? null;

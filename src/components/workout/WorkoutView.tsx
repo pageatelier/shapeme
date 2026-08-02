@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { EditIcon, PlusIcon } from "@/components/icons";
+import { weekdayIndex } from "@/lib/body/date";
 import { WEEKDAYS } from "@/lib/workout/types";
 import type { WorkoutRoutine } from "@/lib/workout/types";
 import { ExerciseCard } from "./ExerciseCard";
@@ -10,8 +11,7 @@ import { RoutineChips } from "./RoutineChips";
 import { RoutineForm } from "./RoutineForm";
 
 function todayWeekdayLabel(date: string) {
-  const d = new Date(`${date}T00:00:00`);
-  return WEEKDAYS[d.getDay()];
+  return WEEKDAYS[weekdayIndex(date)];
 }
 
 export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; date: string }) {
