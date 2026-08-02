@@ -85,8 +85,15 @@ export function StoryViewer({
       onClick={onClose}
     >
       <div
-        className="flex w-full max-w-[var(--container-sm)] flex-col gap-5 rounded-t-[28px] p-6 pb-8"
-        style={{ background: "var(--gradient-soft)", boxShadow: "var(--shadow-floating)" }}
+        className="flex w-full max-w-[var(--container-sm)] flex-col gap-5 rounded-t-[28px] p-6"
+        style={{
+          background: "var(--gradient-soft)",
+          boxShadow: "var(--shadow-floating)",
+          // Clears the fixed BottomNav pill (~72px tall incl. its own
+          // bottom-4 offset) plus breathing room, so the CTA never sits
+          // underneath it.
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 104px)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex gap-1.5">
