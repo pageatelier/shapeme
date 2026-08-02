@@ -6,16 +6,16 @@ import { WaterDropIcon, PlusIcon } from "@/components/icons";
 import { addWaterLog } from "@/lib/water/mutations";
 import type { WaterLog } from "@/lib/water/types";
 
-const presets = [100, 250, 500];
-
 export function WaterView({
   entries,
   totalMl,
   goalMl,
+  cupMl,
 }: {
   entries: WaterLog[];
   totalMl: number;
   goalMl: number;
+  cupMl: number;
 }) {
   const router = useRouter();
   const [localEntries, setLocalEntries] = useState(entries);
@@ -23,6 +23,7 @@ export function WaterView({
   const [pending, setPending] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const percent = Math.min(100, Math.round((localTotal / goalMl) * 100));
+  const presets = Array.from(new Set([cupMl, 250, 500])).filter((n) => n > 0);
 
   async function handleAdd(amount: number) {
     setPending(amount);

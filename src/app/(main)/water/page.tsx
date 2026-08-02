@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronLeftIcon } from "@/components/icons";
 import { WaterView } from "@/components/water/WaterView";
 import { todayIsoDate } from "@/lib/body/date";
-import { water as waterMock } from "@/lib/mock-data";
+import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
 import { getWaterLogsSafe } from "@/lib/water/queries";
 
@@ -12,6 +12,7 @@ export default async function WaterPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const settings = readSettings(user?.user_metadata);
   const { entries, totalMl } = user
     ? await getWaterLogsSafe(user.id, todayIsoDate())
     : { entries: [], totalMl: 0 };
@@ -29,7 +30,7 @@ export default async function WaterPage() {
         <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">물 마시기</h1>
       </div>
 
-      <WaterView entries={entries} totalMl={totalMl} goalMl={waterMock.goalMl} />
+      <WaterView entries={entries} totalMl={totalMl} goalMl={settings.waterGoalMl} cupMl={settings.cupMl} />
     </div>
   );
 }

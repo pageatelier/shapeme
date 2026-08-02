@@ -8,8 +8,9 @@ import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getMealLogsSafe } from "@/lib/meal/queries";
-import { completionMessages, today, water as waterGoalMock } from "@/lib/mock-data";
+import { completionMessages, today } from "@/lib/mock-data";
 import { getDailyNoteSafe } from "@/lib/notes/queries";
+import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
 import { getWaterLogsSafe } from "@/lib/water/queries";
 import { getRoutinesSafe } from "@/lib/workout/queries";
@@ -22,6 +23,7 @@ export default async function TodayPage() {
   } = await supabase.auth.getUser();
 
   const avatarUrl = (user?.user_metadata as { avatar_url?: string } | undefined)?.avatar_url ?? null;
+  const settings = readSettings(user?.user_metadata);
 
   const todayIso = todayIsoDate();
   const bodyEntries = user ? await getBodyEntriesSafe(user.id) : [];
@@ -38,7 +40,7 @@ export default async function TodayPage() {
   const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
 
   const water = user ? await getWaterLogsSafe(user.id, todayIso) : { entries: [], totalMl: 0 };
-  const waterPercent = Math.round((water.totalMl / waterGoalMock.goalMl) * 100);
+  const waterPercent = Math.round((water.totalMl / settings.waterGoalMl) * 100);
   const waterPct = Math.min(100, waterPercent);
 
   const meals = user
@@ -83,12 +85,14 @@ export default async function TodayPage() {
         </h1>
       </div>
 
-      <div className="glass-card flex items-start gap-3 p-6">
-        <HeartIcon className="mt-1 h-5 w-5 shrink-0 text-pink-500" />
-        <p className="text-[clamp(17px,4vw,20px)] leading-[1.65] font-light tracking-[-0.035em] text-text-primary">
-          {today.selfLoveMessage}
-        </p>
-      </div>
+      {settings.selfLoveMessageEnabled && (
+        <div className="glass-card flex items-start gap-3 p-6">
+          <HeartIcon className="mt-1 h-5 w-5 shrink-0 text-pink-500" />
+          <p className="text-[clamp(17px,4vw,20px)] leading-[1.65] font-light tracking-[-0.035em] text-text-primary">
+            {today.selfLoveMessage}
+          </p>
+        </div>
+      )}
 
       <div className="glass-card flex items-center gap-6 px-6 py-7">
         <ProgressRing percent={completionRate} />
@@ -203,7 +207,7 @@ export default async function TodayPage() {
           </p>
           <p className="font-en mb-2 text-xl font-semibold tracking-[-0.03em] text-text-primary">
             {water.totalMl.toLocaleString()}
-            <span className="text-xs font-medium text-text-muted"> / {waterGoalMock.goalMl.toLocaleString()}ml</span>
+            <span className="text-xs font-medium text-text-muted"> / {settings.waterGoalMl.toLocaleString()}ml</span>
           </p>
           <div className="mb-3 h-2 overflow-hidden rounded-full" style={{ background: "var(--progress-track)" }}>
             <div
@@ -212,7 +216,7 @@ export default async function TodayPage() {
             />
           </div>
           <div className="flex min-h-[34px] items-center justify-center rounded-full border text-xs font-semibold text-text-primary" style={{ borderColor: "rgba(86, 62, 58, 0.07)", background: "rgba(255,255,255,0.7)" }}>
-            + {waterGoalMock.cupMl}ml 추가
+            + {settings.cupMl}ml 추가
           </div>
         </Link>
       </section>

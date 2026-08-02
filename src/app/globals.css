@@ -205,6 +205,38 @@ body {
   margin-inline: auto;
   background: var(--color-bg);
   overflow: hidden;
+  transition: background var(--duration-normal) var(--ease-standard);
+}
+
+/* Dark mode — scoped to the app shell (not :root) so it applies purely from
+   the user's saved preference, without touching the root <html>/<body>. */
+.app-shell[data-theme="dark"] {
+  --color-bg: #1c1815;
+  --color-bg-warm: #211c18;
+  --color-bg-pink: #241c1f;
+
+  --color-text-primary: #f3ece8;
+  --color-text-secondary: #cabdb7;
+  --color-text-muted: #8f817b;
+  --color-text-disabled: #5f544f;
+
+  --color-success-soft: rgba(136, 165, 138, 0.18);
+  --color-warning-soft: rgba(223, 161, 102, 0.18);
+  --color-error-soft: rgba(203, 116, 128, 0.18);
+
+  --surface-card: rgba(38, 32, 29, 0.88);
+  --surface-soft: rgba(255, 255, 255, 0.06);
+  --surface-solid: #241f1c;
+
+  --glass-background: rgba(40, 34, 31, 0.58);
+  --glass-background-strong: rgba(40, 34, 31, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+
+  --border-soft: 1px solid rgba(255, 255, 255, 0.08);
+  --border-default: 1px solid rgba(255, 255, 255, 0.12);
+
+  --progress-track: rgba(255, 255, 255, 0.1);
 }
 
 .ambient-layer {

@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
-
-function Toggle({ defaultOn = false }: { defaultOn?: boolean }) {
-  const [on, setOn] = useState(defaultOn);
+function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
     <button
       type="button"
-      onClick={() => setOn((v) => !v)}
+      onClick={onToggle}
+      disabled={disabled}
       aria-pressed={on}
-      className="relative h-6 w-10 shrink-0 rounded-full transition-colors"
+      className="relative h-6 w-10 shrink-0 rounded-full transition-colors disabled:opacity-60"
       style={{ background: on ? "var(--gradient-primary)" : "var(--progress-track)" }}
     >
       <span
@@ -20,11 +18,21 @@ function Toggle({ defaultOn = false }: { defaultOn?: boolean }) {
   );
 }
 
-export function ToggleRow({ label, defaultOn }: { label: string; defaultOn?: boolean }) {
+export function ToggleRow({
+  label,
+  on,
+  onToggle,
+  disabled,
+}: {
+  label: string;
+  on: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between px-4 py-3.5">
       <span className="text-[13px] font-medium text-text-primary">{label}</span>
-      <Toggle defaultOn={defaultOn} />
+      <Toggle on={on} onToggle={onToggle} disabled={disabled} />
     </div>
   );
 }

@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { BodyThumb } from "@/components/body/BodyThumb";
 import type { CalendarDay } from "@/lib/calendar/types";
+import type { WeekStartDay } from "@/lib/settings/types";
 
-const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+const WEEKDAY_LABELS: Record<WeekStartDay, string[]> = {
+  sun: ["일", "월", "화", "수", "목", "금", "토"],
+  mon: ["월", "화", "수", "목", "금", "토", "일"],
+};
 
 function dayStyle(rate: number | null): CSSProperties {
   if (rate === null) {
@@ -26,10 +30,19 @@ function dayStyle(rate: number | null): CSSProperties {
   return { background: "var(--gradient-primary)", color: "var(--color-text-inverse)" };
 }
 
-export function CalendarGrid({ days, firstWeekday }: { days: CalendarDay[]; firstWeekday: number }) {
+export function CalendarGrid({
+  days,
+  firstWeekday,
+  weekStartDay = "sun",
+}: {
+  days: CalendarDay[];
+  firstWeekday: number;
+  weekStartDay?: WeekStartDay;
+}) {
   const todayEntry = days.find((d) => d.isToday);
   const [selectedIso, setSelectedIso] = useState(todayEntry?.isoDate ?? days[0]?.isoDate ?? null);
   const selectedDay = days.find((d) => d.isoDate === selectedIso) ?? null;
+  const weekdayLabels = WEEKDAY_LABELS[weekStartDay];
 
   return (
     <>

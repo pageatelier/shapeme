@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { getCalendarMonthSafe } from "@/lib/calendar/queries";
+import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
 
 function monthLink(year: number, month: number, offset: number) {
@@ -25,7 +26,9 @@ export default async function CalendarPage(props: {
     ? await getCalendarMonthSafe(user.id, year, month)
     : { days: [], report: { avgCompletion: 0, workoutDays: 0, waterGoalDays: 0, mealLogDays: 0, bodyPhotoDays: 0, bestStreakDay: null } };
 
-  const firstWeekday = new Date(year, month - 1, 1).getDay();
+  const settings = readSettings(user?.user_metadata);
+  const firstWeekdaySun = new Date(year, month - 1, 1).getDay();
+  const firstWeekday = settings.weekStartDay === "mon" ? (firstWeekdaySun + 6) % 7 : firstWeekdaySun;
 
   return (
     <div className="flex flex-col gap-5">
@@ -52,7 +55,7 @@ export default async function CalendarPage(props: {
         </Link>
       </div>
 
-      <CalendarGrid days={days} firstWeekday={firstWeekday} />
+      <CalendarGrid days={days} firstWeekday={firstWeekday} weekStartDay={settings.weekStartDay} />
 
       <section>
         <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">이번 달 리포트</p>
