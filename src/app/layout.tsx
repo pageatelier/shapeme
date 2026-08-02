@@ -60,12 +60,13 @@ export default function RootLayout({
   className={`${instrumentSans.variable} ${cormorantGaramond.variable} antialiased`}
   style={{ backgroundColor: "#faf7f3" }}
 >
-  <body
-    className="min-h-full"
-    style={{ backgroundColor: "#faf7f3" }}
-  >
-    {children}
-  </body>
+<body
+  className="min-h-full"
+  style={{ backgroundColor: "#faf7f3" }}
+>
+  <AppSplash />
+  {children}
+</body>
 </html>
   );
 }
