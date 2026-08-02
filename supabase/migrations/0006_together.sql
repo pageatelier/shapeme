@@ -333,13 +333,16 @@ begin
         -- waterPct: round THEN cap — matches
         -- Math.min(100, Math.round(totalMl / goalMl * 100)) exactly.
         -- nullif(...,0) guards a goal of exactly 0 (not just unset) from
-        -- dividing by zero and erroring the whole query.
-        + coalesce(
-            least(100, round((wt.total_ml::numeric / nullif(coalesce((u.raw_user_meta_data->>'water_goal_ml')::numeric, 2000), 0)) * 100)),
-            0
-          )
-        -- mealPct: Math.min(100, (filledCount / 4) * 100)
-        + coalesce(least(100, (ma.filled_count::numeric / 4) * 100), 0)
+        -- dividing by zero. Both arguments to least() are coalesced to a
+        -- real 0 first — least()/greatest() *ignore* NULL arguments rather
+        -- than propagating them (unlike almost everything else in SQL), so
+        -- least(100, NULL) evaluates to 100, not NULL. Feeding it a NULL
+        -- here silently turned "no water logged" into "100% of goal" —
+        -- found via live testing, see git history.
+        + least(100, coalesce(round((coalesce(wt.total_ml, 0)::numeric / nullif(coalesce((u.raw_user_meta_data->>'water_goal_ml')::numeric, 2000), 0)) * 100), 0))
+        -- mealPct: Math.min(100, (filledCount / 4) * 100) — same least()-
+        -- ignores-NULL fix as waterPct above.
+        + least(100, coalesce((ma.filled_count::numeric / 4) * 100, 0))
         -- bodyPct: 100 if any of front/side/back present, else 0
         + case when coalesce(ba.has_photo, false) then 100 else 0 end
       ) / 4
