@@ -13,6 +13,7 @@ export function StoryAvatar({
   displayName,
   avatarUrl,
   progress,
+  memo,
   isMe,
   onClick,
   ariaLabel,
@@ -21,6 +22,9 @@ export function StoryAvatar({
   avatarUrl: string | null;
   /** 0-100, or null when there's no activity today (renders a plain gray ring). */
   progress: number | null;
+  /** Today's memo, only when its author marked it public. Shown as a
+   * truncated speech bubble above the avatar. */
+  memo?: string | null;
   isMe?: boolean;
   onClick: () => void;
   ariaLabel: string;
@@ -39,6 +43,25 @@ export function StoryAvatar({
       aria-label={ariaLabel}
       className="flex w-16 shrink-0 flex-col items-center gap-1.5"
     >
+      {memo && (
+        <div className="relative mb-0.5 max-w-[68px]">
+          <div
+            className="truncate rounded-2xl px-2 py-1 text-center text-[10px] leading-tight font-medium text-text-primary"
+            style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+          >
+            {memo}
+          </div>
+          <div
+            className="absolute left-1/2 -bottom-[3px] h-1.5 w-1.5 -translate-x-1/2 rotate-45"
+            style={{
+              background: "var(--surface-card)",
+              borderRight: "var(--border-soft)",
+              borderBottom: "var(--border-soft)",
+            }}
+          />
+        </div>
+      )}
+
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
           <circle

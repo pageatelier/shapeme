@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { saveDailyNote } from "@/lib/notes/mutations";
+import type { DailyNote } from "@/lib/notes/queries";
 
-export function DailyMemo({ date, memo }: { date: string; memo: string | null }) {
+export function DailyMemo({ date, note }: { date: string; note: DailyNote }) {
   const router = useRouter();
-  const [value, setValue] = useState(memo ?? "");
+  const [value, setValue] = useState(note.memo ?? "");
+  const [isPublic, setIsPublic] = useState(note.isPublic);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export function DailyMemo({ date, memo }: { date: string; memo: string | null })
     setSaving(true);
     setError(null);
     try {
-      await saveDailyNote(date, value);
+      await saveDailyNote(date, value, isPublic);
       setSaved(true);
       router.refresh();
     } catch (err) {
@@ -25,18 +27,61 @@ export function DailyMemo({ date, memo }: { date: string; memo: string | null })
     }
   }
 
+  function markDirty() {
+    setSaved(false);
+  }
+
   return (
     <div className="surface-card p-4">
       <textarea
         value={value}
         onChange={(e) => {
           setValue(e.target.value);
-          setSaved(false);
+          markDirty();
         }}
         placeholder="오늘 가장 잘한 점은 무엇인가요?"
         rows={3}
         className="min-h-[44px] w-full resize-none bg-transparent text-[13px] leading-[1.6] text-text-secondary outline-none placeholder:text-text-disabled"
       />
+
+      <div className="mt-2 flex gap-1.5">
+        <button
+          type="button"
+          onClick={() => {
+            setIsPublic(false);
+            markDirty();
+          }}
+          className="rounded-full px-3 py-1 text-[11px] font-semibold"
+          style={
+            !isPublic
+              ? { background: "var(--gradient-primary)", color: "#fff" }
+              : { background: "var(--surface-soft)", color: "var(--color-text-muted)", border: "var(--border-soft)" }
+          }
+        >
+          나만 보기
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsPublic(true);
+            markDirty();
+          }}
+          className="rounded-full px-3 py-1 text-[11px] font-semibold"
+          style={
+            isPublic
+              ? { background: "var(--gradient-primary)", color: "#fff" }
+              : { background: "var(--surface-soft)", color: "var(--color-text-muted)", border: "var(--border-soft)" }
+          }
+        >
+          친구에게 공개
+        </button>
+      </div>
+      {isPublic && (
+        <p className="mt-1.5 text-[11px] leading-relaxed text-text-disabled">
+          친구 목록의 내 프로필 위에 짧게 보여요. 눈바디 사진·체중·운동 기록은 여전히 공개되지 않아요.
+        </p>
+      )}
+
       <div className="mt-2 flex items-center justify-between">
         <span className="text-[11px] text-text-disabled">
           {error ? <span className="text-error">{error}</span> : saved ? "저장됨" : "저장 안 됨"}

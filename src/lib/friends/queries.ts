@@ -8,6 +8,7 @@ type FriendRow = {
   today_progress: number;
   has_activity_today: boolean;
   cheered_by_me: boolean;
+  memo: string | null;
 };
 
 /** Today's cards for all of the current user's friends, via the
@@ -26,6 +27,7 @@ export async function getFriendsToday(): Promise<FriendCard[]> {
     todayProgress: row.today_progress,
     hasActivityToday: row.has_activity_today,
     cheeredByMe: row.cheered_by_me,
+    memo: row.memo,
   }));
 }
 

@@ -18,7 +18,7 @@ export function TogetherStories({
   me,
   friends,
 }: {
-  me: { displayName: string; avatarUrl: string | null; todayProgress: number };
+  me: { displayName: string; avatarUrl: string | null; todayProgress: number; memo: string | null };
   friends: FriendCard[];
 }) {
   const router = useRouter();
@@ -32,6 +32,7 @@ export function TogetherStories({
           displayName={me.displayName}
           avatarUrl={me.avatarUrl}
           progress={me.todayProgress}
+          memo={me.memo}
           isMe
           onClick={() => router.push("/my")}
           ariaLabel="내 프로필 — 친구 추가하러 가기"
@@ -43,6 +44,7 @@ export function TogetherStories({
             displayName={friend.displayName}
             avatarUrl={friend.avatarUrl}
             progress={friend.hasActivityToday ? friend.todayProgress : null}
+            memo={friend.memo}
             onClick={() => setOpenIndex(i)}
             ariaLabel={`${friend.displayName}의 오늘 기록 보기`}
           />

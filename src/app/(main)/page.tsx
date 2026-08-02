@@ -62,7 +62,8 @@ export default async function TodayPage() {
   const completionRate = dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
   const heroMessage = completionMessages.find((m) => completionRate >= m.min)?.message ?? "";
 
-  const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : null;
+  const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : { memo: null, isPublic: false };
+  const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
   const friends = user ? await getFriendsTodaySafe() : [];
   const cheerSenderIds = user ? await getCheersReceivedTodaySafe(user.id, todayIso) : [];
   const cheerSenderNames = cheerSenderIds.map(
@@ -74,7 +75,7 @@ export default async function TodayPage() {
       <HomeHeader cheerSenderNames={cheerSenderNames} />
 
       <TogetherStories
-        me={{ displayName, avatarUrl, todayProgress: completionRate }}
+        me={{ displayName, avatarUrl, todayProgress: completionRate, memo: myPublicMemo }}
         friends={friends}
       />
 
@@ -191,7 +192,7 @@ export default async function TodayPage() {
         <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
           오늘의 메모
         </p>
-        <DailyMemo date={todayIso} memo={dailyNote} />
+        <DailyMemo date={todayIso} note={dailyNote} />
       </section>
     </div>
   );

@@ -10,4 +10,8 @@ export type FriendCard = {
   todayProgress: number;
   hasActivityToday: boolean;
   cheeredByMe: boolean;
+  /** Only present when that friend explicitly marked today's memo public
+   * (daily_notes.is_public) — null otherwise, including when they simply
+   * didn't write one. */
+  memo: string | null;
 };
