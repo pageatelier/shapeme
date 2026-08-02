@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "shapeme",
+			"path": "."
+		},
+		{
+			"name": "public",
+			"path": "../../Downloads/ShapeMe-100days-v1-final/public"
+		},
+		{
+			"name": "src",
+			"path": "../../Downloads/ShapeMe-100days-v1-final/src"
+		}
+	],
+	"settings": {}
+}
