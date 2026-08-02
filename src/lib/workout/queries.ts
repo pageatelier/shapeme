@@ -32,14 +32,18 @@ function normalizeSets(sets: boolean[] | undefined, targetSets: number): boolean
 }
 
 /**
- * A user's routines with exercises and one day's set-completion. When a
- * challengeId is supplied, legacy routines stay untouched and are excluded
- * from the current 100-day program.
+ * A user's routines with exercises and one day's set-completion.
+ *
+ * - `challengeId` omitted (undefined): every routine regardless of program.
+ * - `challengeId` a string: only that 100-day program's routines.
+ * - `challengeId` explicitly `null`: only general routines with no program
+ *   attached — used for the default (no active challenge) workout view, so
+ *   a finished/archived challenge's old routines don't leak back in.
  */
 export async function getRoutines(
   userId: string,
   logDate: string,
-  challengeId?: string,
+  challengeId?: string | null,
 ): Promise<WorkoutRoutine[]> {
   const supabase = await createClient();
 
@@ -49,6 +53,7 @@ export async function getRoutines(
     .eq("user_id", userId)
     .order("order_index", { ascending: true });
   if (challengeId) routineQuery = routineQuery.eq("challenge_id", challengeId);
+  else if (challengeId === null) routineQuery = routineQuery.is("challenge_id", null);
 
   const { data: routineRows, error: routineError } = await routineQuery;
   if (routineError) throw routineError;
@@ -107,7 +112,7 @@ export async function getRoutines(
   }));
 }
 
-export async function getRoutinesSafe(userId: string, logDate: string, challengeId?: string) {
+export async function getRoutinesSafe(userId: string, logDate: string, challengeId?: string | null) {
   try {
     return await getRoutines(userId, logDate, challengeId);
   } catch (error) {

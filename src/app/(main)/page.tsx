@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { DailyMemo } from "@/components/DailyMemo";
+import { ProgressRing } from "@/components/ProgressRing";
+import { SetDots } from "@/components/SetDots";
 import { TodayBodyCard } from "@/components/body/TodayBodyCard";
 import { TodayPlanCard } from "@/components/challenge/TodayPlanCard";
 import { HeartIcon } from "@/components/icons";
@@ -7,8 +10,11 @@ import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { addDays, challengeDayNumber, challengePhase } from "@/lib/challenge/date";
 import { getActiveChallengeSafe, getChallengeDayLogsSafe } from "@/lib/challenge/queries";
 import { GOAL_LABELS } from "@/lib/challenge/types";
+import { completionMessages, today } from "@/lib/mock-data";
+import { getDailyNoteSafe } from "@/lib/notes/queries";
 import { createClient } from "@/lib/supabase/server";
 import { getRoutinesSafe } from "@/lib/workout/queries";
+import { WEEKDAYS } from "@/lib/workout/types";
 
 // Monday-start week containing `dateIso`, computed with UTC-anchored
 // calendar math only (see weekdayIndex/addDays) — never through an
@@ -33,19 +39,106 @@ export default async function TodayPage() {
   const todayBodyEntry = bodyEntries.find((entry) => entry.date === todayIso) ?? null;
   const challenge = user ? await getActiveChallengeSafe(user.id) : null;
 
+  // No active 100-day program: the plain, ongoing self-management dashboard.
+  // The challenge is an opt-in extra, reachable from the card at the bottom
+  // (and from My) rather than something new users are forced through.
   if (!challenge) {
+    const todayWeekday = WEEKDAYS[weekdayIndex(todayIso)];
+    const routines = user ? await getRoutinesSafe(user.id, todayIso, null) : [];
+    const todayRoutine = routines.find((routine) => routine.days.includes(todayWeekday)) ?? null;
+    const todayExercises = todayRoutine?.exercises ?? [];
+    const workoutDoneSets = todayExercises.reduce((sum, exercise) => sum + exercise.sets.filter(Boolean).length, 0);
+    const workoutTotalSets = todayExercises.reduce((sum, exercise) => sum + exercise.targetSets, 0);
+    const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
+    const bodyPct = todayBodyEntry && (todayBodyEntry.front || todayBodyEntry.side || todayBodyEntry.back) ? 100 : 0;
+    const completionRate = Math.round((workoutPct + bodyPct) / 2);
+    const heroMessage = completionMessages.find((message) => completionRate >= message.min)?.message ?? "";
+    const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : null;
+
     return (
       <div className="flex flex-col gap-5">
         <Header avatarUrl={avatarUrl} />
-        <section className="glass-card overflow-hidden p-7">
-          <p className="font-en mb-3 text-[11px] font-semibold tracking-[0.13em] text-pink-500 uppercase">Shape Me in 100 Days</p>
-          <h1 className="mb-3 text-[31px] leading-[1.18] font-bold tracking-[-0.06em] text-text-primary">나를 위한 100일을 시작해볼까요?</h1>
-          <p className="mb-7 text-[14px] leading-[1.75] text-text-secondary">현재 상태와 목표를 등록하면 반복해서 수행할 100일 운동 프로그램을 만들어드려요.</p>
-          <Link href="/start" className="flex min-h-[54px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}>
-            나의 100일 프로그램 만들기
+
+        <TodayBodyCard entry={todayBodyEntry} />
+
+        <div>
+          <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
+            {today.dateLabel}
+          </p>
+          <h1 className="text-[clamp(22px,5vw,26px)] leading-[1.3] font-bold tracking-[-0.04em] whitespace-pre-line text-text-primary">
+            {today.greeting}
+          </h1>
+        </div>
+
+        <div className="glass-card flex items-start gap-3 p-6">
+          <HeartIcon className="mt-1 h-5 w-5 shrink-0 text-pink-500" />
+          <p className="text-[clamp(17px,4vw,20px)] leading-[1.65] font-light tracking-[-0.035em] text-text-primary">
+            {today.selfLoveMessage}
+          </p>
+        </div>
+
+        <div className="glass-card flex items-center gap-6 px-6 py-7">
+          <ProgressRing percent={completionRate} />
+          <div>
+            <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
+              today&apos;s progress
+            </p>
+            <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
+              오늘 {completionRate}% 완료했어요
+            </p>
+            <p className="text-[13px] leading-[1.55] tracking-[-0.01em] text-text-secondary">{heroMessage}</p>
+          </div>
+        </div>
+
+        <section>
+          <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
+            오늘의 운동 {todayRoutine && <span className="text-text-muted">· {todayRoutine.name}</span>}
+            <Link href="/workout" className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase">
+              edit
+            </Link>
+          </div>
+          <div className="flex flex-col gap-3">
+            {todayExercises.length === 0 && (
+              <Link href="/workout" className="surface-card p-4 text-center text-[13px] text-text-muted">
+                {routines.length === 0
+                  ? "아직 운동 루틴이 없어요. 눌러서 만들어보세요."
+                  : "오늘 요일에 예정된 루틴이 없어요."}
+              </Link>
+            )}
+            {todayExercises.map((exercise) => (
+              <div key={exercise.id} className="surface-card flex items-center gap-4 p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">{exercise.name}</p>
+                  <p className="text-[13px] text-text-muted">
+                    {exercise.sets.filter(Boolean).length} / {exercise.targetSets}세트 · {exercise.targetReps}회
+                  </p>
+                </div>
+                <SetDots sets={exercise.sets} />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
+            오늘의 메모
+          </p>
+          <DailyMemo date={todayIso} memo={dailyNote} />
+        </section>
+
+        <section className="glass-card p-6 text-center">
+          <p className="mb-1 text-[15px] font-bold text-text-primary">나를 위한 100일을 시작해볼까요?</p>
+          <p className="mb-5 text-[13px] leading-relaxed text-text-secondary">
+            현재 상태와 목표를 등록하면 반복해서 수행할 100일 운동 프로그램을 만들어드려요. 언제든 시작할 수 있어요.
+          </p>
+          <Link
+            href="/start"
+            className="flex min-h-[50px] items-center justify-center rounded-full text-[14px] font-bold text-text-inverse"
+            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+          >
+            100일 챌린지 시작하기
           </Link>
         </section>
-        <TodayBodyCard entry={todayBodyEntry} />
       </div>
     );
   }
