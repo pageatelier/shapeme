@@ -36,7 +36,7 @@ export default async function MyPage() {
 
   const myFriendCode = user ? await getMyFriendCode(user.id) : null;
   const friends = user ? await getFriendsTodaySafe() : [];
-  const cheersToday = user ? await getCheersReceivedTodaySafe(user.id, todayIsoDate()) : 0;
+  const cheerSenderIds = user ? await getCheersReceivedTodaySafe(user.id, todayIsoDate()) : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,7 +48,7 @@ export default async function MyPage() {
         weightKg={weightKg}
       />
 
-      <CheersReceivedCard count={cheersToday} />
+      <CheersReceivedCard count={cheerSenderIds.length} />
 
       <GoalsSettings settings={settings} />
 

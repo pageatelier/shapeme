@@ -52,16 +52,20 @@ export async function getMyFriendCode(userId: string): Promise<string | null> {
   return data?.friend_code ?? null;
 }
 
-export async function getCheersReceivedTodaySafe(userId: string, dateIso: string): Promise<number> {
+/** Sender ids of today's received cheers — count is just .length. Returning
+ * the ids (not just a count) lets callers resolve them against an
+ * already-fetched friends list to show "OOO님이 응원했어요" without a
+ * second cross-user lookup. */
+export async function getCheersReceivedTodaySafe(userId: string, dateIso: string): Promise<string[]> {
   const supabase = await createClient();
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from("cheers")
-    .select("id", { count: "exact", head: true })
+    .select("sender_id")
     .eq("receiver_id", userId)
     .eq("cheer_date", dateIso);
   if (error) {
     console.error("[friends] getCheersReceivedToday failed:", error);
-    return 0;
+    return [];
   }
-  return count ?? 0;
+  return (data ?? []).map((row) => row.sender_id as string);
 }

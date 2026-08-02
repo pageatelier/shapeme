@@ -19,10 +19,6 @@ export function TogetherStories({
 
   return (
     <section>
-      <p className="font-en mb-3 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
-        Together
-      </p>
-
       <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-1">
         <StoryAvatar
           displayName={me.displayName}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
+import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { ProgressRing } from "@/components/ProgressRing";
@@ -10,7 +11,7 @@ import { TogetherStories } from "@/components/together/TogetherStories";
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
-import { getFriendsTodaySafe } from "@/lib/friends/queries";
+import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
@@ -65,31 +66,21 @@ export default async function TodayPage() {
 
   const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : null;
   const friends = user ? await getFriendsTodaySafe() : [];
+  const cheerSenderIds = user ? await getCheersReceivedTodaySafe(user.id, todayIso) : [];
+  const cheerSenderNames = cheerSenderIds.map(
+    (id) => friends.find((f) => f.friendId === id)?.displayName ?? "친구",
+  );
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <span className="font-en text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
-          shapeme
-        </span>
-        <Link
-          href="/my"
-          className="block h-10 w-10 overflow-hidden rounded-full"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-xs)" }}
-        >
-          {avatarUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="프로필 사진" className="h-full w-full object-cover" />
-          )}
-        </Link>
-      </div>
-
-      <TodayBodyCard entry={todayBodyEntry} />
+      <HomeHeader cheerSenderNames={cheerSenderNames} />
 
       <TogetherStories
         me={{ displayName, avatarUrl, todayProgress: completionRate }}
         friends={friends}
       />
+
+      <TodayBodyCard entry={todayBodyEntry} />
 
       <div>
         <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
