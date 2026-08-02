@@ -9,6 +9,7 @@ import { DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/i
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
+import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
 import { completionMessages, today } from "@/lib/mock-data";
@@ -25,10 +26,13 @@ export default async function TodayPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const avatarUrl = (user?.user_metadata as { avatar_url?: string } | undefined)?.avatar_url ?? null;
+  const metadata = user?.user_metadata as { avatar_url?: string; display_name?: string } | undefined;
+  const avatarUrl = metadata?.avatar_url ?? null;
+  const displayName = metadata?.display_name || "나";
   const settings = readSettings(user?.user_metadata);
 
   const todayIso = todayIsoDate();
+  const dailyMessage = getDailyMessage(todayIso);
   const bodyEntries = user ? await getBodyEntriesSafe(user.id) : [];
   const todayBodyEntry = bodyEntries.find((e) => e.date === todayIso) ?? null;
 
@@ -83,8 +87,11 @@ export default async function TodayPage() {
         <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
           {today.dateLabel}
         </p>
-        <h1 className="text-[clamp(22px,5vw,26px)] leading-[1.3] font-bold tracking-[-0.04em] whitespace-pre-line text-text-primary">
-          {today.greeting}
+        <p className="text-[15px] leading-[1.5] tracking-[-0.02em] text-text-secondary">
+          세상에서 가장 소중한 <span className="font-bold text-text-primary">{displayName}</span>님 🌷
+        </p>
+        <h1 className="mt-1 text-[clamp(22px,5vw,26px)] leading-[1.3] font-bold tracking-[-0.04em] text-text-primary">
+          {dailyMessage}
         </h1>
       </div>
 
