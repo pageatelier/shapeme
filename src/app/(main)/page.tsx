@@ -2,19 +2,23 @@ import Link from "next/link";
 import { TodayBodyCard } from "@/components/body/TodayBodyCard";
 import { TodayPlanCard } from "@/components/challenge/TodayPlanCard";
 import { HeartIcon } from "@/components/icons";
-import { todayIsoDate } from "@/lib/body/date";
+import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
-import { challengeDayNumber, challengePhase } from "@/lib/challenge/date";
+import { addDays, challengeDayNumber, challengePhase } from "@/lib/challenge/date";
 import { getActiveChallengeSafe, getChallengeDayLogsSafe } from "@/lib/challenge/queries";
 import { GOAL_LABELS } from "@/lib/challenge/types";
 import { createClient } from "@/lib/supabase/server";
 import { getRoutinesSafe } from "@/lib/workout/queries";
 
+// Monday-start week containing `dateIso`, computed with UTC-anchored
+// calendar math only (see weekdayIndex/addDays) — never through an
+// ambient-local-timezone `new Date(...).toISOString()` round trip, which
+// silently returns the wrong day once the server (or a Korean dev machine)
+// isn't running in UTC.
 function startOfWeekIso(dateIso: string) {
-  const date = new Date(`${dateIso}T00:00:00`);
-  const diff = date.getDay() === 0 ? 6 : date.getDay() - 1;
-  date.setDate(date.getDate() - diff);
-  return date.toISOString().slice(0, 10);
+  const day = weekdayIndex(dateIso);
+  const diff = day === 0 ? 6 : day - 1;
+  return addDays(dateIso, -diff);
 }
 
 export default async function TodayPage() {

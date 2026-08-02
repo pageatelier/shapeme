@@ -34,3 +34,16 @@ export function formatDateLabel(iso: string): string {
   const [, month, day] = iso.split("-");
   return `${Number(month)}월 ${Number(day)}일`;
 }
+
+/**
+ * Day of week for a YYYY-MM-DD date string: 0 = Sunday ... 6 = Saturday.
+ * Calendar dates have no timezone of their own, so this parses the Y/M/D
+ * components straight into `Date.UTC` and reads them back with the UTC
+ * getter — never touching the runtime's local timezone. Prefer this over
+ * `new Date(iso + "T00:00:00").getDay()`, which silently depends on
+ * whatever timezone the process happens to run in.
+ */
+export function weekdayIndex(iso: string): number {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+}
