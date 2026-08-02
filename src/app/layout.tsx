@@ -45,6 +45,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#faf7f3",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -53,11 +54,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ko"
-      className={`${instrumentSans.variable} ${cormorantGaramond.variable} antialiased`}
-    >
-      <body className="min-h-full">{children}</body>
-    </html>
+<html
+  lang="ko"
+  className={`${instrumentSans.variable} ${cormorantGaramond.variable} antialiased`}
+  style={{ backgroundColor: "#faf7f3" }}
+>
+  <body
+    className="min-h-full"
+    style={{ backgroundColor: "#faf7f3" }}
+  >
+    {children}
+  </body>
+</html>
   );
 }

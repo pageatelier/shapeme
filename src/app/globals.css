@@ -281,3 +281,17 @@ body {
   padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
   padding-left: calc(1.25rem + env(safe-area-inset-left));
 }
+
+html,
+body {
+  min-height: 100%;
+  background-color: #faf7f3;
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+  background-color: #faf7f3;
+  color-scheme: light;
+}
