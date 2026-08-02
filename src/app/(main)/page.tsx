@@ -6,9 +6,11 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { SetDots } from "@/components/SetDots";
 import { TodayBodyCard } from "@/components/body/TodayBodyCard";
 import { DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/icons";
+import { TogetherStories } from "@/components/together/TogetherStories";
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
+import { getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
@@ -62,6 +64,7 @@ export default async function TodayPage() {
   const heroMessage = completionMessages.find((m) => completionRate >= m.min)?.message ?? "";
 
   const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : null;
+  const friends = user ? await getFriendsTodaySafe() : [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -82,6 +85,11 @@ export default async function TodayPage() {
       </div>
 
       <TodayBodyCard entry={todayBodyEntry} />
+
+      <TogetherStories
+        me={{ displayName, avatarUrl, todayProgress: completionRate }}
+        friends={friends}
+      />
 
       <div>
         <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">

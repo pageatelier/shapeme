@@ -6,6 +6,10 @@ import { LogoutButton } from "@/components/my/LogoutButton";
 import { ProfileHeader } from "@/components/my/ProfileHeader";
 import { RoutineSettings } from "@/components/my/RoutineSettings";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
+import { CheersReceivedCard } from "@/components/together/CheersReceivedCard";
+import { InviteFriendSheet } from "@/components/together/InviteFriendSheet";
+import { todayIsoDate } from "@/lib/body/date";
+import { getCheersReceivedTodaySafe, getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
 import { profile } from "@/lib/mock-data";
 import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
@@ -30,6 +34,10 @@ export default async function MyPage() {
   const weightKg = metadata.weight_kg ?? null;
   const settings = readSettings(user?.user_metadata);
 
+  const myFriendCode = user ? await getMyFriendCode(user.id) : null;
+  const friends = user ? await getFriendsTodaySafe() : [];
+  const cheersToday = user ? await getCheersReceivedTodaySafe(user.id, todayIsoDate()) : 0;
+
   return (
     <div className="flex flex-col gap-6">
       <ProfileHeader
@@ -40,9 +48,13 @@ export default async function MyPage() {
         weightKg={weightKg}
       />
 
+      <CheersReceivedCard count={cheersToday} />
+
       <GoalsSettings settings={settings} />
 
       <RoutineSettings settings={settings} />
+
+      <InviteFriendSheet myCode={myFriendCode} friends={friends} />
 
       <SettingsGroup title="사진 및 데이터">
         <StaticRow label="사진 공개 범위" value="비공개" />
