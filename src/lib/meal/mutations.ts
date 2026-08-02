@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/image/compress";
 import { createClient } from "@/lib/supabase/client";
 import type { Fullness, MealType } from "./types";
 
@@ -24,12 +25,18 @@ export async function uploadMealPhoto({
   } = await supabase.auth.getUser();
   if (!user) throw new Error("로그인이 필요해요.");
 
-  const ext = extensionFor(file);
-  const path = `${user.id}/${date}/${mealType}.${ext}`;
+  const compressed = await compressImage(file);
+  const ext = extensionFor(compressed);
+  // Unique per upload (like body photos) so a long cache-control is safe.
+  const path = `${user.id}/${date}/${mealType}-${Date.now()}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, file, { upsert: true, contentType: file.type || undefined });
+    .upload(path, compressed, {
+      upsert: true,
+      contentType: compressed.type || undefined,
+      cacheControl: "31536000",
+    });
   if (uploadError) throw uploadError;
 
   const { error } = await supabase

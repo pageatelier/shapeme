@@ -1,12 +1,18 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
 import type { FriendCard } from "@/lib/friends/types";
 import { StoryAvatar } from "./StoryAvatar";
-import { StoryViewer } from "./StoryViewer";
+
+// Only mounted once a friend avatar is tapped, so its JS (+ CheerPanel)
+// ships in its own chunk instead of Home's initial bundle.
+const StoryViewer = dynamic(() => import("./StoryViewer").then((m) => m.StoryViewer), {
+  ssr: false,
+});
 
 export function TogetherStories({
   me,

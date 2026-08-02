@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronLeftIcon } from "@/components/icons";
 import { BodyCapture } from "@/components/body/BodyCapture";
-import { BodyCompare } from "@/components/body/BodyCompare";
+import { BodyCompare } from "@/components/body/BodyCompareLazy";
 import { BodyTimeline } from "@/components/body/BodyTimeline";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
 import { bodyLog } from "@/lib/mock-data";

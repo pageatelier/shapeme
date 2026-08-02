@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { BodyThumb } from "@/components/body/BodyThumb";
 import type { BodyEntry } from "@/lib/body/types";
+
+const PAGE_SIZE = 20;
 
 function monthLabel(date: string) {
   const [, m] = date.split("-");
@@ -8,9 +13,14 @@ function monthLabel(date: string) {
 }
 
 export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+  const visible = sorted.slice(0, visibleCount);
+  const hasMore = sorted.length > visible.length;
+
   const groups = new Map<string, BodyEntry[]>();
-  for (const entry of sorted) {
+  for (const entry of visible) {
     const key = monthLabel(entry.date);
     const bucket = groups.get(key);
     if (bucket) {
@@ -59,6 +69,17 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
           </div>
         ))}
       </div>
+
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
+          className="mt-4 w-full rounded-full py-3 text-center text-[13px] font-semibold text-text-secondary"
+          style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+        >
+          더 보기
+        </button>
+      )}
     </section>
   );
 }

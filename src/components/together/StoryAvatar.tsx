@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useId } from "react";
 import { CheckIcon, PlusIcon } from "@/components/icons";
 
@@ -76,8 +77,7 @@ export function StoryAvatar({
           style={{ inset: STROKE + 2, background: "var(--gradient-primary)" }}
         >
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            <Image src={avatarUrl} alt="" fill sizes="56px" className="object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-[15px] font-bold text-text-inverse">
               {initial}

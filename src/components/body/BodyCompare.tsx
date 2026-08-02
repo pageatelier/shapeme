@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 
@@ -87,7 +88,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
 
   return (
     <div
-      className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-[var(--radius-md)] text-[11px] text-text-inverse"
+      className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-[var(--radius-md)] text-[11px] text-text-inverse"
       style={
         filled
           ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
@@ -95,8 +96,13 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
       }
     >
       {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt={`${slot} 비교 사진`} className="h-full w-full object-cover" />
+        <Image
+          src={imageUrl}
+          alt={`${slot} 비교 사진`}
+          fill
+          sizes="(max-width: 480px) 45vw, 200px"
+          className="object-cover"
+        />
       ) : filled ? (
         ""
       ) : (

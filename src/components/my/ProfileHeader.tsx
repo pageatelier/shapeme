@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { CameraIcon } from "@/components/icons";
 import { updateProfile } from "@/lib/profile/mutations";
 
@@ -75,12 +76,11 @@ export function ProfileHeader({
     return (
       <button type="button" onClick={() => setEditing(true)} className="flex items-center gap-4 text-left">
         <div
-          className="h-16 w-16 shrink-0 overflow-hidden rounded-full"
+          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
         >
           {avatarUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="프로필 사진" className="h-full w-full object-cover" />
+            <Image src={avatarUrl} alt="프로필 사진" fill sizes="64px" className="object-cover" />
           )}
         </div>
         <div className="min-w-0">

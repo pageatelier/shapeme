@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/image/compress";
 import { createClient } from "@/lib/supabase/client";
 
 const AVATAR_BUCKET = "avatars";
@@ -23,11 +24,16 @@ export async function updateProfile({
 
   let avatarUrl: string | undefined;
   if (avatarFile) {
-    const ext = avatarFile.name.split(".").pop() || "jpg";
+    const compressed = await compressImage(avatarFile);
+    const ext = compressed.name.split(".").pop() || "jpg";
     const path = `${user.id}/avatar.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from(AVATAR_BUCKET)
-      .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type || undefined });
+      .upload(path, compressed, {
+        upsert: true,
+        contentType: compressed.type || undefined,
+        cacheControl: "31536000",
+      });
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path);

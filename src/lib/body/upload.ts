@@ -1,3 +1,4 @@
+import { compressImage } from "@/lib/image/compress";
 import { createClient } from "@/lib/supabase/client";
 import { BODY_PHOTOS_BUCKET, bodyPhotoPath } from "./storage";
 import type { BodyPhotoSlot } from "./types";
@@ -39,12 +40,17 @@ export async function uploadBodyPhoto({
   } = await supabase.auth.getUser();
   if (!user) throw new Error("로그인이 필요해요.");
 
-  const ext = extensionFor(file);
+  const compressed = await compressImage(file);
+  const ext = extensionFor(compressed);
   const path = bodyPhotoPath(user.id, date, slot, ext);
 
   const { error: uploadError } = await supabase.storage
     .from(BODY_PHOTOS_BUCKET)
-    .upload(path, file, { upsert: true, contentType: file.type || undefined });
+    .upload(path, compressed, {
+      upsert: true,
+      contentType: compressed.type || undefined,
+      cacheControl: "31536000",
+    });
   if (uploadError) throw uploadError;
 
   const { error: upsertError } = await supabase

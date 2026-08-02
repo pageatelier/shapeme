@@ -1,5 +1,5 @@
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
-import { getBodyEntries } from "@/lib/body/queries";
+import { getBodyEntriesInRange } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { water } from "@/lib/mock-data";
 import { getDailyNotesForRange } from "@/lib/notes/queries";
@@ -38,7 +38,7 @@ export async function getCalendarMonth(
   const todayIso = todayIsoDate();
 
   const [bodyEntries, setLogsRes, waterLogsRes, mealLogsRes, notesByDate] = await Promise.all([
-    getBodyEntries(userId),
+    getBodyEntriesInRange(userId, start, end),
     supabase
       .from("workout_set_logs")
       .select("log_date, sets, workout_exercises(target_sets)")

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Toast } from "@/components/Toast";
@@ -114,12 +115,11 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className="h-8 w-8 shrink-0 overflow-hidden rounded-full"
+                        className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full"
                         style={{ background: "var(--gradient-primary)" }}
                       >
                         {friend.avatarUrl && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={friend.avatarUrl} alt="" className="h-full w-full object-cover" />
+                          <Image src={friend.avatarUrl} alt="" fill sizes="32px" className="object-cover" />
                         )}
                       </div>
                       <span className="text-[13px] font-medium text-text-primary">{friend.displayName}</span>

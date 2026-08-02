@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CameraIcon, PlusIcon } from "@/components/icons";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 
@@ -23,7 +24,7 @@ export function BodyThumb({
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
-        className="flex items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
+        className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
         style={{
           width: size,
           height: size,
@@ -35,8 +36,13 @@ export function BodyThumb({
         }}
       >
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={`${slotLabel[slot]} 사진`} className="h-full w-full object-cover" />
+          <Image
+            src={imageUrl}
+            alt={`${slotLabel[slot]} 사진`}
+            fill
+            sizes={`${size}px`}
+            className="object-cover"
+          />
         ) : filled ? (
           <CameraIcon className="h-1/2 w-1/2" />
         ) : (

@@ -8,7 +8,7 @@ import { SetDots } from "@/components/SetDots";
 import { DumbbellIcon, HeartIcon, MealIcon, WaterDropIcon } from "@/components/icons";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { todayIsoDate, weekdayIndex } from "@/lib/body/date";
-import { getBodyEntriesSafe } from "@/lib/body/queries";
+import { getBodyEntryByDateSafe } from "@/lib/body/queries";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
@@ -35,8 +35,7 @@ export default async function TodayPage() {
 
   const todayIso = todayIsoDate();
   const dailyMessage = getDailyMessage(todayIso);
-  const bodyEntries = user ? await getBodyEntriesSafe(user.id) : [];
-  const todayBodyEntry = bodyEntries.find((e) => e.date === todayIso) ?? null;
+  const todayBodyEntry = user ? await getBodyEntryByDateSafe(user.id, todayIso) : null;
 
   const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
   const todayWeekday = WEEKDAYS[weekdayIndex(todayIso)];

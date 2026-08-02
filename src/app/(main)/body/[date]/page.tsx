@@ -1,7 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeftIcon } from "@/components/icons";
-import { getBodyEntriesSafe } from "@/lib/body/queries";
+import { getBodyEntryByDateSafe } from "@/lib/body/queries";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,8 +21,7 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const entries = await getBodyEntriesSafe(user.id);
-  const entry = entries.find((e) => e.date === date);
+  const entry = await getBodyEntryByDateSafe(user.id, date);
   if (!entry) notFound();
 
   return (
@@ -50,7 +50,7 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
             return (
               <div key={slot.id} className="flex flex-col items-center gap-2">
                 <div
-                  className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
+                  className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
                   style={
                     filled
                       ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
@@ -58,8 +58,13 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
                   }
                 >
                   {imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imageUrl} alt={`${slot.label} 사진`} className="h-full w-full object-cover" />
+                    <Image
+                      src={imageUrl}
+                      alt={`${slot.label} 사진`}
+                      fill
+                      sizes="(max-width: 480px) 30vw, 140px"
+                      className="object-cover"
+                    />
                   )}
                 </div>
                 <span className="font-en text-[11px] font-semibold text-text-secondary lowercase">
