@@ -148,3 +148,11 @@ export function ChevronDownIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function ChevronUpIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M5 15l7-7 7 7" />
+    </svg>
+  );
+}

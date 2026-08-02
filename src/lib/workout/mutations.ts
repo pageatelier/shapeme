@@ -107,6 +107,25 @@ export async function deleteExercise(id: string) {
   if (error) throw error;
 }
 
+/** Swaps two exercises' order_index so they trade places in the list. */
+export async function swapExerciseOrder(
+  a: { id: string; orderIndex: number },
+  b: { id: string; orderIndex: number },
+) {
+  const { supabase } = await requireUserId();
+  const { error: firstError } = await supabase
+    .from("workout_exercises")
+    .update({ order_index: b.orderIndex })
+    .eq("id", a.id);
+  if (firstError) throw firstError;
+
+  const { error: secondError } = await supabase
+    .from("workout_exercises")
+    .update({ order_index: a.orderIndex })
+    .eq("id", b.id);
+  if (secondError) throw secondError;
+}
+
 export async function saveSetLog({
   exerciseId,
   date,

@@ -1,24 +1,33 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SetDots } from "@/components/SetDots";
-import { EditIcon } from "@/components/icons";
-import { saveSetLog } from "@/lib/workout/mutations";
+import { ChevronDownIcon, ChevronUpIcon, EditIcon } from "@/components/icons";
+import { saveSetLog, swapExerciseOrder } from "@/lib/workout/mutations";
 import type { WorkoutExercise } from "@/lib/workout/types";
 import { ExerciseForm } from "./ExerciseForm";
+
+type Neighbor = { id: string; orderIndex: number };
 
 export function ExerciseCard({
   exercise,
   date,
   orderIndex,
+  prev,
+  next,
 }: {
   exercise: WorkoutExercise;
   date: string;
   orderIndex: number;
+  prev?: Neighbor;
+  next?: Neighbor;
 }) {
+  const router = useRouter();
   const [sets, setSets] = useState(exercise.sets);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const done = sets.filter(Boolean).length;
   const complete = done === exercise.targetSets && exercise.targetSets > 0;
@@ -32,6 +41,20 @@ export function ExerciseCard({
     } catch (err) {
       setSets(sets);
       setSaveError(err instanceof Error ? err.message : "저장에 실패했어요.");
+    }
+  }
+
+  async function move(target: Neighbor | undefined) {
+    if (!target || reordering) return;
+    setReordering(true);
+    setSaveError(null);
+    try {
+      await swapExerciseOrder({ id: exercise.id, orderIndex: exercise.orderIndex }, target);
+      router.refresh();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "순서 변경에 실패했어요.");
+    } finally {
+      setReordering(false);
     }
   }
 
@@ -71,6 +94,26 @@ export function ExerciseCard({
           >
             {complete ? "완료" : `${done}/${exercise.targetSets}`}
           </span>
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={() => move(prev)}
+              disabled={!prev || reordering}
+              aria-label="위로 이동"
+              className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
+            >
+              <ChevronUpIcon className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => move(next)}
+              disabled={!next || reordering}
+              aria-label="아래로 이동"
+              className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
+            >
+              <ChevronDownIcon className="h-3 w-3" />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setEditing(true)}

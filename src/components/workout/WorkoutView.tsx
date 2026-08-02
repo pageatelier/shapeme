@@ -96,7 +96,22 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
 
       <div className="flex flex-col gap-3">
         {activeRoutine?.exercises.map((exercise, i) => (
-          <ExerciseCard key={exercise.id} exercise={exercise} date={date} orderIndex={i} />
+          <ExerciseCard
+            key={exercise.id}
+            exercise={exercise}
+            date={date}
+            orderIndex={i}
+            prev={
+              i > 0
+                ? { id: activeRoutine.exercises[i - 1].id, orderIndex: activeRoutine.exercises[i - 1].orderIndex }
+                : undefined
+            }
+            next={
+              i < activeRoutine.exercises.length - 1
+                ? { id: activeRoutine.exercises[i + 1].id, orderIndex: activeRoutine.exercises[i + 1].orderIndex }
+                : undefined
+            }
+          />
         ))}
         {activeRoutine?.exercises.length === 0 && !addingExercise && (
           <p className="surface-card p-4 text-center text-[13px] text-text-muted">
