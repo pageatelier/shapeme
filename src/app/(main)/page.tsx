@@ -57,8 +57,8 @@ export default async function TodayPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <span className="brand-logo text-2xl text-text-primary">
-          ShapeMe
+        <span className="font-en text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
+          shapeme
         </span>
         <Link
           href="/my"

@@ -6,7 +6,7 @@ export default function AuthLayout({
   return (
     <div className="app-shell">
       <div className="ambient-layer" />
-      <div className="app-content safe-area-auth flex min-h-dvh flex-col justify-center">
+      <div className="app-content flex min-h-dvh flex-col justify-center px-5 py-10">
         {children}
       </div>
     </div>

@@ -53,8 +53,8 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <p className="brand-logo mb-2 text-2xl text-text-primary">
-          ShapeMe
+        <p className="font-en mb-2 text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
+          shapeme
         </p>
         <p className="text-[13px] text-text-secondary">
           운동, 식단, 물, 눈바디를 한곳에서 기록해보세요.
