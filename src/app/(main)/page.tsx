@@ -80,8 +80,6 @@ export default async function TodayPage() {
         friends={friends}
       />
 
-      <TodayBodyCard entry={todayBodyEntry} />
-
       <div>
         <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
           {today.dateLabel}
@@ -93,6 +91,8 @@ export default async function TodayPage() {
           {dailyMessage}
         </h1>
       </div>
+
+      <TodayBodyCard entry={todayBodyEntry} />
 
       {settings.selfLoveMessageEnabled && (
         <div className="glass-card flex items-start gap-3 p-6">
