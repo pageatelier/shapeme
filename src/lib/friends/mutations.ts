@@ -8,15 +8,22 @@ const CODE_ERROR_MESSAGES: Record<string, string> = {
   not_authenticated: "로그인이 필요해요.",
 };
 
-function friendlyRpcError(error: { message: string }, fallback: string): string {
+function friendlyRpcError(error: { message: string; code?: string; details?: string | null; hint?: string | null }): string {
   const key = Object.keys(CODE_ERROR_MESSAGES).find((k) => error.message.includes(k));
-  return key ? CODE_ERROR_MESSAGES[key] : fallback;
+  if (key) return CODE_ERROR_MESSAGES[key];
+  // Unrecognized error — surface the real message instead of a generic one
+  // so it's actually debuggable (this RPC hasn't been exercised against a
+  // live database yet).
+  return `친구 추가에 실패했어요. (${error.message})`;
 }
 
 export async function addFriendByCode(code: string): Promise<{ displayName: string }> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("add_friend_by_code", { p_code: code.trim() });
-  if (error) throw new Error(friendlyRpcError(error, "친구 추가에 실패했어요."));
+  if (error) {
+    console.error("[friends] add_friend_by_code failed:", error);
+    throw new Error(friendlyRpcError(error));
+  }
 
   const row = Array.isArray(data) ? data[0] : data;
   const displayName = (row?.friend_display_name as string | undefined) || "친구";
