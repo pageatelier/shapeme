@@ -23,6 +23,7 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "profiles: select own row" on public.profiles;
 create policy "profiles: select own row"
   on public.profiles for select
   using (auth.uid() = id);
@@ -124,6 +125,7 @@ create index if not exists friendships_user_idx on public.friendships (user_id);
 
 alter table public.friendships enable row level security;
 
+drop policy if exists "friendships: select own rows" on public.friendships;
 create policy "friendships: select own rows"
   on public.friendships for select
   using (auth.uid() = user_id);
@@ -133,6 +135,7 @@ create policy "friendships: select own rows"
 -- the code, rejects self-adds and duplicates, and inserts both rows in one
 -- transaction.
 
+drop policy if exists "friendships: delete own or reciprocal row" on public.friendships;
 create policy "friendships: delete own or reciprocal row"
   on public.friendships for delete
   using (auth.uid() = user_id or auth.uid() = friend_id);
@@ -204,10 +207,12 @@ create index if not exists cheers_receiver_date_idx on public.cheers (receiver_i
 
 alter table public.cheers enable row level security;
 
+drop policy if exists "cheers: select own sent or received" on public.cheers;
 create policy "cheers: select own sent or received"
   on public.cheers for select
   using (auth.uid() = sender_id or auth.uid() = receiver_id);
 
+drop policy if exists "cheers: insert to an existing friend only" on public.cheers;
 create policy "cheers: insert to an existing friend only"
   on public.cheers for insert
   with check (
