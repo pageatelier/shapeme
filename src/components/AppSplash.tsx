@@ -2,29 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-const SPLASH_KEY = "shapeme-splash-shown";
-
 export function AppSplash() {
   const [visible, setVisible] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
-    const alreadyShown = sessionStorage.getItem(SPLASH_KEY);
-
-    if (alreadyShown) {
-      setVisible(false);
-      return;
-    }
-
-    sessionStorage.setItem(SPLASH_KEY, "true");
-
     const fadeTimer = window.setTimeout(() => {
       setIsClosing(true);
-    }, 900);
+    }, 1200);
 
     const hideTimer = window.setTimeout(() => {
       setVisible(false);
-    }, 1200);
+    }, 1550);
 
     return () => {
       window.clearTimeout(fadeTimer);
@@ -37,7 +26,7 @@ export function AppSplash() {
   return (
     <div
       aria-hidden="true"
-      className={`fixed inset-0 z-[9999] flex min-h-dvh items-center justify-center bg-[#faf7f3] transition-opacity duration-300 ${
+      className={`pointer-events-none fixed inset-0 z-[9999] flex min-h-dvh items-center justify-center bg-[#faf7f3] transition-opacity duration-300 ${
         isClosing ? "opacity-0" : "opacity-100"
       }`}
     >
