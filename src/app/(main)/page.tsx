@@ -5,6 +5,7 @@ import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { CameraIcon, HeartIcon, MoveIcon, NoteIcon } from "@/components/icons";
+import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
@@ -199,7 +200,7 @@ export default async function TodayPage() {
           <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
             오늘의 식단
             <Link href="/meal" className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase">
-              add
+              편집
             </Link>
           </div>
           <HomeMealGrid meals={meals} />
@@ -207,13 +208,16 @@ export default async function TodayPage() {
       )}
 
       {settings.waterTrackingEnabled && (
-        <HomeWaterCard
-          date={todayIso}
-          entries={water.entries}
-          totalMl={water.totalMl}
-          goalMl={settings.waterGoalMl}
-          cupMl={settings.cupMl}
-        />
+        <section>
+          <WaterGoalEditor waterGoalMl={settings.waterGoalMl} cupMl={settings.cupMl} />
+          <HomeWaterCard
+            date={todayIso}
+            entries={water.entries}
+            totalMl={water.totalMl}
+            goalMl={settings.waterGoalMl}
+            cupMl={settings.cupMl}
+          />
+        </section>
       )}
 
       <section>

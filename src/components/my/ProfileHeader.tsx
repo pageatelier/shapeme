@@ -146,7 +146,7 @@ export function ProfileHeader({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="닉네임"
-          className="min-h-[44px] flex-1 rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
+          className="min-h-[44px] min-w-0 flex-1 rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         />
       </div>
@@ -161,12 +161,12 @@ export function ProfileHeader({
       />
 
       <div className="flex gap-2">
-        <label className="flex flex-1 flex-col gap-1.5">
+        <label className="flex min-w-0 flex-1 flex-col gap-1.5">
           <span className="text-xs font-medium text-text-muted">언어</span>
           <select
             value={languageInput}
             onChange={(e) => setLanguageInput(e.target.value)}
-            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
+            className="min-h-[44px] w-full min-w-0 rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
           >
             {LANGUAGE_OPTIONS.map((opt) => (
@@ -176,12 +176,12 @@ export function ProfileHeader({
             ))}
           </select>
         </label>
-        <label className="flex flex-1 flex-col gap-1.5">
+        <label className="flex min-w-0 flex-1 flex-col gap-1.5">
           <span className="text-xs font-medium text-text-muted">시간대</span>
           <select
             value={timezoneInput}
             onChange={(e) => setTimezoneInput(e.target.value)}
-            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
+            className="min-h-[44px] w-full min-w-0 rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
           >
             {TIMEZONE_OPTIONS.map((opt) => (
