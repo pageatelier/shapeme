@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
@@ -8,14 +8,27 @@ const instrumentSans = Instrument_Sans({
   display: "swap",
 });
 
+// Wordmark-only serif — scoped to BrandLogo (src/components/BrandLogo.tsx),
+// never applied app-wide. Everything else keeps --font-en/--font-ko.
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shapeme-ten.vercel.app"),
   title: "쉐잎미 ShapeMe",
   description:
-    "운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
+    "ShapeMe — A self-care diary. Every moment shapes me. 운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "쉐잎미",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
@@ -31,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${instrumentSans.variable} antialiased`}>
+    <html lang="ko" className={`${instrumentSans.variable} ${cormorantGaramond.variable} antialiased`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

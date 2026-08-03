@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { AuthField } from "@/components/auth/AuthField";
 import { createClient } from "@/lib/supabase/client";
 
@@ -53,9 +54,7 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <p className="font-en mb-2 text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
-          shapeme
-        </p>
+        <BrandLogo className="mb-2" />
         <p className="text-[13px] text-text-secondary">
           운동, 식단, 물, 눈바디를 한곳에서 기록해보세요.
         </p>

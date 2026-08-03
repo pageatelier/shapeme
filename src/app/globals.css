@@ -9,6 +9,8 @@
   /* Fonts */
   --font-ko: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
   --font-en: "Instrument Sans", var(--font-ko);
+  /* Wordmark-only serif — see BrandLogo.tsx. Never used as the app's base font. */
+  --font-cormorant: "Cormorant Garamond", var(--font-en);
 
   /* Background */
   --color-bg: #faf7f3;
@@ -170,6 +172,7 @@
 
   --font-ko: var(--font-ko);
   --font-en: var(--font-en);
+  --font-cormorant: var(--font-cormorant);
 
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);

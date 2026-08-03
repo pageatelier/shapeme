@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { CHEER_RECEIVED_PHRASE } from "@/lib/friends/types";
 import type { CheerType } from "@/lib/friends/types";
 
@@ -14,9 +15,7 @@ export function HomeHeader({
 
   return (
     <div className="relative flex items-center justify-center">
-      <span className="font-en text-2xl font-medium tracking-[-0.055em] text-text-primary lowercase">
-        shapeme
-      </span>
+      <BrandLogo />
 
       <button
         type="button"

@@ -33,6 +33,15 @@ export function JournalForm({
     setSaved(false);
   }
 
+  /** Clears the visible fields only — nothing is persisted until Save is
+   * pressed again, so an already-saved entry is untouched until then. */
+  function handleReset() {
+    setMood(null);
+    setDayText("");
+    setGoodThing("");
+    markDirty();
+  }
+
   async function handleSave() {
     setSaving(true);
     setError(null);
@@ -124,6 +133,15 @@ export function JournalForm({
             style={{ background: "var(--gradient-primary)" }}
           >
             {saving ? "저장 중..." : "저장"}
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={saving}
+            className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-text-secondary disabled:opacity-50"
+            style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+          >
+            초기화
           </button>
           {onCancel && (
             <button
