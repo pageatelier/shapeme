@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DailyMemo } from "@/components/DailyMemo";
 import { HomeHeader } from "@/components/HomeHeader";
 import { CameraIcon, DumbbellIcon, HeartIcon, NoteIcon } from "@/components/icons";
 import { TogetherStories } from "@/components/together/TogetherStories";
@@ -174,6 +175,13 @@ export default async function TodayPage() {
           )}
         </div>
       </div>
+
+      <section>
+        <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
+          오늘의 메모
+        </p>
+        <DailyMemo date={todayIso} note={dailyNote} />
+      </section>
     </div>
   );
 }

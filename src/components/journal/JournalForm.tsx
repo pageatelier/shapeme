@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Toast } from "@/components/Toast";
 import { saveJournalEntry } from "@/lib/journal/mutations";
 import { MOOD_OPTIONS } from "@/lib/journal/types";
 import type { Mood } from "@/lib/journal/types";
@@ -27,6 +28,7 @@ export function JournalForm({
   const [goodThing, setGoodThing] = useState(initialGoodThing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSavedToast, setShowSavedToast] = useState(false);
 
   async function handleSave() {
     setSaving(true);
@@ -34,6 +36,7 @@ export function JournalForm({
     try {
       await saveJournalEntry(date, { mood, dayText, goodThing });
       router.refresh();
+      setShowSavedToast(true);
       onSaved?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했어요.");
@@ -120,6 +123,10 @@ export function JournalForm({
           </button>
         )}
       </div>
+
+      {showSavedToast && (
+        <Toast message="저장되었습니다" position="bottom" onDismiss={() => setShowSavedToast(false)} />
+      )}
     </div>
   );
 }

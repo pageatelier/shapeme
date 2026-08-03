@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "쉐잎미 ShapeMe",
   description:
     "운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "쉐잎미",
+  },
 };
 
 export const viewport: Viewport = {
