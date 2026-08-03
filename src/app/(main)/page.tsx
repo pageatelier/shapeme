@@ -7,8 +7,6 @@ import { HeartIcon } from "@/components/icons";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
-import { getBodyEntryByDateSafe } from "@/lib/body/queries";
-import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
@@ -41,10 +39,9 @@ export default async function TodayPage() {
   const dailyMessage = getDailyMessage(todayIso);
 
   // Independent reads — fetched together instead of one-after-another so
-  // this page doesn't wait on 8 sequential round trips just to render.
-  const [todayBodyEntry, routines, movementLogs, water, meals, dailyNote, friends, receivedCheers] = user
+  // this page doesn't wait on 7 sequential round trips just to render.
+  const [routines, movementLogs, water, meals, dailyNote, friends, receivedCheers] = user
     ? await Promise.all([
-        getBodyEntryByDateSafe(user.id, todayIso),
         getRoutinesSafe(user.id, todayIso),
         getMovementLogsByDateSafe(user.id, todayIso),
         getWaterLogsSafe(user.id, todayIso),
@@ -54,7 +51,6 @@ export default async function TodayPage() {
         getCheersReceivedTodaySafe(user.id, todayIso),
       ])
     : [
-        null,
         [],
         [],
         { entries: [], totalMl: 0 },
@@ -64,27 +60,16 @@ export default async function TodayPage() {
         [],
       ];
 
-  // Body's own quick-record card is gone from Today, but this fetch stays —
-  // bodyPct below still feeds the friend-story ring's completionRate, which
-  // keeps working exactly as it did before this pass.
-  const hasBodyToday = !!(todayBodyEntry?.front || todayBodyEntry?.side || todayBodyEntry?.back);
-
   // Strict match only — if nothing is scheduled for today's weekday, that's
   // a real "no routine today", not a reason to fall back to some other routine.
   const todayRoutine = routines.find((r) => r.days.includes(todayWeekday)) ?? null;
   const todayExercises = todayRoutine?.exercises ?? [];
   const workoutDoneSets = todayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
-  const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
 
   const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
 
   const waterPct = Math.min(100, Math.round((water.totalMl / settings.waterGoalMl) * 100));
-  const mealPct = Math.min(100, (meals.filter((m) => m.filled).length / 4) * 100);
-  const bodyPct = hasBodyToday ? 100 : 0;
-  // Unrelated to the new "오늘의 루틴" card below — this is the older
-  // formula that only ever fed the friend-story ring, kept exactly as-is.
-  const completionRate = dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
 
   // "오늘의 루틴" card — Move/식단/물만(Body/Journal aren't part of this
   // card; they're still reachable from the bottom nav). Weights depend on
@@ -148,7 +133,7 @@ export default async function TodayPage() {
       <HomeHeader cheerNotifications={cheerNotifications} />
 
       <TogetherStories
-        me={{ displayName, avatarUrl, todayProgress: completionRate, memo: myPublicMemo }}
+        me={{ displayName, avatarUrl, todayProgress: todayRoutinePercent, memo: myPublicMemo }}
         friends={friends}
       />
 
