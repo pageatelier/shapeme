@@ -43,26 +43,32 @@ export function StoryAvatar({
       aria-label={ariaLabel}
       className="flex w-16 shrink-0 flex-col items-center gap-1.5"
     >
-      {memo && (
-        <div className="relative mb-0.5 max-w-[68px]">
-          <div
-            className="truncate rounded-2xl px-2 py-1 text-center text-[10px] leading-tight font-medium text-text-primary"
-            style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-          >
-            {memo}
-          </div>
-          <div
-            className="absolute left-1/2 -bottom-[3px] h-1.5 w-1.5 -translate-x-1/2 rotate-45"
-            style={{
-              background: "var(--surface-card)",
-              borderRight: "var(--border-soft)",
-              borderBottom: "var(--border-soft)",
-            }}
-          />
-        </div>
-      )}
-
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
+        {/* Absolutely positioned so it overlaps the avatar (Instagram-note
+            style) instead of adding height above it — every avatar's ring
+            stays at the same y position whether or not it has a memo. */}
+        {memo && (
+          <div
+            className="absolute left-1/2 z-10 max-w-[76px] -translate-x-1/2"
+            style={{ top: -26 }}
+          >
+            <div
+              className="truncate rounded-2xl px-2 py-1 text-center text-[10px] leading-tight font-medium text-text-primary"
+              style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+            >
+              {memo}
+            </div>
+            <div
+              className="absolute left-1/2 -bottom-[3px] h-1.5 w-1.5 -translate-x-1/2 rotate-45"
+              style={{
+                background: "var(--surface-card)",
+                borderRight: "var(--border-soft)",
+                borderBottom: "var(--border-soft)",
+              }}
+            />
+          </div>
+        )}
+
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
           <circle
             cx={SIZE / 2}

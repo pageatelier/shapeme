@@ -27,7 +27,11 @@ export function TogetherStories({
 
   return (
     <section>
-      <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-1">
+      {/* pt-8 makes room for memo bubbles that overlap upward off the
+          avatar — overflow-x-auto forces overflow-y to a non-visible
+          value too, so anything above the row's own box would clip
+          without this padding. */}
+      <div className="scrollbar-hide flex gap-4 overflow-x-auto pt-8 pb-1">
         <StoryAvatar
           displayName={me.displayName}
           avatarUrl={me.avatarUrl}
