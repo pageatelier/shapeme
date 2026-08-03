@@ -11,8 +11,11 @@ export default async function MovePage() {
   } = await supabase.auth.getUser();
 
   const date = todayIsoDate();
-  const routines = user ? await getRoutinesSafe(user.id, date) : [];
-  const movementLogs = user ? await getMovementLogsByDateSafe(user.id, date) : [];
+  // Independent reads — fetched together instead of one-after-another so
+  // this page doesn't wait twice as long as it needs to.
+  const [routines, movementLogs] = user
+    ? await Promise.all([getRoutinesSafe(user.id, date), getMovementLogsByDateSafe(user.id, date)])
+    : [[], []];
 
   return <WorkoutView routines={routines} date={date} movementLogs={movementLogs} />;
 }

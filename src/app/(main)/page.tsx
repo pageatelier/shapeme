@@ -43,13 +43,35 @@ export default async function TodayPage() {
   const dateLabel = `${formatDateLabel(todayIso)} ${todayWeekday}요일`;
   const dailyMessage = getDailyMessage(todayIso);
 
+  // Independent reads — fetched together instead of one-after-another so
+  // this page doesn't wait on 8 sequential round trips just to render.
+  const [todayBodyEntry, routines, movementLogs, water, meals, dailyNote, friends, receivedCheers] = user
+    ? await Promise.all([
+        getBodyEntryByDateSafe(user.id, todayIso),
+        getRoutinesSafe(user.id, todayIso),
+        getMovementLogsByDateSafe(user.id, todayIso),
+        getWaterLogsSafe(user.id, todayIso),
+        getMealLogsSafe(user.id, todayIso),
+        getDailyNoteSafe(user.id, todayIso),
+        getFriendsTodaySafe(),
+        getCheersReceivedTodaySafe(user.id, todayIso),
+      ])
+    : [
+        null,
+        [],
+        [],
+        { entries: [], totalMl: 0 },
+        MEAL_TYPES.map((type) => ({ type, date: todayIso, filled: false })),
+        { memo: null, isPublic: false },
+        [],
+        [],
+      ];
+
   // Body's own quick-record card is gone from Today, but this fetch stays —
   // bodyPct below still feeds the friend-story ring's completionRate, which
   // keeps working exactly as it did before this pass.
-  const todayBodyEntry = user ? await getBodyEntryByDateSafe(user.id, todayIso) : null;
   const hasBodyToday = !!(todayBodyEntry?.front || todayBodyEntry?.side || todayBodyEntry?.back);
 
-  const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
   // Strict match only — if nothing is scheduled for today's weekday, that's
   // a real "no routine today", not a reason to fall back to some other routine.
   const todayRoutine = routines.find((r) => r.days.includes(todayWeekday)) ?? null;
@@ -58,14 +80,9 @@ export default async function TodayPage() {
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
   const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
 
-  const movementLogs = user ? await getMovementLogsByDateSafe(user.id, todayIso) : [];
   const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
 
-  const water = user ? await getWaterLogsSafe(user.id, todayIso) : { entries: [], totalMl: 0 };
   const waterPct = Math.min(100, Math.round((water.totalMl / settings.waterGoalMl) * 100));
-  const meals = user
-    ? await getMealLogsSafe(user.id, todayIso)
-    : MEAL_TYPES.map((type) => ({ type, date: todayIso, filled: false }));
   const mealPct = Math.min(100, (meals.filter((m) => m.filled).length / 4) * 100);
   const bodyPct = hasBodyToday ? 100 : 0;
   // Unrelated to the new "오늘의 루틴" card below — this is the older
@@ -123,10 +140,7 @@ export default async function TodayPage() {
       : []),
   ];
 
-  const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : { memo: null, isPublic: false };
   const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
-  const friends = user ? await getFriendsTodaySafe() : [];
-  const receivedCheers = user ? await getCheersReceivedTodaySafe(user.id, todayIso) : [];
   const cheerNotifications = receivedCheers.map((cheer) => ({
     displayName: friends.find((f) => f.friendId === cheer.senderId)?.displayName ?? "친구",
     type: cheer.type,
