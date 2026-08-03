@@ -3,13 +3,10 @@ import { BodyCapture } from "@/components/body/BodyCapture";
 import { BodyCompare } from "@/components/body/BodyCompareLazy";
 import { BodyTimeline } from "@/components/body/BodyTimeline";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 export default async function BodyPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const entries = user ? await getBodyEntriesSafe(user.id) : [];
   const weightKg = (user?.user_metadata as { weight_kg?: number } | undefined)?.weight_kg ?? null;

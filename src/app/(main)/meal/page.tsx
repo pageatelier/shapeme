@@ -4,13 +4,10 @@ import { MealCard } from "@/components/meal/MealCard";
 import { todayIsoDate } from "@/lib/body/date";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 export default async function MealPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const date = todayIsoDate();
   const meals = user

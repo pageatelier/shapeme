@@ -3,14 +3,11 @@ import { ChevronLeftIcon } from "@/components/icons";
 import { WaterView } from "@/components/water/WaterView";
 import { todayIsoDate } from "@/lib/body/date";
 import { readSettings } from "@/lib/settings/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { getWaterLogsSafe } from "@/lib/water/queries";
 
 export default async function WaterPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const settings = readSettings(user?.user_metadata);
   const { entries, totalMl } = user

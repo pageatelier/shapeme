@@ -2,13 +2,10 @@ import { JournalForm } from "@/components/journal/JournalForm";
 import { JournalList } from "@/components/journal/JournalList";
 import { isoDateInTimeZone } from "@/lib/body/date";
 import { getJournalEntriesSafe, getJournalEntryByDateSafe } from "@/lib/journal/queries";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 export default async function JournalPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const timezone = (user?.user_metadata as { timezone?: string } | undefined)?.timezone || "Asia/Seoul";
   const todayIso = isoDateInTimeZone(new Date(), timezone);

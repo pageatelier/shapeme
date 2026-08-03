@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -26,3 +27,22 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * The current user, memoized per-request via React's `cache()` — every
+ * Server Component that calls this within the same request (the main
+ * layout plus whichever page it wraps) shares one `getUser()` call instead
+ * of each re-validating the session against Supabase's Auth server on its
+ * own. `getUser()` (not `getSession()`) is deliberate: it round-trips to
+ * Supabase to verify the token instead of trusting the local cookie,
+ * which is the security-recommended way to check auth in server code —
+ * this only removes the *duplicate* round-trips within one request, not
+ * the verification itself.
+ */
+export const getCurrentUser = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+});

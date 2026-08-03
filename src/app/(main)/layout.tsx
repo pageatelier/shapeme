@@ -1,17 +1,14 @@
 import { BottomNav } from "@/components/BottomNav";
 import { DateRolloverWatcher } from "@/components/DateRolloverWatcher";
 import { readSettings } from "@/lib/settings/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   const settings = readSettings(user?.user_metadata);
 
   return (

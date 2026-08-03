@@ -12,14 +12,11 @@ import { getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
 import { getJournalCountSafe } from "@/lib/journal/queries";
 import { profile } from "@/lib/mock-data";
 import { readSettings } from "@/lib/settings/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { getMoveRecordCountSafe } from "@/lib/workout/queries";
 
 export default async function MyPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const metadata = (user?.user_metadata ?? {}) as {
     display_name?: string;
@@ -35,12 +32,16 @@ export default async function MyPage() {
   const timezone = metadata.timezone || "Asia/Seoul";
   const settings = readSettings(user?.user_metadata);
 
-  const myFriendCode = user ? await getMyFriendCode(user.id) : null;
-  const friends = user ? await getFriendsTodaySafe() : [];
-
-  const bodyCount = user ? await getBodyEntryCountSafe(user.id) : 0;
-  const moveCount = user ? await getMoveRecordCountSafe(user.id) : 0;
-  const journalCount = user ? await getJournalCountSafe(user.id) : 0;
+  // Independent reads — fetched together instead of one-after-another.
+  const [myFriendCode, friends, bodyCount, moveCount, journalCount] = user
+    ? await Promise.all([
+        getMyFriendCode(user.id),
+        getFriendsTodaySafe(),
+        getBodyEntryCountSafe(user.id),
+        getMoveRecordCountSafe(user.id),
+        getJournalCountSafe(user.id),
+      ])
+    : [null, [], 0, 0, 0];
 
   return (
     <div className="flex flex-col gap-6">

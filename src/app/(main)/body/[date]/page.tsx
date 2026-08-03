@@ -5,17 +5,14 @@ import { ChevronLeftIcon } from "@/components/icons";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
 import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 const slots: BodyPhotoSlot[] = ["front", "side", "back"];
 
 export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]">) {
   const { date } = await props.params;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) notFound();
 
   const entry = await getBodyEntryByDateSafe(user.id, date);

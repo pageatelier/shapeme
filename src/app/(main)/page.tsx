@@ -18,16 +18,13 @@ import { getMovementLogsByDateSafe } from "@/lib/movement/queries";
 import { ACTIVITY_CONFIG } from "@/lib/movement/types";
 import { getDailyNoteSafe } from "@/lib/notes/queries";
 import { readSettings } from "@/lib/settings/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { getWaterLogsSafe } from "@/lib/water/queries";
 import { getRoutinesSafe } from "@/lib/workout/queries";
 import { WEEKDAYS } from "@/lib/workout/types";
 
 export default async function TodayPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const metadata = user?.user_metadata as
     | { avatar_url?: string; display_name?: string; timezone?: string }

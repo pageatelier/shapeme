@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { getCalendarMonthSafe } from "@/lib/calendar/queries";
 import { readSettings } from "@/lib/settings/types";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 function monthLink(year: number, month: number, offset: number) {
   const d = new Date(year, month - 1 + offset, 1);
@@ -17,10 +17,7 @@ export default async function CalendarPage(props: {
   const year = Number(params.year) || now.getFullYear();
   const month = Number(params.month) || now.getMonth() + 1;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const { days, report } = user
     ? await getCalendarMonthSafe(user.id, year, month)
