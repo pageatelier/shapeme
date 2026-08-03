@@ -1,19 +1,16 @@
-import Image from "next/image";
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
 import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
-import { CameraIcon, HeartIcon, MoveIcon, NoteIcon } from "@/components/icons";
+import { HeartIcon } from "@/components/icons";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
-import { primaryPhotoUrl } from "@/lib/body/types";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
-import { getJournalEntryByDateSafe } from "@/lib/journal/queries";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
 import { today as mockToday } from "@/lib/mock-data";
@@ -40,19 +37,17 @@ export default async function TodayPage() {
   const timezone = metadata?.timezone || "Asia/Seoul";
   const settings = readSettings(user?.user_metadata);
 
-  // One shared "today" for this page, resolved in the user's own timezone —
-  // Body/Move/Journal moments and the greeting date all agree on the same day.
+  // One shared "today" for this page, resolved in the user's own timezone.
   const todayIso = isoDateInTimeZone(new Date(), timezone);
   const todayWeekday = WEEKDAYS[weekdayIndex(todayIso)];
   const dateLabel = `${formatDateLabel(todayIso)} ${todayWeekday}요일`;
   const dailyMessage = getDailyMessage(todayIso);
 
+  // Body's own quick-record card is gone from Today, but this fetch stays —
+  // bodyPct below still feeds the friend-story ring's completionRate, which
+  // keeps working exactly as it did before this pass.
   const todayBodyEntry = user ? await getBodyEntryByDateSafe(user.id, todayIso) : null;
-  const bodyPhotoCount = todayBodyEntry
-    ? [todayBodyEntry.front, todayBodyEntry.side, todayBodyEntry.back].filter(Boolean).length
-    : 0;
-  const hasBodyToday = bodyPhotoCount > 0;
-  const bodyThumbnailUrl = todayBodyEntry ? (primaryPhotoUrl(todayBodyEntry) ?? null) : null;
+  const hasBodyToday = !!(todayBodyEntry?.front || todayBodyEntry?.side || todayBodyEntry?.back);
 
   const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
   // Strict match only — if nothing is scheduled for today's weekday, that's
@@ -65,23 +60,7 @@ export default async function TodayPage() {
 
   const movementLogs = user ? await getMovementLogsByDateSafe(user.id, todayIso) : [];
   const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
-  const moveSummary =
-    [
-      workoutDoneSets > 0 ? `${todayRoutine?.name ?? "루틴"} ${workoutDoneSets}/${workoutTotalSets}세트` : null,
-      movementLogs.length > 0
-        ? `${ACTIVITY_CONFIG[movementLogs[0].activityType].label} ${movementLogs[0].durationMinutes}분`
-        : null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || null;
 
-  const journalEntry = user ? await getJournalEntryByDateSafe(user.id, todayIso) : null;
-  const hasJournalToday = !!journalEntry;
-
-  const momentsCount = [hasBodyToday, hasMoveToday, hasJournalToday].filter(Boolean).length;
-
-  // Kept purely to feed the existing friend-story completion ring below —
-  // that social feature stays exactly as it was, water/meal included.
   const water = user ? await getWaterLogsSafe(user.id, todayIso) : { entries: [], totalMl: 0 };
   const waterPct = Math.min(100, Math.round((water.totalMl / settings.waterGoalMl) * 100));
   const meals = user
@@ -89,7 +68,60 @@ export default async function TodayPage() {
     : MEAL_TYPES.map((type) => ({ type, date: todayIso, filled: false }));
   const mealPct = Math.min(100, (meals.filter((m) => m.filled).length / 4) * 100);
   const bodyPct = hasBodyToday ? 100 : 0;
+  // Unrelated to the new "오늘의 루틴" card below — this is the older
+  // formula that only ever fed the friend-story ring, kept exactly as-is.
   const completionRate = dayCompletionPercent({ workoutPct, waterPct, mealPct, bodyPct });
+
+  // "오늘의 루틴" card — Move/식단/물만(Body/Journal aren't part of this
+  // card; they're still reachable from the bottom nav). Weights depend on
+  // which of 식단/물 tracking are turned on in settings, always summing to
+  // 100. There's no stored "목표 시간" for simple (non-strength) movement
+  // logs, so — since there's nothing to compare against — any logged entry
+  // on a day with no active strength routine counts as full Move credit for
+  // that day; flagged here since it's the one place this diverges from a
+  // literal reading of the spec's "완료 시간 / 목표 시간" formula.
+  const strengthPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : null;
+  const movePercent = strengthPct ?? (movementLogs.length > 0 ? 100 : 0);
+  const mealDoneToday = meals.some((m) => m.filled);
+
+  let moveWeight = 100;
+  let mealWeight = 0;
+  let waterWeight = 0;
+  if (settings.mealTrackingEnabled && settings.waterTrackingEnabled) {
+    moveWeight = 80;
+    mealWeight = 10;
+    waterWeight = 10;
+  } else if (settings.mealTrackingEnabled) {
+    moveWeight = 90;
+    mealWeight = 10;
+  } else if (settings.waterTrackingEnabled) {
+    moveWeight = 90;
+    waterWeight = 10;
+  }
+
+  const todayRoutinePercent = Math.round(
+    moveWeight * (movePercent / 100) + mealWeight * (mealDoneToday ? 1 : 0) + waterWeight * (waterPct / 100),
+  );
+
+  const cupsRemaining = Math.max(0, Math.ceil((settings.waterGoalMl - water.totalMl) / settings.cupMl));
+
+  const routineChecklist = [
+    { key: "move", done: hasMoveToday, doneLabel: "운동 진행 중", todoLabel: "운동 계속하기", href: "/move" },
+    ...(settings.mealTrackingEnabled
+      ? [{ key: "meal", done: mealDoneToday, doneLabel: "식단 기록 완료", todoLabel: "식단 기록하기", href: "/meal" }]
+      : []),
+    ...(settings.waterTrackingEnabled
+      ? [
+          {
+            key: "water",
+            done: waterPct >= 100,
+            doneLabel: "물 섭취 완료",
+            todoLabel: `물 ${cupsRemaining}잔 더 마시기`,
+            href: "/water",
+          },
+        ]
+      : []),
+  ];
 
   const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : { memo: null, isPublic: false };
   const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
@@ -99,36 +131,6 @@ export default async function TodayPage() {
     displayName: friends.find((f) => f.friendId === cheer.senderId)?.displayName ?? "친구",
     type: cheer.type,
   }));
-
-  const recordCards = [
-    {
-      key: "body",
-      label: "Body",
-      href: "/body",
-      Icon: CameraIcon,
-      thumbnailUrl: bodyThumbnailUrl,
-      hasRecord: hasBodyToday,
-      summary: hasBodyToday ? `사진 ${bodyPhotoCount}장` : null,
-    },
-    {
-      key: "move",
-      label: "Move",
-      href: "/move",
-      Icon: MoveIcon,
-      thumbnailUrl: null,
-      hasRecord: hasMoveToday,
-      summary: moveSummary,
-    },
-    {
-      key: "journal",
-      label: "Journal",
-      href: "/journal",
-      Icon: NoteIcon,
-      thumbnailUrl: null,
-      hasRecord: hasJournalToday,
-      summary: hasJournalToday ? (journalEntry?.mood ?? "기록 완료") : null,
-    },
-  ] as const;
 
   return (
     <div className="flex flex-col gap-5">
@@ -160,50 +162,33 @@ export default async function TodayPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
-        {recordCards.map(({ key, label, href, Icon, thumbnailUrl, hasRecord, summary }) => (
-          <Link key={key} href={href} className="surface-card flex flex-col items-center gap-1.5 p-4 text-center">
-            {thumbnailUrl ? (
-              <div
-                className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full"
-                style={{ boxShadow: "var(--shadow-pink)" }}
-              >
-                <Image src={thumbnailUrl} alt="" fill sizes="40px" className="object-cover" />
-              </div>
-            ) : (
-              <Icon className="h-[22px] w-[22px] text-peach-400" />
-            )}
-            <p className="text-[13px] font-bold tracking-[-0.02em] text-text-primary">{label}</p>
-            <p className="line-clamp-1 text-[11px] leading-tight text-text-secondary">
-              {hasRecord ? summary : "미기록"}
-            </p>
-          </Link>
-        ))}
-      </div>
-
       <div className="glass-card p-5">
-        <p className="mb-3 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
-          오늘 나를 돌본 순간 {momentsCount}개를 남겼어요
-        </p>
-        <div className="flex flex-col gap-2.5">
-          {recordCards.map(({ key, label, href, hasRecord, summary }) =>
-            hasRecord ? (
-              <p key={key} className="text-[13px] leading-relaxed text-text-secondary">
-                <span className="font-bold text-text-primary">{label}</span> · {summary}
+        <div className="mb-3 flex items-baseline justify-between">
+          <p className="text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 루틴</p>
+          <p className="font-en text-2xl font-semibold tracking-[-0.05em] text-text-primary">
+            {todayRoutinePercent}%
+          </p>
+        </div>
+        <div className="mb-4 h-2 overflow-hidden rounded-full" style={{ background: "var(--progress-track)" }}>
+          <div
+            className="h-full rounded-full"
+            style={{ width: `${todayRoutinePercent}%`, background: "var(--gradient-primary)" }}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          {routineChecklist.map((item) =>
+            item.done ? (
+              <p key={item.key} className="flex items-center gap-2 text-[13px] text-text-secondary">
+                <span className="text-success">✓</span> {item.doneLabel}
               </p>
             ) : (
-              <div key={key} className="flex items-center justify-between gap-2">
-                <p className="text-[13px] text-text-muted">
-                  <span className="font-semibold text-text-secondary">{label}</span> · 아직 오늘의 기록이 없어요
-                </p>
-                <Link
-                  href={href}
-                  className="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold text-text-inverse"
-                  style={{ background: "var(--gradient-primary)" }}
-                >
-                  기록하기
-                </Link>
-              </div>
+              <Link
+                key={item.key}
+                href={item.href}
+                className="flex items-center gap-2 text-[13px] font-semibold text-text-primary"
+              >
+                <span className="text-text-muted">○</span> {item.todoLabel}
+              </Link>
             ),
           )}
         </div>
