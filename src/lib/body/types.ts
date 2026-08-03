@@ -19,3 +19,10 @@ export type BodyEntry = {
   backImageUrl?: string;
   memo?: string;
 };
+
+/** Front is the primary/representative slot; fall back to side then back so
+ * any day with at least one photo still shows something (e.g. legacy
+ * entries saved before front was the required-first slot). */
+export function primaryPhotoUrl(entry: BodyEntry): string | undefined {
+  return entry.frontImageUrl ?? entry.sideImageUrl ?? entry.backImageUrl;
+}

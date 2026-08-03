@@ -27,3 +27,13 @@ export function formatDateLabel(iso: string): string {
   const [, month, day] = iso.split("-");
   return `${Number(month)}월 ${Number(day)}일`;
 }
+
+export function formatYearMonthLabel(iso: string): string {
+  const [year, month] = iso.split("-");
+  return `${Number(year)}년 ${Number(month)}월`;
+}
+
+export function formatDateLabelWithYear(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  return `${Number(year)}년 ${Number(month)}월 ${Number(day)}일`;
+}

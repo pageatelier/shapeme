@@ -16,6 +16,7 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
   const [leftDate, setLeftDate] = useState(sorted[0]?.date ?? "");
   const [rightDate, setRightDate] = useState(sorted[sorted.length - 1]?.date ?? "");
+  const [expanded, setExpanded] = useState(false);
 
   if (sorted.length < 2) {
     return (
@@ -33,25 +34,40 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
 
   return (
     <section>
-      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
-      <div className="glass-card p-5">
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <DateSelect value={leftDate} onChange={setLeftDate} entries={sorted} />
-          <DateSelect value={rightDate} onChange={setRightDate} entries={sorted} />
-        </div>
-
-        {slots.map((slot) => (
-          <div key={slot} className="mb-4 last:mb-0">
-            <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.08em] text-text-muted lowercase">
-              {slot}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <ComparePane entry={left} slot={slot} />
-              <ComparePane entry={right} slot={slot} />
-            </div>
-          </div>
-        ))}
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-label={expanded ? "비교 접기" : "비교 펼치기"}
+          aria-expanded={expanded}
+          className="flex h-7 w-7 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-text-secondary"
+          style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+        >
+          {expanded ? "−" : "+"}
+        </button>
       </div>
+
+      {expanded && (
+        <div className="glass-card p-5">
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <DateSelect value={leftDate} onChange={setLeftDate} entries={sorted} />
+            <DateSelect value={rightDate} onChange={setRightDate} entries={sorted} />
+          </div>
+
+          {slots.map((slot) => (
+            <div key={slot} className="mb-4 last:mb-0">
+              <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.08em] text-text-muted lowercase">
+                {slot}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <ComparePane entry={left} slot={slot} />
+                <ComparePane entry={right} slot={slot} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

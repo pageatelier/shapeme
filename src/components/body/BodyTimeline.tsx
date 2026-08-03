@@ -1,19 +1,28 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import { BodyThumb } from "@/components/body/BodyThumb";
+import { formatYearMonthLabel } from "@/lib/body/date";
+import { primaryPhotoUrl } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
 
 const PAGE_SIZE = 20;
 
-function monthLabel(date: string) {
-  const [, m] = date.split("-");
-  return `${Number(m)}월`;
+// Only mounted once a grid photo is tapped, so its JS ships in its own
+// chunk instead of the Body page's initial bundle (same pattern as
+// TogetherStories' StoryViewer).
+const BodyFeedViewer = dynamic(() => import("./BodyFeedViewer").then((m) => m.BodyFeedViewer), {
+  ssr: false,
+});
+
+function yearMonthKey(date: string) {
+  return date.slice(0, 7); // "YYYY-MM"
 }
 
 export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [openDate, setOpenDate] = useState<string | null>(null);
 
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
   const visible = sorted.slice(0, visibleCount);
@@ -21,7 +30,7 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
 
   const groups = new Map<string, BodyEntry[]>();
   for (const entry of visible) {
-    const key = monthLabel(entry.date);
+    const key = yearMonthKey(entry.date);
     const bucket = groups.get(key);
     if (bucket) {
       bucket.push(entry);
@@ -45,26 +54,35 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
     <section>
       <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Timeline</p>
       <div className="flex flex-col gap-5">
-        {[...groups.entries()].map(([month, monthEntries]) => (
-          <div key={month}>
-            <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
-              {month}
+        {[...groups.entries()].map(([key, monthEntries]) => (
+          <div key={key}>
+            <p className="mb-2 text-[13px] font-bold tracking-[-0.01em] text-text-secondary">
+              {formatYearMonthLabel(monthEntries[0].date)}
             </p>
-            <div className="flex flex-col gap-3">
-              {monthEntries.map((entry) => (
-                <Link
-                  key={entry.date}
-                  href={`/body/${entry.date}`}
-                  className="surface-card flex items-center justify-between p-4"
-                >
-                  <span className="text-[13px] font-bold text-text-primary">{entry.dateLabel}</span>
-                  <div className="flex gap-3">
-                    <BodyThumb slot="front" filled={entry.front} imageUrl={entry.frontImageUrl} size={40} showLabel={false} />
-                    <BodyThumb slot="side" filled={entry.side} imageUrl={entry.sideImageUrl} size={40} showLabel={false} />
-                    <BodyThumb slot="back" filled={entry.back} imageUrl={entry.backImageUrl} size={40} showLabel={false} />
-                  </div>
-                </Link>
-              ))}
+            <div className="grid grid-cols-3 gap-0.5 overflow-hidden rounded-[var(--radius-md)]">
+              {monthEntries.map((entry) => {
+                const url = primaryPhotoUrl(entry);
+                return (
+                  <button
+                    key={entry.date}
+                    type="button"
+                    onClick={() => setOpenDate(entry.date)}
+                    aria-label={`${entry.dateLabel} 기록 보기`}
+                    className="relative aspect-square"
+                    style={{ background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }}
+                  >
+                    {url && (
+                      <Image
+                        src={url}
+                        alt=""
+                        fill
+                        sizes="(max-width: 480px) 33vw, 160px"
+                        className="object-cover"
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -79,6 +97,10 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
         >
           더 보기
         </button>
+      )}
+
+      {openDate && (
+        <BodyFeedViewer entries={visible} initialDate={openDate} onClose={() => setOpenDate(null)} />
       )}
     </section>
   );

@@ -80,17 +80,27 @@ export function BodyCapture({
         </div>
 
         {showMore ? (
-          <div className="grid grid-cols-2 gap-3">
-            {additionalSlots.map((slot) => (
-              <PhotoSlotButton
-                key={slot}
-                slot={slot}
-                date={selectedDate}
-                filled={!!entry?.[slot]}
-                imageUrl={slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {additionalSlots.map((slot) => (
+                <PhotoSlotButton
+                  key={slot}
+                  slot={slot}
+                  date={selectedDate}
+                  filled={!!entry?.[slot]}
+                  imageUrl={slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowMore(false)}
+              className="flex min-h-[36px] items-center justify-center gap-1.5 rounded-full text-[12px] font-semibold text-text-muted"
+            >
+              <PlusIcon className="h-3 w-3 rotate-45" />
+              다른 각도 접기
+            </button>
+          </>
         ) : (
           <button
             type="button"

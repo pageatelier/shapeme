@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
 import { HomeHeader } from "@/components/HomeHeader";
@@ -5,6 +6,7 @@ import { CameraIcon, DumbbellIcon, HeartIcon, NoteIcon } from "@/components/icon
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
+import { primaryPhotoUrl } from "@/lib/body/types";
 import { dayCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
@@ -45,6 +47,7 @@ export default async function TodayPage() {
     ? [todayBodyEntry.front, todayBodyEntry.side, todayBodyEntry.back].filter(Boolean).length
     : 0;
   const hasBodyToday = bodyPhotoCount > 0;
+  const bodyThumbnailUrl = todayBodyEntry ? (primaryPhotoUrl(todayBodyEntry) ?? null) : null;
 
   const routines = user ? await getRoutinesSafe(user.id, todayIso) : [];
   // Strict match only — if nothing is scheduled for today's weekday, that's
@@ -86,6 +89,7 @@ export default async function TodayPage() {
       label: "Body",
       href: "/body",
       Icon: CameraIcon,
+      thumbnailUrl: bodyThumbnailUrl,
       hasRecord: hasBodyToday,
       summary: hasBodyToday ? `사진 ${bodyPhotoCount}장` : null,
     },
@@ -94,6 +98,7 @@ export default async function TodayPage() {
       label: "Move",
       href: "/move",
       Icon: DumbbellIcon,
+      thumbnailUrl: null,
       hasRecord: hasMoveToday,
       summary: hasMoveToday
         ? `${todayRoutine?.name ?? "루틴"} ${workoutDoneSets}/${workoutTotalSets}세트`
@@ -104,6 +109,7 @@ export default async function TodayPage() {
       label: "Journal",
       href: "/journal",
       Icon: NoteIcon,
+      thumbnailUrl: null,
       hasRecord: hasJournalToday,
       summary: hasJournalToday ? (journalEntry?.mood ?? "기록 완료") : null,
     },
@@ -140,9 +146,18 @@ export default async function TodayPage() {
       )}
 
       <div className="grid grid-cols-3 gap-3">
-        {recordCards.map(({ key, label, href, Icon }) => (
+        {recordCards.map(({ key, label, href, Icon, thumbnailUrl }) => (
           <Link key={key} href={href} className="surface-card flex flex-col items-center gap-2 p-4 text-center">
-            <Icon className="h-[22px] w-[22px] text-peach-400" />
+            {thumbnailUrl ? (
+              <div
+                className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full"
+                style={{ boxShadow: "var(--shadow-pink)" }}
+              >
+                <Image src={thumbnailUrl} alt="" fill sizes="40px" className="object-cover" />
+              </div>
+            ) : (
+              <Icon className="h-[22px] w-[22px] text-peach-400" />
+            )}
             <p className="text-[13px] font-bold tracking-[-0.02em] text-text-primary">{label}</p>
           </Link>
         ))}
