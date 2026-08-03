@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { CalendarIcon, CameraIcon, DumbbellIcon, HomeIcon, UserIcon } from "@/components/icons";
 
 const items = [
-  { href: "/", label: "today", Icon: HomeIcon },
   { href: "/body", label: "body", Icon: CameraIcon },
   { href: "/workout", label: "workout", Icon: DumbbellIcon },
+  { href: "/", label: "today", Icon: HomeIcon },
   { href: "/calendar", label: "calendar", Icon: CalendarIcon },
   { href: "/my", label: "my", Icon: UserIcon },
 ];
