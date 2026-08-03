@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { EditIcon, PlusIcon } from "@/components/icons";
+import { ActivityTypePicker } from "@/components/move/ActivityTypePicker";
+import { MovementLogCard } from "@/components/move/MovementLogCard";
+import { MovementLogForm } from "@/components/move/MovementLogForm";
 import { weekdayIndex } from "@/lib/body/date";
+import type { MovementActivityType, MovementLog } from "@/lib/movement/types";
 import { WEEKDAYS } from "@/lib/workout/types";
 import type { WorkoutRoutine } from "@/lib/workout/types";
 import { ExerciseCard } from "./ExerciseCard";
@@ -14,7 +18,15 @@ function todayWeekdayLabel(date: string) {
   return WEEKDAYS[weekdayIndex(date)];
 }
 
-export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; date: string }) {
+export function WorkoutView({
+  routines,
+  date,
+  movementLogs,
+}: {
+  routines: WorkoutRoutine[];
+  date: string;
+  movementLogs: MovementLog[];
+}) {
   const todayLabel = todayWeekdayLabel(date);
   const defaultRoutineId = useMemo(() => {
     const todays = routines.find((r) => r.days.includes(todayLabel));
@@ -26,7 +38,45 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
   const [addingExercise, setAddingExercise] = useState(false);
   const [exerciseEditMode, setExerciseEditMode] = useState(false);
 
+  const [addingMovement, setAddingMovement] = useState(false);
+  const [pickedType, setPickedType] = useState<MovementActivityType | null>(null);
+
+  function closeMovementFlow() {
+    setAddingMovement(false);
+    setPickedType(null);
+  }
+
   const activeRoutine = routines.find((r) => r.id === activeId) ?? routines[0] ?? null;
+
+  // "오늘의 다른 움직임" — today's simple (non-strength) movement logs, the
+  // add-flow (type picker → duration/optional-fields form), and the CTA.
+  // Rendered in both the empty-routines and normal branches below, since
+  // logging a run/walk shouldn't require having a strength routine set up.
+  const movementSection = (
+    <div className="flex flex-col gap-3">
+      <p className="text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 다른 움직임</p>
+      {movementLogs.map((log) => (
+        <MovementLogCard key={log.id} log={log} date={date} />
+      ))}
+      {addingMovement ? (
+        pickedType ? (
+          <MovementLogForm date={date} activityType={pickedType} onDone={closeMovementFlow} />
+        ) : (
+          <ActivityTypePicker onSelect={setPickedType} />
+        )
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAddingMovement(true)}
+          className="flex min-h-[52px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[13px] font-semibold text-text-secondary"
+          style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
+        >
+          <PlusIcon className="h-4 w-4" />
+          오늘의 움직임 추가
+        </button>
+      )}
+    </div>
+  );
 
   if (routines.length === 0) {
     return (
@@ -41,6 +91,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
           </p>
         </div>
         <RoutineForm orderIndex={0} onDone={() => {}} />
+        {movementSection}
       </div>
     );
   }
@@ -151,6 +202,8 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
             운동 추가
           </button>
         ))}
+
+      {movementSection}
     </div>
   );
 }

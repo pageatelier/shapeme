@@ -110,41 +110,50 @@ export async function getRoutinesSafe(userId: string, logDate: string): Promise<
 }
 
 /** Total Move records for My page's "전체 기록 개수" — a "record" is a
- * distinct day that has at least one checked set logged, across any of
- * the user's routines. */
+ * distinct day with at least one checked strength set OR at least one
+ * simple movement_logs entry (running, walking, dance, etc.), across
+ * either data source. */
 export async function getMoveRecordCountSafe(userId: string): Promise<number> {
   try {
     const supabase = await createClient();
+    const recordedDates = new Set<string>();
 
     const { data: routineRows, error: routineError } = await supabase
       .from("workout_routines")
       .select("id")
       .eq("user_id", userId);
     if (routineError) throw routineError;
-
     const routineIds = (routineRows ?? []).map((r) => r.id as string);
-    if (routineIds.length === 0) return 0;
 
-    const { data: exerciseRows, error: exerciseError } = await supabase
-      .from("workout_exercises")
-      .select("id")
-      .in("routine_id", routineIds);
-    if (exerciseError) throw exerciseError;
+    if (routineIds.length > 0) {
+      const { data: exerciseRows, error: exerciseError } = await supabase
+        .from("workout_exercises")
+        .select("id")
+        .in("routine_id", routineIds);
+      if (exerciseError) throw exerciseError;
+      const exerciseIds = (exerciseRows ?? []).map((e) => e.id as string);
 
-    const exerciseIds = (exerciseRows ?? []).map((e) => e.id as string);
-    if (exerciseIds.length === 0) return 0;
+      if (exerciseIds.length > 0) {
+        const { data: logRows, error: logError } = await supabase
+          .from("workout_set_logs")
+          .select("log_date, sets")
+          .in("exercise_id", exerciseIds);
+        if (logError) throw logError;
+        for (const row of (logRows as { log_date: string; sets: boolean[] }[] | null) ?? []) {
+          if (row.sets?.some(Boolean)) recordedDates.add(row.log_date);
+        }
+      }
+    }
 
-    const { data: logRows, error: logError } = await supabase
-      .from("workout_set_logs")
-      .select("log_date, sets")
-      .in("exercise_id", exerciseIds);
-    if (logError) throw logError;
+    const { data: movementRows, error: movementError } = await supabase
+      .from("movement_logs")
+      .select("log_date")
+      .eq("user_id", userId);
+    if (movementError) throw movementError;
+    for (const row of (movementRows as { log_date: string }[] | null) ?? []) {
+      recordedDates.add(row.log_date);
+    }
 
-    const recordedDates = new Set(
-      (logRows as { log_date: string; sets: boolean[] }[] | null ?? [])
-        .filter((row) => row.sets?.some(Boolean))
-        .map((row) => row.log_date),
-    );
     return recordedDates.size;
   } catch (error) {
     console.error("[workout] getMoveRecordCount failed:", error);

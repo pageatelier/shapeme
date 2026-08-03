@@ -17,6 +17,8 @@ import { getJournalEntryByDateSafe } from "@/lib/journal/queries";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
 import { today as mockToday } from "@/lib/mock-data";
+import { getMovementLogsByDateSafe } from "@/lib/movement/queries";
+import { ACTIVITY_CONFIG } from "@/lib/movement/types";
 import { getDailyNoteSafe } from "@/lib/notes/queries";
 import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
@@ -60,7 +62,18 @@ export default async function TodayPage() {
   const workoutDoneSets = todayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
   const workoutPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : 0;
-  const hasMoveToday = workoutDoneSets > 0;
+
+  const movementLogs = user ? await getMovementLogsByDateSafe(user.id, todayIso) : [];
+  const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
+  const moveSummary =
+    [
+      workoutDoneSets > 0 ? `${todayRoutine?.name ?? "루틴"} ${workoutDoneSets}/${workoutTotalSets}세트` : null,
+      movementLogs.length > 0
+        ? `${ACTIVITY_CONFIG[movementLogs[0].activityType].label} ${movementLogs[0].durationMinutes}분`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · ") || null;
 
   const journalEntry = user ? await getJournalEntryByDateSafe(user.id, todayIso) : null;
   const hasJournalToday = !!journalEntry;
@@ -104,9 +117,7 @@ export default async function TodayPage() {
       Icon: MoveIcon,
       thumbnailUrl: null,
       hasRecord: hasMoveToday,
-      summary: hasMoveToday
-        ? `${todayRoutine?.name ?? "루틴"} ${workoutDoneSets}/${workoutTotalSets}세트`
-        : null,
+      summary: moveSummary,
     },
     {
       key: "journal",
@@ -197,6 +208,28 @@ export default async function TodayPage() {
           )}
         </div>
       </div>
+
+      {hasMoveToday && (
+        <div className="glass-card p-5">
+          <p className="mb-3 text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 움직임</p>
+          <div className="flex flex-col gap-2">
+            {workoutDoneSets > 0 && (
+              <p className="text-[13px] text-text-secondary">
+                🏋️ 근력운동 {workoutDoneSets}/{workoutTotalSets}세트
+              </p>
+            )}
+            {movementLogs.map((log) => {
+              const config = ACTIVITY_CONFIG[log.activityType];
+              return (
+                <p key={log.id} className="text-[13px] text-text-secondary">
+                  {config.emoji} {config.label} {log.durationMinutes}분
+                  {log.distanceKm != null ? ` · ${log.distanceKm}km` : ""}
+                </p>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {settings.mealTrackingEnabled && (
         <section>
