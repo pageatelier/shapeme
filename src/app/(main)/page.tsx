@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
 import { HomeHeader } from "@/components/HomeHeader";
-import { CameraIcon, DumbbellIcon, HeartIcon, NoteIcon } from "@/components/icons";
+import { CameraIcon, HeartIcon, MoveIcon, NoteIcon } from "@/components/icons";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
@@ -97,7 +97,7 @@ export default async function TodayPage() {
       key: "move",
       label: "Move",
       href: "/move",
-      Icon: DumbbellIcon,
+      Icon: MoveIcon,
       thumbnailUrl: null,
       hasRecord: hasMoveToday,
       summary: hasMoveToday

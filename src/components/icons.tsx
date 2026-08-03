@@ -1,3 +1,5 @@
+import { Accessibility } from "lucide-react";
+
 type IconProps = {
   className?: string;
 };
@@ -24,6 +26,29 @@ export function DumbbellIcon({ className }: IconProps) {
   return (
     <svg className={className} {...base}>
       <path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11" />
+    </svg>
+  );
+}
+
+/** Move — deliberately not gym-equipment (running/dance/yoga all count as
+ * "Move"), so this wraps Lucide's generic Accessibility glyph instead of
+ * DumbbellIcon, restyled to this file's shared stroke width. */
+export function MoveIcon({ className }: IconProps) {
+  return <Accessibility className={className} strokeWidth={1.6} />;
+}
+
+/** Alternative Move draft — a hand-drawn figure mid-movement, in case the
+ * Lucide glyph reads too clinical/medical for this context. Not wired into
+ * the nav; kept here for a side-by-side comparison. */
+export function MoveDanceIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <circle cx="13.2" cy="4.6" r="2.1" />
+      <path d="M12.3 6.6c-.7 2-.9 3.6-.6 5.2" />
+      <path d="M11.4 9.3C9.3 8.1 7.9 6.8 7 5" />
+      <path d="M12.1 10.4c2.1.7 3.7 1.9 4.5 3.7" />
+      <path d="M11.6 11.6c-1.6 1.7-2.6 3.6-3.1 6.4" />
+      <path d="M12.2 11.8c1.8 1.4 2.8 3.3 2.9 6.2" />
     </svg>
   );
 }
@@ -110,6 +135,24 @@ export function EditIcon({ className }: IconProps) {
     <svg className={className} {...base}>
       <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z" />
       <path d="M13.5 8 16 10.5" />
+    </svg>
+  );
+}
+
+/** Decorative 4-petal flower — matches the app's flower motif (see the PWA
+ * icon). Filled, not stroked, since it's an illustration rather than a line
+ * icon; used as the empty-slot placeholder in the Body Timeline grid. */
+export function FlowerIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      {/* Each petal circle's edge passes through the shared center point
+          (distance from its own center to (12,12) equals its radius) — the
+          standard construction for a 4-petal quatrefoil from plain circles. */}
+      <circle cx="12" cy="7" r="5" />
+      <circle cx="17" cy="12" r="5" />
+      <circle cx="12" cy="17" r="5" />
+      <circle cx="7" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.4" fill="var(--color-peach-300)" />
     </svg>
   );
 }

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { FlowerIcon } from "@/components/icons";
 import { formatYearMonthLabel } from "@/lib/body/date";
 import { primaryPhotoUrl } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
@@ -83,6 +84,19 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
                   </button>
                 );
               })}
+              {/* Pads the row out to a full multiple of 3 — without this, a
+                  month with e.g. 1 photo left the other two grid tracks
+                  completely empty (see-through to the page background),
+                  which read as a rendering glitch rather than "no photo yet". */}
+              {Array.from({ length: (3 - (monthEntries.length % 3)) % 3 }).map((_, i) => (
+                <div
+                  key={`empty-${i}`}
+                  className="relative flex aspect-square items-center justify-center"
+                  style={{ background: "linear-gradient(160deg, var(--color-peach-100), var(--color-pink-100))" }}
+                >
+                  <FlowerIcon className="h-6 w-6 text-white/70" />
+                </div>
+              ))}
             </div>
           </div>
         ))}
