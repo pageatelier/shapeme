@@ -1,20 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { ScaleIcon } from "@/components/icons";
+import { PlusIcon, ScaleIcon } from "@/components/icons";
 import { todayIsoDate } from "@/lib/body/date";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
 
-const slots: BodyPhotoSlot[] = ["front", "side", "back"];
+const additionalSlots: BodyPhotoSlot[] = ["side", "back"];
+
+function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
+  return !!entry?.side || !!entry?.back;
+}
 
 /**
- * Capture UI for one day's Front/Side/Back photos. Defaults to today, but
- * the date picker lets you switch to any past day — useful for backfilling
- * old 눈바디 photos so they show up in Timeline/Compare. Actual per-slot
- * upload lives in PhotoSlotButton (shared with TodayBodyCard); this
- * component just owns the date picker and re-mounts the slots (via `key`)
- * whenever the date changes so each one resets to that day's real state.
+ * Capture UI for one day's photo(s). Only the front/primary slot is
+ * required — side and back are optional extra angles revealed via
+ * "다른 각도 추가", auto-expanded if that day already has either saved
+ * (so returning to an already-multi-angle day doesn't hide them). Saving
+ * with just the primary photo already worked at the data layer (every
+ * body_entries photo column is independently nullable) — this only
+ * changes which slots are visible by default.
  */
 export function BodyCapture({
   entries,
@@ -26,6 +31,12 @@ export function BodyCapture({
   const today = todayIsoDate();
   const [selectedDate, setSelectedDate] = useState(today);
   const entry = entries.find((e) => e.date === selectedDate) ?? null;
+  const [showMore, setShowMore] = useState(() => hasAdditionalAngles(entry));
+
+  function changeDate(next: string) {
+    setSelectedDate(next);
+    setShowMore(hasAdditionalAngles(entries.find((e) => e.date === next)));
+  }
 
   return (
     <section className="glass-card p-5">
@@ -44,16 +55,12 @@ export function BodyCapture({
           type="date"
           value={selectedDate}
           max={today}
-          onChange={(e) => setSelectedDate(e.target.value || today)}
+          onChange={(e) => changeDate(e.target.value || today)}
           className="min-h-[36px] rounded-full px-3 text-[13px] font-semibold text-text-primary"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         />
         {selectedDate !== today && (
-          <button
-            type="button"
-            onClick={() => setSelectedDate(today)}
-            className="text-[11px] font-semibold text-pink-500"
-          >
+          <button type="button" onClick={() => changeDate(today)} className="text-[11px] font-semibold text-pink-500">
             오늘로
           </button>
         )}
@@ -62,18 +69,39 @@ export function BodyCapture({
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-3" key={selectedDate}>
-        {slots.map((slot) => (
+      <div className="flex flex-col gap-3" key={selectedDate}>
+        <div className="mx-auto w-full max-w-[160px]">
           <PhotoSlotButton
-            key={slot}
-            slot={slot}
+            slot="front"
             date={selectedDate}
-            filled={!!entry?.[slot]}
-            imageUrl={
-              slot === "front" ? entry?.frontImageUrl : slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl
-            }
+            filled={!!entry?.front}
+            imageUrl={entry?.frontImageUrl}
           />
-        ))}
+        </div>
+
+        {showMore ? (
+          <div className="grid grid-cols-2 gap-3">
+            {additionalSlots.map((slot) => (
+              <PhotoSlotButton
+                key={slot}
+                slot={slot}
+                date={selectedDate}
+                filled={!!entry?.[slot]}
+                imageUrl={slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl}
+              />
+            ))}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowMore(true)}
+            className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-text-secondary"
+            style={{ background: "var(--surface-card)", border: "1px dashed rgba(86, 62, 58, 0.2)" }}
+          >
+            <PlusIcon className="h-3.5 w-3.5" />
+            다른 각도 추가
+          </button>
+        )}
       </div>
     </section>
   );

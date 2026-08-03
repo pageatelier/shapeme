@@ -148,3 +148,19 @@ export async function getBodyEntriesInRangeSafe(
     return [];
   }
 }
+
+/** Total Body records for My page's "전체 기록 개수" — a row only ever
+ * exists once at least one photo slot has been uploaded (see upload.ts's
+ * upsert), so a plain row count is already "days with a Body record". */
+export async function getBodyEntryCountSafe(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("body_entries")
+    .select("date", { count: "exact", head: true })
+    .eq("user_id", userId);
+  if (error) {
+    console.error("[body] getBodyEntryCount failed:", error);
+    return 0;
+  }
+  return count ?? 0;
+}

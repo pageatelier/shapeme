@@ -108,3 +108,46 @@ export async function getRoutinesSafe(userId: string, logDate: string): Promise<
     return [];
   }
 }
+
+/** Total Move records for My page's "전체 기록 개수" — a "record" is a
+ * distinct day that has at least one checked set logged, across any of
+ * the user's routines. */
+export async function getMoveRecordCountSafe(userId: string): Promise<number> {
+  try {
+    const supabase = await createClient();
+
+    const { data: routineRows, error: routineError } = await supabase
+      .from("workout_routines")
+      .select("id")
+      .eq("user_id", userId);
+    if (routineError) throw routineError;
+
+    const routineIds = (routineRows ?? []).map((r) => r.id as string);
+    if (routineIds.length === 0) return 0;
+
+    const { data: exerciseRows, error: exerciseError } = await supabase
+      .from("workout_exercises")
+      .select("id")
+      .in("routine_id", routineIds);
+    if (exerciseError) throw exerciseError;
+
+    const exerciseIds = (exerciseRows ?? []).map((e) => e.id as string);
+    if (exerciseIds.length === 0) return 0;
+
+    const { data: logRows, error: logError } = await supabase
+      .from("workout_set_logs")
+      .select("log_date, sets")
+      .in("exercise_id", exerciseIds);
+    if (logError) throw logError;
+
+    const recordedDates = new Set(
+      (logRows as { log_date: string; sets: boolean[] }[] | null ?? [])
+        .filter((row) => row.sets?.some(Boolean))
+        .map((row) => row.log_date),
+    );
+    return recordedDates.size;
+  } catch (error) {
+    console.error("[workout] getMoveRecordCount failed:", error);
+    return 0;
+  }
+}

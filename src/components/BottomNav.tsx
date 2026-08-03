@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarIcon, CameraIcon, DumbbellIcon, HomeIcon, UserIcon } from "@/components/icons";
+import { CameraIcon, DumbbellIcon, HomeIcon, NoteIcon, UserIcon } from "@/components/icons";
 
+// Calendar intentionally isn't a tab anymore — it's reachable from My's
+// "기록 모아보기" — but the route/page itself is untouched.
 const items = [
-  { href: "/body", label: "body", Icon: CameraIcon },
-  { href: "/workout", label: "workout", Icon: DumbbellIcon },
   { href: "/", label: "today", Icon: HomeIcon },
-  { href: "/calendar", label: "calendar", Icon: CalendarIcon },
+  { href: "/body", label: "body", Icon: CameraIcon },
+  { href: "/move", label: "move", Icon: DumbbellIcon },
+  { href: "/journal", label: "journal", Icon: NoteIcon },
   { href: "/my", label: "my", Icon: UserIcon },
 ];
 

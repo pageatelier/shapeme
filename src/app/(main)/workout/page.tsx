@@ -1,16 +1,8 @@
-import { WorkoutView } from "@/components/workout/WorkoutView";
-import { todayIsoDate } from "@/lib/body/date";
-import { getRoutinesSafe } from "@/lib/workout/queries";
-import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default async function WorkoutPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const date = todayIsoDate();
-  const routines = user ? await getRoutinesSafe(user.id, date) : [];
-
-  return <WorkoutView routines={routines} date={date} />;
+// Workout was renamed to Move (/move) in the MVP refactor. Kept as a
+// redirect rather than deleting the route so any existing /workout link
+// (bookmarks, old shares) doesn't break.
+export default function WorkoutPage() {
+  redirect("/move");
 }

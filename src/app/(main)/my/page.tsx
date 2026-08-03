@@ -1,18 +1,16 @@
-import { DataExportButtons } from "@/components/my/DataExportButtons";
+import Link from "next/link";
+import { ChevronRightIcon } from "@/components/icons";
 import { DeleteAccountSection } from "@/components/my/DeleteAccountSection";
-import { DisplaySettings } from "@/components/my/DisplaySettings";
-import { GoalsSettings } from "@/components/my/GoalsSettings";
 import { LogoutButton } from "@/components/my/LogoutButton";
 import { ProfileHeader } from "@/components/my/ProfileHeader";
-import { RoutineSettings } from "@/components/my/RoutineSettings";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
-import { CheersReceivedCard } from "@/components/together/CheersReceivedCard";
 import { InviteFriendSheet } from "@/components/together/InviteFriendSheet";
-import { todayIsoDate } from "@/lib/body/date";
-import { getCheersReceivedTodaySafe, getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
+import { getBodyEntryCountSafe } from "@/lib/body/queries";
+import { getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
+import { getJournalCountSafe } from "@/lib/journal/queries";
 import { profile } from "@/lib/mock-data";
-import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
+import { getMoveRecordCountSafe } from "@/lib/workout/queries";
 
 export default async function MyPage() {
   const supabase = await createClient();
@@ -24,55 +22,46 @@ export default async function MyPage() {
     display_name?: string;
     avatar_url?: string;
     bio?: string;
-    height_cm?: number;
-    weight_kg?: number;
+    language?: string;
+    timezone?: string;
   };
   const displayName = metadata.display_name || user?.email?.split("@")[0] || profile.nickname;
   const avatarUrl = metadata.avatar_url ?? null;
   const bio = metadata.bio ?? null;
-  const heightCm = metadata.height_cm ?? null;
-  const weightKg = metadata.weight_kg ?? null;
-  const settings = readSettings(user?.user_metadata);
+  const language = metadata.language || "ko";
+  const timezone = metadata.timezone || "Asia/Seoul";
 
   const myFriendCode = user ? await getMyFriendCode(user.id) : null;
   const friends = user ? await getFriendsTodaySafe() : [];
-  const cheerSenderIds = user ? await getCheersReceivedTodaySafe(user.id, todayIsoDate()) : [];
+
+  const bodyCount = user ? await getBodyEntryCountSafe(user.id) : 0;
+  const moveCount = user ? await getMoveRecordCountSafe(user.id) : 0;
+  const journalCount = user ? await getJournalCountSafe(user.id) : 0;
 
   return (
     <div className="flex flex-col gap-6">
-      <ProfileHeader
-        displayName={displayName}
-        avatarUrl={avatarUrl}
-        bio={bio}
-        heightCm={heightCm}
-        weightKg={weightKg}
-      />
+      <ProfileHeader displayName={displayName} avatarUrl={avatarUrl} bio={bio} language={language} timezone={timezone} />
 
-      <CheersReceivedCard count={cheerSenderIds.length} />
-
-      <GoalsSettings settings={settings} />
-
-      <RoutineSettings settings={settings} />
+      <SettingsGroup title="나의 기록">
+        <StaticRow label="Body 기록" value={`${bodyCount}개`} />
+        <StaticRow label="Move 기록" value={`${moveCount}개`} />
+        <StaticRow label="Journal 기록" value={`${journalCount}개`} />
+        <Link href="/calendar" className="flex w-full items-center justify-between px-4 py-3.5 text-left">
+          <span className="text-[13px] font-medium text-text-primary">기록 모아보기</span>
+          <ChevronRightIcon className="h-3.5 w-3.5 text-text-muted" />
+        </Link>
+      </SettingsGroup>
 
       <InviteFriendSheet myCode={myFriendCode} friends={friends} />
 
-      <SettingsGroup title="사진 및 데이터">
-        <StaticRow label="사진 공개 범위" value="비공개" />
-        <DataExportButtons />
+      <SettingsGroup title="보안 및 계정">
+        <StaticRow label="개인정보 안내" value="본인만 조회 가능" />
+        <StaticRow label="사진 보안 안내" value="비공개 저장" />
         <DeleteAccountSection />
-      </SettingsGroup>
-
-      <SettingsGroup title="화면 설정">
-        <DisplaySettings settings={settings} />
-      </SettingsGroup>
-
-      <div className="flex flex-col items-center gap-2 pt-2 pb-2 text-xs text-text-muted">
-        <div className="flex gap-4">
-          <span>개인정보 처리방침</span>
-          <span>이용약관</span>
+        <div className="flex justify-center p-4">
+          <LogoutButton />
         </div>
-        <LogoutButton />
-      </div>
+      </SettingsGroup>
     </div>
   );
 }

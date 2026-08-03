@@ -31,7 +31,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
     return (
       <div className="flex flex-col gap-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">운동</h1>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">무브</h1>
         </div>
         <div className="glass-card flex flex-col items-center gap-3 p-8 text-center">
           <p className="text-[15px] font-bold text-text-primary">아직 운동 루틴이 없어요</p>
@@ -56,7 +56,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
           {date} · {todayLabel}요일
         </p>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">운동</h1>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">무브</h1>
           <button
             type="button"
             onClick={() => setEditingRoutine((v) => !v)}

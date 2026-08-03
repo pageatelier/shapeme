@@ -6,18 +6,39 @@ import { useRef, useState } from "react";
 import { CameraIcon } from "@/components/icons";
 import { updateProfile } from "@/lib/profile/mutations";
 
+const LANGUAGE_OPTIONS = [
+  { value: "ko", label: "한국어" },
+  { value: "en", label: "English" },
+];
+
+const TIMEZONE_OPTIONS = [
+  { value: "Asia/Seoul", label: "서울 (GMT+9)" },
+  { value: "Asia/Tokyo", label: "도쿄 (GMT+9)" },
+  { value: "America/Los_Angeles", label: "로스앤젤레스 (GMT-8)" },
+  { value: "America/New_York", label: "뉴욕 (GMT-5)" },
+  { value: "Europe/London", label: "런던 (GMT+0)" },
+];
+
+function languageLabel(value: string) {
+  return LANGUAGE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+function timezoneLabel(value: string) {
+  return TIMEZONE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
 export function ProfileHeader({
   displayName,
   avatarUrl,
   bio,
-  heightCm,
-  weightKg,
+  language,
+  timezone,
 }: {
   displayName: string;
   avatarUrl: string | null;
   bio: string | null;
-  heightCm: number | null;
-  weightKg: number | null;
+  language: string;
+  timezone: string;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -25,8 +46,8 @@ export function ProfileHeader({
   const [preview, setPreview] = useState<string | null>(avatarUrl);
   const [file, setFile] = useState<File | null>(null);
   const [bioInput, setBioInput] = useState(bio ?? "");
-  const [heightInput, setHeightInput] = useState(heightCm != null ? String(heightCm) : "");
-  const [weightInput, setWeightInput] = useState(weightKg != null ? String(weightKg) : "");
+  const [languageInput, setLanguageInput] = useState(language);
+  const [timezoneInput, setTimezoneInput] = useState(timezone);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -43,8 +64,8 @@ export function ProfileHeader({
     setPreview(avatarUrl);
     setFile(null);
     setBioInput(bio ?? "");
-    setHeightInput(heightCm != null ? String(heightCm) : "");
-    setWeightInput(weightKg != null ? String(weightKg) : "");
+    setLanguageInput(language);
+    setTimezoneInput(timezone);
     setError(null);
   }
 
@@ -56,8 +77,8 @@ export function ProfileHeader({
         displayName: name.trim() || undefined,
         avatarFile: file ?? undefined,
         bio: bioInput.trim(),
-        heightCm: heightInput.trim() ? Number(heightInput) : null,
-        weightKg: weightInput.trim() ? Number(weightInput) : null,
+        language: languageInput,
+        timezone: timezoneInput,
       });
       router.refresh();
       setEditing(false);
@@ -70,9 +91,6 @@ export function ProfileHeader({
   }
 
   if (!editing) {
-    const stats = [heightCm != null ? `${heightCm}cm` : null, weightKg != null ? `${weightKg}kg` : null]
-      .filter(Boolean)
-      .join(" · ");
     return (
       <button type="button" onClick={() => setEditing(true)} className="flex items-center gap-4 text-left">
         <div
@@ -86,7 +104,9 @@ export function ProfileHeader({
         <div className="min-w-0">
           <p className="text-xl font-bold tracking-[-0.02em] text-text-primary">{displayName}</p>
           {bio && <p className="mt-0.5 truncate text-[13px] text-text-secondary">{bio}</p>}
-          {stats && <p className="mt-0.5 text-xs text-text-muted">{stats}</p>}
+          <p className="mt-0.5 text-xs text-text-muted">
+            {languageLabel(language)} · {timezoneLabel(timezone)}
+          </p>
           <p className="mt-0.5 text-xs text-text-muted">프로필 편집</p>
         </div>
       </button>
@@ -129,41 +149,43 @@ export function ProfileHeader({
       <input
         value={bioInput}
         onChange={(e) => setBioInput(e.target.value)}
-        placeholder="한줄 멘트"
+        placeholder="한줄 소개"
         maxLength={60}
         className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[13px] text-text-primary outline-none"
         style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
       />
 
       <div className="flex gap-2">
-        <div className="relative flex-1">
-          <input
-            value={heightInput}
-            onChange={(e) => setHeightInput(e.target.value)}
-            type="number"
-            inputMode="decimal"
-            placeholder="키"
-            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-4 pr-10 text-[15px] text-text-primary outline-none"
+        <label className="flex flex-1 flex-col gap-1.5">
+          <span className="text-xs font-medium text-text-muted">언어</span>
+          <select
+            value={languageInput}
+            onChange={(e) => setLanguageInput(e.target.value)}
+            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-          />
-          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs text-text-muted">
-            cm
-          </span>
-        </div>
-        <div className="relative flex-1">
-          <input
-            value={weightInput}
-            onChange={(e) => setWeightInput(e.target.value)}
-            type="number"
-            inputMode="decimal"
-            placeholder="몸무게"
-            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-4 pr-10 text-[15px] text-text-primary outline-none"
+          >
+            {LANGUAGE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-1 flex-col gap-1.5">
+          <span className="text-xs font-medium text-text-muted">시간대</span>
+          <select
+            value={timezoneInput}
+            onChange={(e) => setTimezoneInput(e.target.value)}
+            className="min-h-[44px] w-full rounded-[var(--radius-md)] px-3 text-[13px] text-text-primary outline-none"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-          />
-          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs text-text-muted">
-            kg
-          </span>
-        </div>
+          >
+            {TIMEZONE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {error && <p className="text-[12px] text-error">{error}</p>}
