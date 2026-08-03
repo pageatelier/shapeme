@@ -38,38 +38,38 @@ function normalizeSets(sets: boolean[] | undefined, targetSets: number): boolean
 export async function getRoutines(userId: string, logDate: string): Promise<WorkoutRoutine[]> {
   const supabase = await createClient();
 
-  const { data: routineRows, error: routineError } = await supabase
-    .from("workout_routines")
-    .select("id, name, days, order_index")
-    .eq("user_id", userId)
-    .order("order_index", { ascending: true });
-  if (routineError) throw routineError;
-
-  const routines = (routineRows ?? []) as RoutineRow[];
-  if (routines.length === 0) return [];
-
-  const routineIds = routines.map((r) => r.id);
-
-  const { data: exerciseRows, error: exerciseError } = await supabase
-    .from("workout_exercises")
-    .select("id, routine_id, name, target_sets, target_reps, weight_kg, rest_seconds, memo, order_index")
-    .in("routine_id", routineIds)
-    .order("order_index", { ascending: true });
-  if (exerciseError) throw exerciseError;
-
-  const exercises = (exerciseRows ?? []) as ExerciseRow[];
-  const exerciseIds = exercises.map((e) => e.id);
-
-  let logsByExerciseId = new Map<string, boolean[]>();
-  if (exerciseIds.length > 0) {
-    const { data: logRows, error: logError } = await supabase
+  // All three tables carry their own user_id (RLS-scoped individually), so
+  // they can be fetched in parallel instead of chaining routine ids into the
+  // exercise query and exercise ids into the set-log query — that chain was
+  // three sequential round trips for data one filter already covers.
+  const [routinesResult, exercisesResult, logsResult] = await Promise.all([
+    supabase
+      .from("workout_routines")
+      .select("id, name, days, order_index")
+      .eq("user_id", userId)
+      .order("order_index", { ascending: true }),
+    supabase
+      .from("workout_exercises")
+      .select("id, routine_id, name, target_sets, target_reps, weight_kg, rest_seconds, memo, order_index")
+      .eq("user_id", userId)
+      .order("order_index", { ascending: true }),
+    supabase
       .from("workout_set_logs")
       .select("exercise_id, sets")
-      .eq("log_date", logDate)
-      .in("exercise_id", exerciseIds);
-    if (logError) throw logError;
-    logsByExerciseId = new Map((logRows as SetLogRow[] | null ?? []).map((r) => [r.exercise_id, r.sets]));
-  }
+      .eq("user_id", userId)
+      .eq("log_date", logDate),
+  ]);
+  if (routinesResult.error) throw routinesResult.error;
+  if (exercisesResult.error) throw exercisesResult.error;
+  if (logsResult.error) throw logsResult.error;
+
+  const routines = (routinesResult.data ?? []) as RoutineRow[];
+  if (routines.length === 0) return [];
+
+  const exercises = (exercisesResult.data ?? []) as ExerciseRow[];
+  const logsByExerciseId = new Map(
+    ((logsResult.data as SetLogRow[] | null) ?? []).map((r) => [r.exercise_id, r.sets]),
+  );
 
   const exercisesByRoutineId = new Map<string, WorkoutExercise[]>();
   for (const e of exercises) {
@@ -116,41 +116,22 @@ export async function getRoutinesSafe(userId: string, logDate: string): Promise<
 export async function getMoveRecordCountSafe(userId: string): Promise<number> {
   try {
     const supabase = await createClient();
+
+    // workout_set_logs and movement_logs both carry their own user_id, so —
+    // same as getRoutines above — there's no need to chain through routines
+    // and exercises just to reach them.
+    const [setLogsResult, movementResult] = await Promise.all([
+      supabase.from("workout_set_logs").select("log_date, sets").eq("user_id", userId),
+      supabase.from("movement_logs").select("log_date").eq("user_id", userId),
+    ]);
+    if (setLogsResult.error) throw setLogsResult.error;
+    if (movementResult.error) throw movementResult.error;
+
     const recordedDates = new Set<string>();
-
-    const { data: routineRows, error: routineError } = await supabase
-      .from("workout_routines")
-      .select("id")
-      .eq("user_id", userId);
-    if (routineError) throw routineError;
-    const routineIds = (routineRows ?? []).map((r) => r.id as string);
-
-    if (routineIds.length > 0) {
-      const { data: exerciseRows, error: exerciseError } = await supabase
-        .from("workout_exercises")
-        .select("id")
-        .in("routine_id", routineIds);
-      if (exerciseError) throw exerciseError;
-      const exerciseIds = (exerciseRows ?? []).map((e) => e.id as string);
-
-      if (exerciseIds.length > 0) {
-        const { data: logRows, error: logError } = await supabase
-          .from("workout_set_logs")
-          .select("log_date, sets")
-          .in("exercise_id", exerciseIds);
-        if (logError) throw logError;
-        for (const row of (logRows as { log_date: string; sets: boolean[] }[] | null) ?? []) {
-          if (row.sets?.some(Boolean)) recordedDates.add(row.log_date);
-        }
-      }
+    for (const row of (setLogsResult.data as { log_date: string; sets: boolean[] }[] | null) ?? []) {
+      if (row.sets?.some(Boolean)) recordedDates.add(row.log_date);
     }
-
-    const { data: movementRows, error: movementError } = await supabase
-      .from("movement_logs")
-      .select("log_date")
-      .eq("user_id", userId);
-    if (movementError) throw movementError;
-    for (const row of (movementRows as { log_date: string }[] | null) ?? []) {
+    for (const row of (movementResult.data as { log_date: string }[] | null) ?? []) {
       recordedDates.add(row.log_date);
     }
 
