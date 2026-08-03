@@ -8,6 +8,12 @@ alter table public.daily_notes
 -- No new SELECT policy on daily_notes — friends still only ever see a
 -- memo through this narrow RPC, and only when is_public is true, same
 -- "no broad cross-user access" pattern as the rest of Together.
+--
+-- CREATE OR REPLACE can't change a function's OUT-parameter row type
+-- (we're adding a `memo` column here) — Postgres requires dropping it
+-- first, which also clears the earlier grants below re-establish.
+drop function if exists public.get_friends_today();
+
 create or replace function public.get_friends_today()
 returns table (
   friend_id uuid,
