@@ -44,7 +44,7 @@ export function CheerPanel({
   if (cheered) {
     return (
       <div
-        className="flex min-h-[54px] items-center justify-center rounded-[18px] text-[14px] font-bold text-text-secondary"
+        className="flex min-h-[54px] items-center justify-center rounded-[var(--radius-md)] text-[14px] font-bold text-text-secondary"
         style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
       >
         오늘의 응원을 보냈어요 💗
@@ -62,16 +62,7 @@ export function CheerPanel({
               key={opt.type}
               type="button"
               onClick={() => setSelected(opt.type)}
-              className="min-h-[46px] flex-1 rounded-full px-1.5 text-[11px] font-semibold whitespace-nowrap transition-transform duration-150 active:scale-[0.97]"
-              style={
-                active
-                  ? { background: "var(--gradient-primary)", color: "#fff", border: "1px solid transparent" }
-                  : {
-                      background: "var(--surface-soft)",
-                      color: "var(--color-text-primary)",
-                      border: "var(--border-soft)",
-                    }
-              }
+              className={`min-h-[46px] flex-1 rounded-full px-1.5 text-[11px] font-semibold whitespace-nowrap transition-transform duration-150 active:scale-[0.97] ${active ? "pill-selected" : "pill-unselected"}`}
             >
               {opt.label}
             </button>
@@ -85,7 +76,7 @@ export function CheerPanel({
         type="button"
         onClick={handleSend}
         disabled={!selected || sending}
-        className="mx-[6px] min-h-[54px] rounded-[18px] text-[15px] font-bold text-white transition-opacity disabled:opacity-40"
+        className="mx-[6px] min-h-[54px] rounded-[var(--radius-md)] text-[15px] font-bold text-white transition-opacity disabled:opacity-40"
         style={{ background: "var(--gradient-primary)" }}
       >
         {sending ? "보내는 중..." : "응원 보내기"}

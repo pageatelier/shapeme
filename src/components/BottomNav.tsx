@@ -19,8 +19,9 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-4 left-1/2 z-10 flex w-[calc(100%-32px)] max-w-[calc(var(--container-sm)-32px)] -translate-x-1/2 items-center justify-between rounded-full border px-2.5 py-2"
+      className="fixed left-1/2 z-10 flex w-[calc(100%-32px)] max-w-[calc(var(--container-sm)-32px)] -translate-x-1/2 items-center justify-between rounded-full border px-2.5 py-2"
       style={{
+        bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
         background: "var(--glass-background-strong)",
         borderColor: "var(--glass-border)",
         boxShadow: "var(--shadow-floating)",
@@ -35,7 +36,7 @@ export function BottomNav() {
           <Link
             key={href}
             href={href}
-            className="flex flex-1 flex-col items-center gap-[3px] py-1"
+            className="flex min-h-[44px] flex-1 flex-col items-center justify-center gap-[3px]"
             style={{ color: active ? "var(--color-pink-500)" : "var(--color-text-muted)" }}
           >
             <Icon className="h-5 w-5" />

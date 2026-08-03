@@ -16,12 +16,14 @@ export function ExerciseCard({
   orderIndex,
   prev,
   next,
+  editMode = false,
 }: {
   exercise: WorkoutExercise;
   date: string;
   orderIndex: number;
   prev?: Neighbor;
   next?: Neighbor;
+  editMode?: boolean;
 }) {
   const router = useRouter();
   const [sets, setSets] = useState(exercise.sets);
@@ -78,7 +80,7 @@ export function ExerciseCard({
           <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
             {exercise.name}
           </p>
-          <p className="font-en text-[13px] text-text-muted">
+          <p className="font-en text-[13px] text-text-secondary">
             {exercise.targetReps}회 × {exercise.targetSets}세트
             {exercise.weightKg ? ` · ${exercise.weightKg}kg` : ""}
           </p>
@@ -94,34 +96,38 @@ export function ExerciseCard({
           >
             {complete ? "완료" : `${done}/${exercise.targetSets}`}
           </span>
-          <div className="flex flex-col">
-            <button
-              type="button"
-              onClick={() => move(prev)}
-              disabled={!prev || reordering}
-              aria-label="위로 이동"
-              className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
-            >
-              <ChevronUpIcon className="h-3 w-3" />
-            </button>
-            <button
-              type="button"
-              onClick={() => move(next)}
-              disabled={!next || reordering}
-              aria-label="아래로 이동"
-              className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
-            >
-              <ChevronDownIcon className="h-3 w-3" />
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            aria-label="운동 편집"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted"
-          >
-            <EditIcon className="h-3.5 w-3.5" />
-          </button>
+          {editMode && (
+            <>
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => move(prev)}
+                  disabled={!prev || reordering}
+                  aria-label="위로 이동"
+                  className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
+                >
+                  <ChevronUpIcon className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(next)}
+                  disabled={!next || reordering}
+                  aria-label="아래로 이동"
+                  className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
+                >
+                  <ChevronDownIcon className="h-3 w-3" />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                aria-label="운동 편집"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-text-muted"
+              >
+                <EditIcon className="h-3.5 w-3.5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
       <SetDots sets={sets} onToggle={toggleSet} size={28} />

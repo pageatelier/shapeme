@@ -3,14 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeftIcon } from "@/components/icons";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
+import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 import { createClient } from "@/lib/supabase/server";
 
-const slots: { id: BodyPhotoSlot; label: string }[] = [
-  { id: "front", label: "Front" },
-  { id: "side", label: "Side" },
-  { id: "back", label: "Back" },
-];
+const slots: BodyPhotoSlot[] = ["front", "side", "back"];
 
 export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]">) {
   const { date } = await props.params;
@@ -40,15 +37,11 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
       <div className="glass-card flex flex-col gap-4 p-5">
         <div className="grid grid-cols-3 gap-3">
           {slots.map((slot) => {
-            const filled = entry[slot.id];
+            const filled = entry[slot];
             const imageUrl =
-              slot.id === "front"
-                ? entry.frontImageUrl
-                : slot.id === "side"
-                  ? entry.sideImageUrl
-                  : entry.backImageUrl;
+              slot === "front" ? entry.frontImageUrl : slot === "side" ? entry.sideImageUrl : entry.backImageUrl;
             return (
-              <div key={slot.id} className="flex flex-col items-center gap-2">
+              <div key={slot} className="flex flex-col items-center gap-2">
                 <div
                   className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
                   style={
@@ -60,16 +53,14 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
                   {imageUrl && (
                     <Image
                       src={imageUrl}
-                      alt={`${slot.label} 사진`}
+                      alt={`${SLOT_LABELS[slot]} 사진`}
                       fill
                       sizes="(max-width: 480px) 30vw, 140px"
                       className="object-cover"
                     />
                   )}
                 </div>
-                <span className="font-en text-[11px] font-semibold text-text-secondary lowercase">
-                  {slot.label}
-                </span>
+                <span className="text-[11px] font-semibold text-text-secondary">{SLOT_LABELS[slot]}</span>
               </div>
             );
           })}

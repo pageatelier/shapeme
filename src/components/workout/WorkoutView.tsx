@@ -24,6 +24,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
   const [activeId, setActiveId] = useState<string | null>(defaultRoutineId);
   const [editingRoutine, setEditingRoutine] = useState(false);
   const [addingExercise, setAddingExercise] = useState(false);
+  const [exerciseEditMode, setExerciseEditMode] = useState(false);
 
   const activeRoutine = routines.find((r) => r.id === activeId) ?? routines[0] ?? null;
 
@@ -31,7 +32,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
     return (
       <div className="flex flex-col gap-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">무브</h1>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Move</h1>
         </div>
         <div className="glass-card flex flex-col items-center gap-3 p-8 text-center">
           <p className="text-[15px] font-bold text-text-primary">아직 운동 루틴이 없어요</p>
@@ -56,16 +57,25 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
           {date} · {todayLabel}요일
         </p>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">무브</h1>
-          <button
-            type="button"
-            onClick={() => setEditingRoutine((v) => !v)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary"
-            style={{ background: "rgba(255,255,255,0.72)", border: "var(--border-soft)" }}
-            aria-label="루틴 편집"
-          >
-            <EditIcon className="h-4 w-4" />
-          </button>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Move</h1>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setExerciseEditMode((v) => !v)}
+              className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${exerciseEditMode ? "pill-selected" : "pill-unselected"}`}
+            >
+              편집
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditingRoutine((v) => !v)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary"
+              style={{ background: "rgba(255,255,255,0.72)", border: "var(--border-soft)" }}
+              aria-label="루틴 편집"
+            >
+              <EditIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -86,8 +96,8 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
             {doneSets} / {totalSets}세트 완료
           </p>
         </div>
-        <div className="font-en text-3xl font-semibold tracking-[-0.05em] text-text-primary">
-          {progress}
+        <div className="font-en flex items-baseline text-text-primary">
+          <span className="text-3xl font-semibold tracking-[-0.05em]">{progress}</span>
           <span className="text-sm text-text-muted">%</span>
         </div>
       </div>
@@ -101,6 +111,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
             exercise={exercise}
             date={date}
             orderIndex={i}
+            editMode={exerciseEditMode}
             prev={
               i > 0
                 ? { id: activeRoutine.exercises[i - 1].id, orderIndex: activeRoutine.exercises[i - 1].orderIndex }
@@ -134,7 +145,7 @@ export function WorkoutView({ routines, date }: { routines: WorkoutRoutine[]; da
             type="button"
             onClick={() => setAddingExercise(true)}
             className="flex min-h-[52px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[13px] font-semibold text-text-secondary"
-            style={{ background: "var(--surface-card)", border: "1px dashed rgba(86, 62, 58, 0.2)" }}
+            style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
           >
             <PlusIcon className="h-4 w-4" />
             운동 추가

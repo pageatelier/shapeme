@@ -63,7 +63,7 @@ export function CalendarGrid({
               key={day.isoDate}
               type="button"
               onClick={() => setSelectedIso(day.isoDate)}
-              className="font-en flex aspect-square items-center justify-center rounded-[10px] text-[12px] font-semibold"
+              className="font-en flex aspect-square items-center justify-center rounded-[var(--radius-sm)] text-[12px] font-semibold"
               style={{
                 ...dayStyle(day.completionRate),
                 outline: day.isToday

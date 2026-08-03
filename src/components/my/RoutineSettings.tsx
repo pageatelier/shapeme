@@ -58,7 +58,7 @@ export function RoutineSettings({ settings }: { settings: Settings }) {
             편집
           </button>
         </div>
-        <div className="surface-card divide-y" style={{ borderColor: "rgba(86,62,58,0.07)" }}>
+        <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
           <Link href="/workout" className="flex w-full items-center justify-between px-4 py-3.5 text-left">
             <span className="text-[13px] font-medium text-text-primary">운동 루틴 관리</span>
             <ChevronRightIcon className="h-3.5 w-3.5 text-text-muted" />

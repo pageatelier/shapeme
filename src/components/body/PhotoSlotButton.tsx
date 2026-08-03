@@ -4,13 +4,8 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CameraIcon } from "@/components/icons";
 import { uploadBodyPhoto } from "@/lib/body/upload";
+import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
-
-const slotLabel: Record<BodyPhotoSlot, string> = {
-  front: "Front",
-  side: "Side",
-  back: "Back",
-};
 
 /**
  * One Front/Side/Back tile: tap it (or "사진 선택") to open the OS's native
@@ -69,19 +64,17 @@ export function PhotoSlotButton({
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt={`${slotLabel[slot]} 사진`} className="h-full w-full object-cover" />
+          <img src={preview} alt={`${SLOT_LABELS[slot]} 사진`} className="h-full w-full object-cover" />
         ) : (
           <CameraIcon className={isFilled ? "h-6 w-6 text-white/85" : "h-6 w-6 text-text-muted"} />
         )}
         {uploading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/25">
-            <span className="font-en text-[10px] font-semibold text-white">저장 중...</span>
+            <span className="text-[10px] font-semibold text-white">저장 중...</span>
           </div>
         )}
       </button>
-      <span className="font-en text-[11px] font-semibold text-text-secondary lowercase">
-        {slotLabel[slot]}
-      </span>
+      <span className="text-[11px] font-semibold text-text-secondary">{SLOT_LABELS[slot]}</span>
       <input
         ref={inputRef}
         type="file"
@@ -94,7 +87,7 @@ export function PhotoSlotButton({
         onClick={() => inputRef.current?.click()}
         className="text-[11px] font-semibold text-pink-500"
       >
-        {isFilled ? "다시 선택" : "사진 선택"}
+        {isFilled ? "사진 변경" : "사진 선택"}
       </button>
       {error && <span className="text-center text-[10px] text-error">{error}</span>}
     </div>

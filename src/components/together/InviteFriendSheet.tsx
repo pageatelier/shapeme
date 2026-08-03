@@ -16,12 +16,14 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
     if (!myCode) return;
     try {
       await navigator.clipboard.writeText(myCode);
-      setToast("코드를 복사했어요.");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
     } catch {
       setAddError("복사에 실패했어요. 직접 선택해서 복사해주세요.");
     }
@@ -73,10 +75,14 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
               type="button"
               onClick={handleCopy}
               disabled={!myCode}
-              className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[13px] font-semibold text-text-secondary disabled:opacity-60"
-              style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+              className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[13px] font-semibold disabled:opacity-60"
+              style={
+                copied
+                  ? { background: "var(--color-success-soft)", color: "var(--color-success)", border: "1px solid transparent" }
+                  : { background: "var(--surface-card)", color: "var(--color-text-secondary)", border: "var(--border-soft)" }
+              }
             >
-              코드 복사
+              {copied ? "복사됨 ✓" : "코드 복사"}
             </button>
           </div>
         </div>
@@ -109,7 +115,7 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
           {friends.length === 0 ? (
             <p className="text-[12px] text-text-disabled">아직 친구가 없어요.</p>
           ) : (
-            <div className="surface-card divide-y" style={{ borderColor: "rgba(86,62,58,0.07)" }}>
+            <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
               {friends.map((friend) => (
                 <div key={friend.friendId} className="flex flex-col gap-2 px-4 py-3">
                   <div className="flex items-center justify-between">
@@ -135,7 +141,7 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
 
                   {confirmRemoveId === friend.friendId && (
                     <div className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] p-2.5" style={{ background: "var(--color-error-soft)" }}>
-                      <span className="text-[11px] text-text-secondary">친구를 삭제할까요?</span>
+                      <span className="text-[11px] text-text-secondary">이 친구를 삭제할까요?</span>
                       <div className="flex gap-1.5">
                         <button
                           type="button"

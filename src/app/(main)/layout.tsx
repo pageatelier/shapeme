@@ -18,7 +18,7 @@ export default async function MainLayout({
     <div className="app-shell" data-theme={settings.darkModeEnabled ? "dark" : "light"}>
       <DateRolloverWatcher />
       <div className="ambient-layer" />
-      <div className="app-content px-5 pt-6 pb-28">{children}</div>
+      <div className="app-content px-5 pt-6">{children}</div>
       <BottomNav />
     </div>
   );

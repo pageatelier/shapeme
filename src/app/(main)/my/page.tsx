@@ -3,6 +3,7 @@ import { ChevronRightIcon } from "@/components/icons";
 import { DeleteAccountSection } from "@/components/my/DeleteAccountSection";
 import { LogoutButton } from "@/components/my/LogoutButton";
 import { MealWaterSettings } from "@/components/my/MealWaterSettings";
+import { NotificationSettings } from "@/components/my/NotificationSettings";
 import { ProfileHeader } from "@/components/my/ProfileHeader";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
 import { InviteFriendSheet } from "@/components/together/InviteFriendSheet";
@@ -57,6 +58,7 @@ export default async function MyPage() {
 
       <SettingsGroup title="추가 기능">
         <MealWaterSettings settings={settings} />
+        <NotificationSettings settings={settings} />
       </SettingsGroup>
 
       <InviteFriendSheet myCode={myFriendCode} friends={friends} />
@@ -64,11 +66,17 @@ export default async function MyPage() {
       <SettingsGroup title="보안 및 계정">
         <StaticRow label="개인정보 안내" value="본인만 조회 가능" />
         <StaticRow label="사진 보안 안내" value="비공개 저장" />
-        <DeleteAccountSection />
         <div className="flex justify-center p-4">
           <LogoutButton />
         </div>
       </SettingsGroup>
+
+      <div
+        className="rounded-[var(--radius-lg)]"
+        style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
+      >
+        <DeleteAccountSection />
+      </div>
     </div>
   );
 }

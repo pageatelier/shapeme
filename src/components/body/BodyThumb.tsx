@@ -1,12 +1,7 @@
 import Image from "next/image";
 import { CameraIcon, PlusIcon } from "@/components/icons";
+import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
-
-const slotLabel: Record<BodyPhotoSlot, string> = {
-  front: "Front",
-  side: "Side",
-  back: "Back",
-};
 
 export function BodyThumb({
   slot,
@@ -38,7 +33,7 @@ export function BodyThumb({
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={`${slotLabel[slot]} 사진`}
+            alt={`${SLOT_LABELS[slot]} 사진`}
             fill
             sizes={`${size}px`}
             className="object-cover"
@@ -49,11 +44,7 @@ export function BodyThumb({
           <PlusIcon className="h-1/3 w-1/3" />
         )}
       </div>
-      {showLabel && (
-        <span className="font-en text-[10px] font-semibold text-text-muted lowercase">
-          {slotLabel[slot]}
-        </span>
-      )}
+      {showLabel && <span className="text-[10px] font-semibold text-text-muted">{SLOT_LABELS[slot]}</span>}
     </div>
   );
 }

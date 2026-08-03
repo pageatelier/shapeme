@@ -6,7 +6,7 @@ export function StaticRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex w-full items-center justify-between px-4 py-3.5 text-left">
       <span className="text-[13px] font-medium text-text-primary">{label}</span>
-      {value && <span className="text-xs text-text-muted">{value}</span>}
+      {value && <span className="text-xs text-text-secondary">{value}</span>}
     </div>
   );
 }
@@ -31,7 +31,7 @@ export function ActionRow({
       >
         {label}
       </span>
-      <span className="flex items-center gap-1.5 text-xs text-text-muted">
+      <span className="flex items-center gap-1.5 text-xs text-text-secondary">
         {value}
         <ChevronRightIcon className="h-3.5 w-3.5" />
       </span>
@@ -43,7 +43,7 @@ export function SettingsGroup({ title, children }: { title: string; children: Re
   return (
     <section>
       <p className="mb-2 px-1 text-[13px] font-bold text-text-secondary">{title}</p>
-      <div className="surface-card divide-y" style={{ borderColor: "rgba(86,62,58,0.07)" }}>
+      <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
         {children}
       </div>
     </section>

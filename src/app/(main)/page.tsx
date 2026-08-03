@@ -150,8 +150,8 @@ export default async function TodayPage() {
       )}
 
       <div className="grid grid-cols-3 gap-3">
-        {recordCards.map(({ key, label, href, Icon, thumbnailUrl }) => (
-          <Link key={key} href={href} className="surface-card flex flex-col items-center gap-2 p-4 text-center">
+        {recordCards.map(({ key, label, href, Icon, thumbnailUrl, hasRecord, summary }) => (
+          <Link key={key} href={href} className="surface-card flex flex-col items-center gap-1.5 p-4 text-center">
             {thumbnailUrl ? (
               <div
                 className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full"
@@ -163,6 +163,9 @@ export default async function TodayPage() {
               <Icon className="h-[22px] w-[22px] text-peach-400" />
             )}
             <p className="text-[13px] font-bold tracking-[-0.02em] text-text-primary">{label}</p>
+            <p className="line-clamp-1 text-[11px] leading-tight text-text-secondary">
+              {hasRecord ? summary : "미기록"}
+            </p>
           </Link>
         ))}
       </div>

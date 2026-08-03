@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 
 const slots: BodyPhotoSlot[] = ["front", "side", "back"];
@@ -21,7 +22,7 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
   if (sorted.length < 2) {
     return (
       <section>
-        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
+        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
         <div className="surface-card p-5 text-center text-[13px] text-text-muted">
           비교하려면 눈바디 기록이 2개 이상 필요해요.
         </div>
@@ -35,7 +36,10 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-[17px] font-bold tracking-[-0.025em] text-text-primary">Compare</p>
+        <div>
+          <p className="text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
+          {!expanded && <p className="mt-0.5 text-[11px] text-text-secondary">비교할 사진 선택</p>}
+        </div>
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
@@ -57,9 +61,7 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
 
           {slots.map((slot) => (
             <div key={slot} className="mb-4 last:mb-0">
-              <p className="font-en mb-2 text-[11px] font-semibold tracking-[0.08em] text-text-muted lowercase">
-                {slot}
-              </p>
+              <p className="mb-2 text-[11px] font-semibold text-text-muted">{SLOT_LABELS[slot]}</p>
               <div className="grid grid-cols-2 gap-3">
                 <ComparePane entry={left} slot={slot} />
                 <ComparePane entry={right} slot={slot} />
@@ -114,7 +116,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt={`${slot} 비교 사진`}
+          alt={`${SLOT_LABELS[slot]} 비교 사진`}
           fill
           sizes="(max-width: 480px) 45vw, 200px"
           className="object-cover"

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { CloseIcon } from "@/components/icons";
-import { formatDateLabelWithYear } from "@/lib/body/date";
+import { formatDateLabelWithYear, todayIsoDate } from "@/lib/body/date";
 import { primaryPhotoUrl } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
 
@@ -15,12 +15,17 @@ import type { BodyEntry } from "@/lib/body/types";
 export function BodyFeedViewer({
   entries,
   initialDate,
+  weightKg,
   onClose,
 }: {
   entries: BodyEntry[];
   initialDate: string;
+  weightKg: number | null;
   onClose: () => void;
 }) {
+  // Only the current weight is stored (no per-date history), so it's only
+  // honest to show it next to today's entry, not implied for past dates.
+  const todayIso = todayIsoDate();
   const itemRefs = useRef(new Map<string, HTMLDivElement>());
 
   useEffect(() => {
@@ -72,7 +77,12 @@ export function BodyFeedViewer({
                 }}
                 className="flex flex-col gap-2"
               >
-                <p className="text-[13px] font-bold text-text-primary">{formatDateLabelWithYear(entry.date)}</p>
+                <p className="text-[13px] font-bold text-text-primary">
+                  {formatDateLabelWithYear(entry.date)}
+                  {entry.date === todayIso && weightKg != null && (
+                    <span className="ml-1.5 font-normal text-text-secondary">· 체중 {weightKg}kg</span>
+                  )}
+                </p>
                 <div
                   className="relative aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-lg)]"
                   style={{ background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }}

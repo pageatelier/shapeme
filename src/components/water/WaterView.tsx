@@ -102,7 +102,7 @@ export function WaterView({
 
       <section>
         <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">오늘의 기록</p>
-        <div className="surface-card divide-y" style={{ borderColor: "rgba(86,62,58,0.07)" }}>
+        <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
           {localEntries.length === 0 && (
             <p className="p-4 text-[13px] text-text-muted">아직 기록이 없어요.</p>
           )}
@@ -110,11 +110,7 @@ export function WaterView({
             .slice()
             .reverse()
             .map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-center justify-between p-4"
-                style={{ borderColor: "rgba(86,62,58,0.07)" }}
-              >
+              <div key={entry.id} className="flex items-center justify-between p-4">
                 <span className="font-en text-[13px] text-text-muted">{entry.time}</span>
                 <span className="text-[13px] font-semibold text-text-primary">+{entry.amountMl}ml</span>
               </div>

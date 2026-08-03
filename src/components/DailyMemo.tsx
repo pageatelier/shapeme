@@ -51,12 +51,7 @@ export function DailyMemo({ date, note }: { date: string; note: DailyNote }) {
             setIsPublic(false);
             markDirty();
           }}
-          className="rounded-full px-3 py-1 text-[11px] font-semibold"
-          style={
-            !isPublic
-              ? { background: "var(--gradient-primary)", color: "#fff" }
-              : { background: "var(--surface-soft)", color: "var(--color-text-muted)", border: "var(--border-soft)" }
-          }
+          className={`rounded-full px-3 py-1 text-[11px] ${!isPublic ? "pill-selected" : "pill-unselected"}`}
         >
           나만 보기
         </button>
@@ -66,24 +61,19 @@ export function DailyMemo({ date, note }: { date: string; note: DailyNote }) {
             setIsPublic(true);
             markDirty();
           }}
-          className="rounded-full px-3 py-1 text-[11px] font-semibold"
-          style={
-            isPublic
-              ? { background: "var(--gradient-primary)", color: "#fff" }
-              : { background: "var(--surface-soft)", color: "var(--color-text-muted)", border: "var(--border-soft)" }
-          }
+          className={`rounded-full px-3 py-1 text-[11px] ${isPublic ? "pill-selected" : "pill-unselected"}`}
         >
           친구에게 공개
         </button>
       </div>
       {isPublic && (
-        <p className="mt-1.5 text-[11px] leading-relaxed text-text-disabled">
+        <p className="mt-1.5 text-[11px] leading-relaxed text-text-secondary">
           친구 목록의 내 프로필 위에 짧게 보여요. 눈바디 사진·체중·운동 기록은 여전히 공개되지 않아요.
         </p>
       )}
 
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-[11px] text-text-disabled">
+        <span className="text-[11px] text-text-secondary">
           {error ? <span className="text-error">{error}</span> : saved ? "저장됨" : "저장 안 됨"}
         </span>
         <button

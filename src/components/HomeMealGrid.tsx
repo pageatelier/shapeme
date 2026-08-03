@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { CameraIcon } from "@/components/icons";
 import { uploadMealPhoto } from "@/lib/meal/mutations";
+import { MEAL_TITLES } from "@/lib/meal/types";
 import type { MealLog } from "@/lib/meal/types";
 
 export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
@@ -45,7 +46,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
             key={meal.type}
             type="button"
             onClick={() => inputRefs.current[meal.type]?.click()}
-            className="relative flex aspect-square flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[16px]"
+            className="relative flex aspect-square flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[var(--radius-md)]"
             style={
               filled
                 ? {
@@ -64,15 +65,13 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={preview}
-                alt={`${meal.type} 사진`}
+                alt={`${MEAL_TITLES[meal.type]} 사진`}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
               <>
                 <CameraIcon className="h-[18px] w-[18px]" />
-                <span className="font-en text-[10px] font-semibold tracking-[0.04em] lowercase">
-                  {meal.type}
-                </span>
+                <span className="text-[11px] font-semibold">{MEAL_TITLES[meal.type]}</span>
               </>
             )}
             {uploading === meal.type && (

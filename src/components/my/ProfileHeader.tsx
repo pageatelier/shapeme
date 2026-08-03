@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { CameraIcon } from "@/components/icons";
+import { CameraIcon, EditIcon } from "@/components/icons";
 import { updateProfile } from "@/lib/profile/mutations";
 
 const LANGUAGE_OPTIONS = [
@@ -97,7 +97,7 @@ export function ProfileHeader({
 
   if (!editing) {
     return (
-      <button type="button" onClick={() => setEditing(true)} className="flex items-center gap-4 text-left">
+      <button type="button" onClick={() => setEditing(true)} className="flex min-h-[44px] items-center gap-4 text-left">
         <div
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
@@ -112,7 +112,10 @@ export function ProfileHeader({
           <p className="mt-0.5 text-xs text-text-muted">
             {languageLabel(language)} · {timezoneLabel(timezone)}
           </p>
-          <p className="mt-0.5 text-xs text-text-muted">프로필 편집</p>
+          <p className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-pink-500">
+            <EditIcon className="h-3 w-3" />
+            프로필 편집
+          </p>
         </div>
       </button>
     );

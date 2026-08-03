@@ -35,18 +35,24 @@ export function MealWaterSettings({ settings }: { settings: Settings }) {
 
   return (
     <>
-      <ToggleRow
-        label="식단 기록 사용"
-        on={mealEnabled}
-        disabled={pending === "mealTrackingEnabled"}
-        onToggle={() => toggle("mealTrackingEnabled", mealEnabled, setMealEnabled)}
-      />
-      <ToggleRow
-        label="물 섭취 기록 사용"
-        on={waterEnabled}
-        disabled={pending === "waterTrackingEnabled"}
-        onToggle={() => toggle("waterTrackingEnabled", waterEnabled, setWaterEnabled)}
-      />
+      <div>
+        <ToggleRow
+          label="식단 기록 사용"
+          on={mealEnabled}
+          disabled={pending === "mealTrackingEnabled"}
+          onToggle={() => toggle("mealTrackingEnabled", mealEnabled, setMealEnabled)}
+        />
+        <p className="px-4 pb-3 text-[11px] text-text-secondary">켜면 Today 화면에 식단 기록이 표시돼요.</p>
+      </div>
+      <div>
+        <ToggleRow
+          label="물 섭취 기록 사용"
+          on={waterEnabled}
+          disabled={pending === "waterTrackingEnabled"}
+          onToggle={() => toggle("waterTrackingEnabled", waterEnabled, setWaterEnabled)}
+        />
+        <p className="px-4 pb-3 text-[11px] text-text-secondary">켜면 Today 화면에 물 섭취 기록이 표시돼요.</p>
+      </div>
     </>
   );
 }

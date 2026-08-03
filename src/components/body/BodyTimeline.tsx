@@ -21,7 +21,7 @@ function yearMonthKey(date: string) {
   return date.slice(0, 7); // "YYYY-MM"
 }
 
-export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
+export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weightKg: number | null }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [openDate, setOpenDate] = useState<string | null>(null);
 
@@ -43,7 +43,7 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
   if (sorted.length === 0) {
     return (
       <section>
-        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Timeline</p>
+        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">지난 기록</p>
         <div className="surface-card p-5 text-center text-[13px] text-text-muted">
           아직 눈바디 기록이 없어요. 위에서 사진을 촬영해 첫 기록을 남겨보세요.
         </div>
@@ -53,7 +53,7 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
 
   return (
     <section>
-      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">Timeline</p>
+      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">지난 기록</p>
       <div className="flex flex-col gap-5">
         {[...groups.entries()].map(([key, monthEntries]) => (
           <div key={key}>
@@ -114,7 +114,12 @@ export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
       )}
 
       {openDate && (
-        <BodyFeedViewer entries={visible} initialDate={openDate} onClose={() => setOpenDate(null)} />
+        <BodyFeedViewer
+          entries={visible}
+          initialDate={openDate}
+          weightKg={weightKg}
+          onClose={() => setOpenDate(null)}
+        />
       )}
     </section>
   );
