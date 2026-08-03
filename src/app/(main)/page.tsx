@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
 import { HomeHeader } from "@/components/HomeHeader";
+import { HomeMealGrid } from "@/components/HomeMealGrid";
+import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { CameraIcon, HeartIcon, MoveIcon, NoteIcon } from "@/components/icons";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
@@ -78,10 +80,11 @@ export default async function TodayPage() {
   const dailyNote = user ? await getDailyNoteSafe(user.id, todayIso) : { memo: null, isPublic: false };
   const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
   const friends = user ? await getFriendsTodaySafe() : [];
-  const cheerSenderIds = user ? await getCheersReceivedTodaySafe(user.id, todayIso) : [];
-  const cheerSenderNames = cheerSenderIds.map(
-    (id) => friends.find((f) => f.friendId === id)?.displayName ?? "친구",
-  );
+  const receivedCheers = user ? await getCheersReceivedTodaySafe(user.id, todayIso) : [];
+  const cheerNotifications = receivedCheers.map((cheer) => ({
+    displayName: friends.find((f) => f.friendId === cheer.senderId)?.displayName ?? "친구",
+    type: cheer.type,
+  }));
 
   const recordCards = [
     {
@@ -117,7 +120,7 @@ export default async function TodayPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <HomeHeader cheerSenderNames={cheerSenderNames} />
+      <HomeHeader cheerNotifications={cheerNotifications} />
 
       <TogetherStories
         me={{ displayName, avatarUrl, todayProgress: completionRate, memo: myPublicMemo }}
@@ -190,6 +193,28 @@ export default async function TodayPage() {
           )}
         </div>
       </div>
+
+      {settings.mealTrackingEnabled && (
+        <section>
+          <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
+            오늘의 식단
+            <Link href="/meal" className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase">
+              add
+            </Link>
+          </div>
+          <HomeMealGrid meals={meals} />
+        </section>
+      )}
+
+      {settings.waterTrackingEnabled && (
+        <HomeWaterCard
+          date={todayIso}
+          entries={water.entries}
+          totalMl={water.totalMl}
+          goalMl={settings.waterGoalMl}
+          cupMl={settings.cupMl}
+        />
+      )}
 
       <section>
         <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">

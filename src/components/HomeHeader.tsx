@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { CHEER_RECEIVED_PHRASE } from "@/lib/friends/types";
+import type { CheerType } from "@/lib/friends/types";
 
-export function HomeHeader({ cheerSenderNames }: { cheerSenderNames: string[] }) {
+export function HomeHeader({
+  cheerNotifications,
+}: {
+  cheerNotifications: { displayName: string; type: CheerType }[];
+}) {
   const [open, setOpen] = useState(false);
-  const hasCheers = cheerSenderNames.length > 0;
+  const hasCheers = cheerNotifications.length > 0;
 
   return (
     <div className="relative flex items-center justify-center">
@@ -48,10 +54,10 @@ export function HomeHeader({ cheerSenderNames }: { cheerSenderNames: string[] })
           >
             {hasCheers ? (
               <div className="flex flex-col gap-2.5">
-                {cheerSenderNames.map((name, i) => (
+                {cheerNotifications.map(({ displayName, type }, i) => (
                   <p key={i} className="text-[12px] leading-relaxed text-text-secondary">
-                    <span className="font-semibold text-text-primary">{name}</span>님이 오늘의 기록을
-                    응원했어요 🌷
+                    <span className="font-semibold text-text-primary">{displayName}</span>님이{" "}
+                    {CHEER_RECEIVED_PHRASE[type]} 응원했어요 🌷
                   </p>
                 ))}
               </div>

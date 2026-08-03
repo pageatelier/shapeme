@@ -17,6 +17,11 @@ const TIMEZONE_OPTIONS = [
   { value: "America/Los_Angeles", label: "로스앤젤레스 (GMT-8)" },
   { value: "America/New_York", label: "뉴욕 (GMT-5)" },
   { value: "Europe/London", label: "런던 (GMT+0)" },
+  { value: "Asia/Kuala_Lumpur", label: "쿠알라룸푸르 (GMT+8)" },
+  { value: "Europe/Madrid", label: "마드리드 (GMT+1)" },
+  { value: "Europe/Paris", label: "파리 (GMT+1)" },
+  { value: "Asia/Jakarta", label: "자카르타 (GMT+7)" },
+  { value: "Asia/Bangkok", label: "방콕 (GMT+7)" },
 ];
 
 function languageLabel(value: string) {

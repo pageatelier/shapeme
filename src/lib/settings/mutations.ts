@@ -22,6 +22,8 @@ export async function updateSettings(patch: Partial<Settings>) {
   if (patch.selfLoveMessageEnabled !== undefined)
     data.self_love_message_enabled = patch.selfLoveMessageEnabled;
   if (patch.darkModeEnabled !== undefined) data.dark_mode_enabled = patch.darkModeEnabled;
+  if (patch.mealTrackingEnabled !== undefined) data.meal_tracking_enabled = patch.mealTrackingEnabled;
+  if (patch.waterTrackingEnabled !== undefined) data.water_tracking_enabled = patch.waterTrackingEnabled;
 
   const { error } = await supabase.auth.updateUser({ data });
   if (error) throw error;

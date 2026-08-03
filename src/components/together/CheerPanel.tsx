@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { sendCheer } from "@/lib/friends/mutations";
+import type { CheerType } from "@/lib/friends/types";
 
-const CHEER_OPTIONS = [
+const CHEER_OPTIONS: { type: CheerType; label: string }[] = [
   { type: "slow", label: "🌷 오늘도 천천히" },
   { type: "doing_great", label: "💗 잘하고 있어" },
   { type: "together", label: "✨ 같이 해요" },
-] as const;
-
-type CheerType = (typeof CHEER_OPTIONS)[number]["type"];
+];
 
 /** Only these three fixed, positive phrases — never free text (see
  * supabase/migrations/0007_cheer_types.sql's check constraint). */

@@ -12,6 +12,8 @@ export type Settings = {
   notificationsEnabled: boolean;
   selfLoveMessageEnabled: boolean;
   darkModeEnabled: boolean;
+  mealTrackingEnabled: boolean;
+  waterTrackingEnabled: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -26,6 +28,8 @@ export const DEFAULT_SETTINGS: Settings = {
   notificationsEnabled: true,
   selfLoveMessageEnabled: true,
   darkModeEnabled: false,
+  mealTrackingEnabled: false,
+  waterTrackingEnabled: false,
 };
 
 type RawMetadata = {
@@ -40,6 +44,8 @@ type RawMetadata = {
   notifications_enabled?: boolean;
   self_love_message_enabled?: boolean;
   dark_mode_enabled?: boolean;
+  meal_tracking_enabled?: boolean;
+  water_tracking_enabled?: boolean;
 };
 
 /** Merges saved user_metadata fields over the defaults above. */
@@ -57,5 +63,7 @@ export function readSettings(metadata: RawMetadata | null | undefined): Settings
     notificationsEnabled: m.notifications_enabled ?? DEFAULT_SETTINGS.notificationsEnabled,
     selfLoveMessageEnabled: m.self_love_message_enabled ?? DEFAULT_SETTINGS.selfLoveMessageEnabled,
     darkModeEnabled: m.dark_mode_enabled ?? DEFAULT_SETTINGS.darkModeEnabled,
+    mealTrackingEnabled: m.meal_tracking_enabled ?? DEFAULT_SETTINGS.mealTrackingEnabled,
+    waterTrackingEnabled: m.water_tracking_enabled ?? DEFAULT_SETTINGS.waterTrackingEnabled,
   };
 }

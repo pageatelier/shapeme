@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@/components/icons";
 import { DeleteAccountSection } from "@/components/my/DeleteAccountSection";
 import { LogoutButton } from "@/components/my/LogoutButton";
+import { MealWaterSettings } from "@/components/my/MealWaterSettings";
 import { ProfileHeader } from "@/components/my/ProfileHeader";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
 import { InviteFriendSheet } from "@/components/together/InviteFriendSheet";
@@ -9,6 +10,7 @@ import { getBodyEntryCountSafe } from "@/lib/body/queries";
 import { getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
 import { getJournalCountSafe } from "@/lib/journal/queries";
 import { profile } from "@/lib/mock-data";
+import { readSettings } from "@/lib/settings/types";
 import { createClient } from "@/lib/supabase/server";
 import { getMoveRecordCountSafe } from "@/lib/workout/queries";
 
@@ -30,6 +32,7 @@ export default async function MyPage() {
   const bio = metadata.bio ?? null;
   const language = metadata.language || "ko";
   const timezone = metadata.timezone || "Asia/Seoul";
+  const settings = readSettings(user?.user_metadata);
 
   const myFriendCode = user ? await getMyFriendCode(user.id) : null;
   const friends = user ? await getFriendsTodaySafe() : [];
@@ -50,6 +53,10 @@ export default async function MyPage() {
           <span className="text-[13px] font-medium text-text-primary">기록 모아보기</span>
           <ChevronRightIcon className="h-3.5 w-3.5 text-text-muted" />
         </Link>
+      </SettingsGroup>
+
+      <SettingsGroup title="추가 기능">
+        <MealWaterSettings settings={settings} />
       </SettingsGroup>
 
       <InviteFriendSheet myCode={myFriendCode} friends={friends} />

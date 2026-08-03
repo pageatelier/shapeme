@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { FriendCard } from "./types";
+import type { CheerType, FriendCard } from "./types";
 
 type FriendRow = {
   friend_id: string;
@@ -54,20 +54,25 @@ export async function getMyFriendCode(userId: string): Promise<string | null> {
   return data?.friend_code ?? null;
 }
 
-/** Sender ids of today's received cheers — count is just .length. Returning
- * the ids (not just a count) lets callers resolve them against an
- * already-fetched friends list to show "OOO님이 응원했어요" without a
- * second cross-user lookup. */
-export async function getCheersReceivedTodaySafe(userId: string, dateIso: string): Promise<string[]> {
+export type ReceivedCheer = { senderId: string; type: CheerType };
+
+/** Today's received cheers (sender + which of the 3 fixed phrases they
+ * picked) — count is just .length. Returning the type alongside the sender
+ * id lets callers show "OOO님이 오늘도 천천히 하라고 응원했어요" instead of
+ * a generic message, without a second cross-user lookup. */
+export async function getCheersReceivedTodaySafe(userId: string, dateIso: string): Promise<ReceivedCheer[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("cheers")
-    .select("sender_id")
+    .select("sender_id, encouragement_type")
     .eq("receiver_id", userId)
     .eq("cheer_date", dateIso);
   if (error) {
     console.error("[friends] getCheersReceivedToday failed:", error);
     return [];
   }
-  return (data ?? []).map((row) => row.sender_id as string);
+  return (data ?? []).map((row) => ({
+    senderId: row.sender_id as string,
+    type: row.encouragement_type as CheerType,
+  }));
 }
