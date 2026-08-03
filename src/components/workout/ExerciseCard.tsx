@@ -17,6 +17,7 @@ export function ExerciseCard({
   prev,
   next,
   editMode = false,
+  onSetsChange,
 }: {
   exercise: WorkoutExercise;
   date: string;
@@ -24,6 +25,7 @@ export function ExerciseCard({
   prev?: Neighbor;
   next?: Neighbor;
   editMode?: boolean;
+  onSetsChange?: (exerciseId: string, sets: boolean[]) => void;
 }) {
   const router = useRouter();
   const [sets, setSets] = useState(exercise.sets);
@@ -37,11 +39,13 @@ export function ExerciseCard({
   async function toggleSet(index: number) {
     const next = sets.map((v, i) => (i === index ? !v : v));
     setSets(next);
+    onSetsChange?.(exercise.id, next);
     setSaveError(null);
     try {
       await saveSetLog({ exerciseId: exercise.id, date, sets: next });
     } catch (err) {
       setSets(sets);
+      onSetsChange?.(exercise.id, sets);
       setSaveError(err instanceof Error ? err.message : "저장에 실패했어요.");
     }
   }

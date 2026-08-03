@@ -41,6 +41,15 @@ export function WorkoutView({
   const [addingMovement, setAddingMovement] = useState(false);
   const [pickedType, setPickedType] = useState<MovementActivityType | null>(null);
 
+  // Exercise-card set toggles are optimistic/local (no router.refresh()), so
+  // without this the top routine-progress % wouldn't move until something
+  // else happened to trigger a refresh. Keyed by exercise id and merged over
+  // exercise.sets below, so it stays correct across routine switches.
+  const [liveDoneByExercise, setLiveDoneByExercise] = useState<Record<string, number>>({});
+  function handleSetsChange(exerciseId: string, sets: boolean[]) {
+    setLiveDoneByExercise((prev) => ({ ...prev, [exerciseId]: sets.filter(Boolean).length }));
+  }
+
   function closeMovementFlow() {
     setAddingMovement(false);
     setPickedType(null);
@@ -98,7 +107,10 @@ export function WorkoutView({
 
   const totalSets = activeRoutine?.exercises.reduce((sum, e) => sum + e.targetSets, 0) ?? 0;
   const doneSets =
-    activeRoutine?.exercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0) ?? 0;
+    activeRoutine?.exercises.reduce(
+      (sum, e) => sum + (liveDoneByExercise[e.id] ?? e.sets.filter(Boolean).length),
+      0,
+    ) ?? 0;
   const progress = totalSets === 0 ? 0 : Math.round((doneSets / totalSets) * 100);
 
   return (
@@ -163,6 +175,7 @@ export function WorkoutView({
             date={date}
             orderIndex={i}
             editMode={exerciseEditMode}
+            onSetsChange={handleSetsChange}
             prev={
               i > 0
                 ? { id: activeRoutine.exercises[i - 1].id, orderIndex: activeRoutine.exercises[i - 1].orderIndex }
