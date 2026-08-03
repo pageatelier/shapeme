@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PlusIcon, ScaleIcon } from "@/components/icons";
+import { PlusIcon } from "@/components/icons";
 import { todayIsoDate } from "@/lib/body/date";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
@@ -21,13 +21,7 @@ function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
  * body_entries photo column is independently nullable) — this only
  * changes which slots are visible by default.
  */
-export function BodyCapture({
-  entries,
-  weightKg,
-}: {
-  entries: BodyEntry[];
-  weightKg?: number;
-}) {
+export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
   const today = todayIsoDate();
   const [selectedDate, setSelectedDate] = useState(today);
   const entry = entries.find((e) => e.date === selectedDate) ?? null;
@@ -40,14 +34,8 @@ export function BodyCapture({
 
   return (
     <section className="glass-card p-5">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
         <p className="text-[15px] font-bold tracking-[-0.02em] text-text-primary">Capture</p>
-        {weightKg && (
-          <span className="flex items-center gap-1.5 text-xs text-text-muted">
-            <ScaleIcon className="h-[14px] w-[14px] text-pink-400" />
-            {weightKg}kg
-          </span>
-        )}
       </div>
 
       <div className="mb-4 flex items-center gap-2">

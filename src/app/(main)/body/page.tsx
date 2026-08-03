@@ -4,7 +4,6 @@ import { BodyCapture } from "@/components/body/BodyCapture";
 import { BodyCompare } from "@/components/body/BodyCompareLazy";
 import { BodyTimeline } from "@/components/body/BodyTimeline";
 import { getBodyEntriesSafe } from "@/lib/body/queries";
-import { bodyLog } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function BodyPage() {
@@ -32,7 +31,7 @@ export default async function BodyPage() {
         몸 사진은 로그인한 본인만 볼 수 있도록 비공개로 저장돼요.
       </p>
 
-      <BodyCapture entries={entries} weightKg={bodyLog.weightKg} />
+      <BodyCapture entries={entries} />
       <BodyCompare entries={entries} />
       <BodyTimeline entries={entries} />
     </div>
