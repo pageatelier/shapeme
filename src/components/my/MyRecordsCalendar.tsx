@@ -139,7 +139,7 @@ export function MyRecordsCalendar({
         </div>
       </div>
 
-      {detail && <MyRecordDetail detail={detail} />}
+      {detail && <MyRecordDetail detail={detail} todayIso={todayIso} />}
     </section>
   );
 }

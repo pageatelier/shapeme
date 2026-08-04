@@ -19,7 +19,8 @@ const CATEGORY_CHIPS = [
   { key: "journal", label: "Journal" },
 ] as const;
 
-export function MyRecordDetail({ detail }: { detail: RecordDetail }) {
+export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; todayIso: string }) {
+  const routineLabel = detail.isoDate === todayIso ? "오늘의 루틴" : "이날의 루틴";
   const presentKeys = new Set<string>();
   if (detail.body) presentKeys.add("body");
   if (detail.move) presentKeys.add("move");
@@ -35,7 +36,7 @@ export function MyRecordDetail({ detail }: { detail: RecordDetail }) {
         </p>
         <div className="mt-1.5 flex items-center gap-2">
           <span className="font-en text-xl font-semibold tracking-[-0.03em] text-text-primary">
-            오늘의 루틴 {detail.routinePercent}%
+            {routineLabel} {detail.routinePercent}%
           </span>
         </div>
         {presentKeys.size > 0 && (
