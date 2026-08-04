@@ -1,29 +1,35 @@
 "use client";
 
+import { memo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { SetDots } from "@/components/SetDots";
 import { ChevronDownIcon, ChevronUpIcon, EditIcon } from "@/components/icons";
 import { saveSetLog, swapExerciseOrder } from "@/lib/workout/mutations";
 import type { WorkoutExercise } from "@/lib/workout/types";
 import { ExerciseForm } from "./ExerciseForm";
 
-type Neighbor = { id: string; orderIndex: number };
-
-export function ExerciseCard({
+function ExerciseCardImpl({
   exercise,
   date,
   orderIndex,
-  prev,
-  next,
+  prevId,
+  prevOrderIndex,
+  nextId,
+  nextOrderIndex,
   editMode = false,
   onSetsChange,
 }: {
   exercise: WorkoutExercise;
   date: string;
   orderIndex: number;
-  prev?: Neighbor;
-  next?: Neighbor;
+  // Flat primitive props instead of a `{id, orderIndex}` neighbor object —
+  // WorkoutView.map() would otherwise build a fresh object every render,
+  // which defeats this component's React.memo below regardless of whether
+  // the neighbor actually changed.
+  prevId?: string;
+  prevOrderIndex?: number;
+  nextId?: string;
+  nextOrderIndex?: number;
   editMode?: boolean;
   onSetsChange?: (exerciseId: string, sets: boolean[]) => void;
 }) {
@@ -50,12 +56,15 @@ export function ExerciseCard({
     }
   }
 
-  async function move(target: Neighbor | undefined) {
-    if (!target || reordering) return;
+  async function move(targetId: string | undefined, targetOrderIndex: number | undefined) {
+    if (!targetId || targetOrderIndex === undefined || reordering) return;
     setReordering(true);
     setSaveError(null);
     try {
-      await swapExerciseOrder({ id: exercise.id, orderIndex: exercise.orderIndex }, target);
+      await swapExerciseOrder(
+        { id: exercise.id, orderIndex: exercise.orderIndex },
+        { id: targetId, orderIndex: targetOrderIndex },
+      );
       router.refresh();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "순서 변경에 실패했어요.");
@@ -105,8 +114,8 @@ export function ExerciseCard({
               <div className="flex flex-col">
                 <button
                   type="button"
-                  onClick={() => move(prev)}
-                  disabled={!prev || reordering}
+                  onClick={() => move(prevId, prevOrderIndex)}
+                  disabled={!prevId || reordering}
                   aria-label="위로 이동"
                   className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
                 >
@@ -114,8 +123,8 @@ export function ExerciseCard({
                 </button>
                 <button
                   type="button"
-                  onClick={() => move(next)}
-                  disabled={!next || reordering}
+                  onClick={() => move(nextId, nextOrderIndex)}
+                  disabled={!nextId || reordering}
                   aria-label="아래로 이동"
                   className="flex h-4 w-6 items-center justify-center text-text-muted disabled:opacity-30"
                 >
@@ -140,3 +149,8 @@ export function ExerciseCard({
     </div>
   );
 }
+
+// Toggling one set re-renders WorkoutView (for the top progress %), which
+// would otherwise re-render every sibling ExerciseCard too — memoized so a
+// tap on one exercise doesn't re-render the others in the same routine.
+export const ExerciseCard = memo(ExerciseCardImpl);

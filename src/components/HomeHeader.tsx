@@ -8,7 +8,7 @@ import type { CheerType } from "@/lib/friends/types";
 export function HomeHeader({
   cheerNotifications,
 }: {
-  cheerNotifications: { displayName: string; type: CheerType }[];
+  cheerNotifications: { senderId: string; displayName: string; type: CheerType }[];
 }) {
   const [open, setOpen] = useState(false);
   const hasCheers = cheerNotifications.length > 0;
@@ -53,8 +53,8 @@ export function HomeHeader({
           >
             {hasCheers ? (
               <div className="flex flex-col gap-2.5">
-                {cheerNotifications.map(({ displayName, type }, i) => (
-                  <p key={i} className="text-[12px] leading-relaxed text-text-secondary">
+                {cheerNotifications.map(({ senderId, displayName, type }) => (
+                  <p key={`${senderId}-${type}`} className="text-[12px] leading-relaxed text-text-secondary">
                     <span className="font-semibold text-text-primary">{displayName}</span>님이{" "}
                     {CHEER_RECEIVED_PHRASE[type]} 응원했어요 🌷
                   </p>

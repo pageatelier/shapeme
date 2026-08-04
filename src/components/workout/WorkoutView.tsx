@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { EditIcon, PlusIcon } from "@/components/icons";
 import { ActivityTypePicker } from "@/components/move/ActivityTypePicker";
 import { MovementLogCard } from "@/components/move/MovementLogCard";
@@ -46,9 +46,10 @@ export function WorkoutView({
   // else happened to trigger a refresh. Keyed by exercise id and merged over
   // exercise.sets below, so it stays correct across routine switches.
   const [liveDoneByExercise, setLiveDoneByExercise] = useState<Record<string, number>>({});
-  function handleSetsChange(exerciseId: string, sets: boolean[]) {
+  // Stable identity (no deps) so it doesn't defeat ExerciseCard's memo below.
+  const handleSetsChange = useCallback((exerciseId: string, sets: boolean[]) => {
     setLiveDoneByExercise((prev) => ({ ...prev, [exerciseId]: sets.filter(Boolean).length }));
-  }
+  }, []);
 
   function closeMovementFlow() {
     setAddingMovement(false);
@@ -176,15 +177,11 @@ export function WorkoutView({
             orderIndex={i}
             editMode={exerciseEditMode}
             onSetsChange={handleSetsChange}
-            prev={
-              i > 0
-                ? { id: activeRoutine.exercises[i - 1].id, orderIndex: activeRoutine.exercises[i - 1].orderIndex }
-                : undefined
-            }
-            next={
-              i < activeRoutine.exercises.length - 1
-                ? { id: activeRoutine.exercises[i + 1].id, orderIndex: activeRoutine.exercises[i + 1].orderIndex }
-                : undefined
+            prevId={i > 0 ? activeRoutine.exercises[i - 1].id : undefined}
+            prevOrderIndex={i > 0 ? activeRoutine.exercises[i - 1].orderIndex : undefined}
+            nextId={i < activeRoutine.exercises.length - 1 ? activeRoutine.exercises[i + 1].id : undefined}
+            nextOrderIndex={
+              i < activeRoutine.exercises.length - 1 ? activeRoutine.exercises[i + 1].orderIndex : undefined
             }
           />
         ))}

@@ -124,6 +124,7 @@ export default async function TodayPage() {
 
   const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
   const cheerNotifications = receivedCheers.map((cheer) => ({
+    senderId: cheer.senderId,
     displayName: friends.find((f) => f.friendId === cheer.senderId)?.displayName ?? "친구",
     type: cheer.type,
   }));

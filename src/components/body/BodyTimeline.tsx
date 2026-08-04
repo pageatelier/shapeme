@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FlowerIcon } from "@/components/icons";
 import { formatYearMonthLabel } from "@/lib/body/date";
 import { primaryPhotoUrl } from "@/lib/body/types";
@@ -25,20 +25,26 @@ export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weig
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [openDate, setOpenDate] = useState<string | null>(null);
 
-  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+  // entries only changes when new server data comes in, but this component
+  // also re-renders on unrelated state (e.g. opening the viewer) — memoized
+  // so the sort/group work doesn't redo itself on every one of those.
+  const sorted = useMemo(() => [...entries].sort((a, b) => b.date.localeCompare(a.date)), [entries]);
   const visible = sorted.slice(0, visibleCount);
   const hasMore = sorted.length > visible.length;
 
-  const groups = new Map<string, BodyEntry[]>();
-  for (const entry of visible) {
-    const key = yearMonthKey(entry.date);
-    const bucket = groups.get(key);
-    if (bucket) {
-      bucket.push(entry);
-    } else {
-      groups.set(key, [entry]);
+  const groups = useMemo(() => {
+    const map = new Map<string, BodyEntry[]>();
+    for (const entry of visible) {
+      const key = yearMonthKey(entry.date);
+      const bucket = map.get(key);
+      if (bucket) {
+        bucket.push(entry);
+      } else {
+        map.set(key, [entry]);
+      }
     }
-  }
+    return map;
+  }, [visible]);
 
   if (sorted.length === 0) {
     return (

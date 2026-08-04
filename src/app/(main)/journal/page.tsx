@@ -10,8 +10,10 @@ export default async function JournalPage() {
   const timezone = (user?.user_metadata as { timezone?: string } | undefined)?.timezone || "Asia/Seoul";
   const todayIso = isoDateInTimeZone(new Date(), timezone);
 
-  const todayEntry = user ? await getJournalEntryByDateSafe(user.id, todayIso) : null;
-  const allEntries = user ? await getJournalEntriesSafe(user.id) : [];
+  // Independent reads — fetched together instead of one-after-another.
+  const [todayEntry, allEntries] = user
+    ? await Promise.all([getJournalEntryByDateSafe(user.id, todayIso), getJournalEntriesSafe(user.id)])
+    : [null, []];
   const pastEntries = allEntries.filter((e) => e.date !== todayIso);
 
   return (
