@@ -70,16 +70,19 @@ export async function getMyRecordsMonth(
   const routines = (routinesRes.data ?? []) as RoutineRow[];
   const exercises = (exercisesRes.data ?? []) as ExerciseRow[];
 
-  // For each weekday, the exercises belonging to whichever routine is
-  // currently scheduled for it (mirrors Today's `routines.find(...)`).
+  // For each weekday, the exercises belonging to *every* routine currently
+  // scheduled for it — routines can share a day (e.g. 월,목 힙 + 월,화 어깨
+  // both apply on 월), so this sums across all matches, not just the first
+  // (mirrors Today's own `routines.filter(...)`).
   const weekdaySchedule = new Map<string, { exerciseIds: Set<string>; totalTargetSets: number }>();
   for (const weekday of WEEKDAYS) {
-    const routine = routines.find((r) => r.days.includes(weekday));
-    if (!routine) continue;
-    const routineExercises = exercises.filter((e) => e.routine_id === routine.id);
+    const dayRoutines = routines.filter((r) => r.days.includes(weekday));
+    if (dayRoutines.length === 0) continue;
+    const dayRoutineIds = new Set(dayRoutines.map((r) => r.id));
+    const dayExercises = exercises.filter((e) => dayRoutineIds.has(e.routine_id));
     weekdaySchedule.set(weekday, {
-      exerciseIds: new Set(routineExercises.map((e) => e.id)),
-      totalTargetSets: routineExercises.reduce((sum, e) => sum + e.target_sets, 0),
+      exerciseIds: new Set(dayExercises.map((e) => e.id)),
+      totalTargetSets: dayExercises.reduce((sum, e) => sum + e.target_sets, 0),
     });
   }
 

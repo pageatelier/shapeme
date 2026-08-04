@@ -65,10 +65,10 @@ export default async function TodayPage() {
         [],
       ];
 
-  // Strict match only — if nothing is scheduled for today's weekday, that's
-  // a real "no routine today", not a reason to fall back to some other routine.
-  const todayRoutine = routines.find((r) => r.days.includes(todayWeekday)) ?? null;
-  const todayExercises = todayRoutine?.exercises ?? [];
+  // All routines scheduled for today — not just the first match, since
+  // routines can share a day (e.g. 월,목 힙 + 월,화 어깨 both apply on 월).
+  const todayRoutines = routines.filter((r) => r.days.includes(todayWeekday));
+  const todayExercises = todayRoutines.flatMap((r) => r.exercises);
   const workoutDoneSets = todayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
 

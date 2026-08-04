@@ -60,10 +60,13 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
     getJournalEntryByDateSafe(user.id, isoDate),
   ]);
 
+  // All routines scheduled for this weekday, not just the first — routines
+  // can share a day (e.g. 월,목 힙 + 월,화 어깨 both apply on 월).
   const weekday = WEEKDAYS[weekdayIndex(isoDate)];
-  const dayRoutine = routines.find((r) => r.days.includes(weekday)) ?? null;
-  const workoutDoneSets = dayRoutine?.exercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0) ?? 0;
-  const workoutTotalSets = dayRoutine?.exercises.reduce((sum, e) => sum + e.targetSets, 0) ?? 0;
+  const dayRoutines = routines.filter((r) => r.days.includes(weekday));
+  const dayExercises = dayRoutines.flatMap((r) => r.exercises);
+  const workoutDoneSets = dayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
+  const workoutTotalSets = dayExercises.reduce((sum, e) => sum + e.targetSets, 0);
 
   const movePercent = movePercentFor({
     workoutDoneSets,
@@ -103,7 +106,8 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
       : null,
     move: hasMove
       ? {
-          routineName: workoutTotalSets > 0 ? (dayRoutine?.name ?? null) : null,
+          // Joined — a day can have more than one scheduled routine.
+          routineName: workoutTotalSets > 0 ? dayRoutines.map((r) => r.name).join(", ") || null : null,
           doneSets: workoutDoneSets,
           totalSets: workoutTotalSets,
           movementLogs,

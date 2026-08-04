@@ -65,7 +65,9 @@ export function RoutineForm({
   return (
     <form onSubmit={handleSubmit} className="glass-card flex flex-col gap-3 p-5">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold text-text-muted">루틴 이름</span>
+        <span className="text-[11px] font-semibold text-text-muted">
+          {routine ? "현재 루틴 이름" : "새로운 루틴 이름"}
+        </span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
