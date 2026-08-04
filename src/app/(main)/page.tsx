@@ -7,6 +7,7 @@ import { HeartIcon } from "@/components/icons";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
+import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
@@ -72,35 +73,27 @@ export default async function TodayPage() {
   const waterPct = Math.min(100, Math.round((water.totalMl / settings.waterGoalMl) * 100));
 
   // "오늘의 루틴" card — Move/식단/물만(Body/Journal aren't part of this
-  // card; they're still reachable from the bottom nav). Weights depend on
-  // which of 식단/물 tracking are turned on in settings, always summing to
-  // 100. There's no stored "목표 시간" for simple (non-strength) movement
-  // logs, so — since there's nothing to compare against — any logged entry
-  // on a day with no active strength routine counts as full Move credit for
-  // that day; flagged here since it's the one place this diverges from a
-  // literal reading of the spec's "완료 시간 / 목표 시간" formula.
-  const strengthPct = workoutTotalSets > 0 ? (workoutDoneSets / workoutTotalSets) * 100 : null;
-  const movePercent = strengthPct ?? (movementLogs.length > 0 ? 100 : 0);
+  // card; they're still reachable from the bottom nav). There's no stored
+  // "목표 시간" for simple (non-strength) movement logs, so — since there's
+  // nothing to compare against — any logged entry on a day with no active
+  // strength routine counts as full Move credit for that day; flagged here
+  // since it's the one place this diverges from a literal reading of the
+  // spec's "완료 시간 / 목표 시간" formula. Shared with My's calendar/detail
+  // via movePercentFor/routineCompletionPercent so the number always matches.
+  const movePercent = movePercentFor({
+    workoutDoneSets,
+    workoutTotalSets,
+    hasMovementLog: movementLogs.length > 0,
+  });
   const mealDoneToday = meals.some((m) => m.filled);
 
-  let moveWeight = 100;
-  let mealWeight = 0;
-  let waterWeight = 0;
-  if (settings.mealTrackingEnabled && settings.waterTrackingEnabled) {
-    moveWeight = 80;
-    mealWeight = 10;
-    waterWeight = 10;
-  } else if (settings.mealTrackingEnabled) {
-    moveWeight = 90;
-    mealWeight = 10;
-  } else if (settings.waterTrackingEnabled) {
-    moveWeight = 90;
-    waterWeight = 10;
-  }
-
-  const todayRoutinePercent = Math.round(
-    moveWeight * (movePercent / 100) + mealWeight * (mealDoneToday ? 1 : 0) + waterWeight * (waterPct / 100),
-  );
+  const todayRoutinePercent = routineCompletionPercent({
+    movePercent,
+    mealDoneToday,
+    waterPct,
+    mealTrackingEnabled: settings.mealTrackingEnabled,
+    waterTrackingEnabled: settings.waterTrackingEnabled,
+  });
 
   const cupsRemaining = Math.max(0, Math.ceil((settings.waterGoalMl - water.totalMl) / settings.cupMl));
 

@@ -10,7 +10,9 @@ export async function updateProfile({
   heightCm,
   weightKg,
   language,
+  country,
   timezone,
+  monthlyGoal,
 }: {
   displayName?: string;
   avatarFile?: File;
@@ -18,7 +20,9 @@ export async function updateProfile({
   heightCm?: number | null;
   weightKg?: number | null;
   language?: string;
+  country?: string;
   timezone?: string;
+  monthlyGoal?: string;
 }) {
   const supabase = createClient();
   const {
@@ -55,7 +59,9 @@ export async function updateProfile({
       ...(heightCm !== undefined && { height_cm: heightCm }),
       ...(weightKg !== undefined && { weight_kg: weightKg }),
       ...(language !== undefined && { language }),
+      ...(country !== undefined && { country }),
       ...(timezone !== undefined && { timezone }),
+      ...(monthlyGoal !== undefined && { monthly_goal: monthlyGoal }),
     },
   });
   if (error) throw error;

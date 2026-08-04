@@ -1,4 +1,4 @@
-import { Accessibility } from "lucide-react";
+import { Accessibility, Settings } from "lucide-react";
 
 type IconProps = {
   className?: string;
@@ -35,6 +35,10 @@ export function DumbbellIcon({ className }: IconProps) {
  * DumbbellIcon, restyled to this file's shared stroke width. */
 export function MoveIcon({ className }: IconProps) {
   return <Accessibility className={className} strokeWidth={1.6} />;
+}
+
+export function SettingsIcon({ className }: IconProps) {
+  return <Settings className={className} strokeWidth={1.6} />;
 }
 
 /** Alternative Move draft — a hand-drawn figure mid-movement, in case the

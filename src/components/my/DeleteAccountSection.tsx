@@ -56,6 +56,7 @@ export function DeleteAccountSection() {
           display_name: null,
           avatar_url: null,
           bio: null,
+          monthly_goal: null,
           height_cm: null,
           weight_kg: null,
           goal_weight_kg: null,

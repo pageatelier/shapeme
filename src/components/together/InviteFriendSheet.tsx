@@ -60,7 +60,7 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
   }
 
   return (
-    <SettingsGroup title="함께하기">
+    <SettingsGroup title="친구 및 초대">
       <div className="flex flex-col gap-4 p-4">
         <div>
           <p className="mb-1.5 text-xs font-medium text-text-muted">내 초대 코드</p>
