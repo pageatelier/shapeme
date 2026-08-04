@@ -11,15 +11,11 @@ export function JournalForm({
   initialMood,
   initialDayText,
   initialGoodThing,
-  onCancel,
-  onSaved,
 }: {
   date: string;
   initialMood: Mood | null;
   initialDayText: string;
   initialGoodThing: string;
-  onCancel?: () => void;
-  onSaved?: () => void;
 }) {
   const router = useRouter();
   const [mood, setMood] = useState<Mood | null>(initialMood);
@@ -51,7 +47,6 @@ export function JournalForm({
       await saveJournalEntry(date, { mood, dayText, goodThing });
       setSaved(true);
       router.refresh();
-      onSaved?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했어요.");
     } finally {
@@ -152,28 +147,15 @@ export function JournalForm({
         <span className="text-[11px] text-text-secondary">
           {error ? <span className="text-error">{error}</span> : saved ? "저장됨" : "저장 안 됨"}
         </span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving || saved}
-            className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-text-inverse disabled:opacity-50"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            {saving ? "저장 중..." : "저장"}
-          </button>
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={saving}
-              className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-text-secondary"
-              style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-            >
-              취소
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || saved}
+          className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-text-inverse disabled:opacity-50"
+          style={{ background: "var(--gradient-primary)" }}
+        >
+          {saving ? "저장 중..." : "저장"}
+        </button>
       </div>
     </div>
   );
