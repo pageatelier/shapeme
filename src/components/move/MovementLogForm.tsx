@@ -36,9 +36,6 @@ export function MovementLogForm({
   const router = useRouter();
   const config = ACTIVITY_CONFIG[activityType];
   const [duration, setDuration] = useState(log ? String(log.durationMinutes) : "");
-  const [distanceKm, setDistanceKm] = useState(log?.distanceKm != null ? String(log.distanceKm) : "");
-  const [steps, setSteps] = useState(log?.steps != null ? String(log.steps) : "");
-  const [calories, setCalories] = useState(log?.calories != null ? String(log.calories) : "");
   const [memo, setMemo] = useState(log?.memo ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,9 +52,11 @@ export function MovementLogForm({
         date,
         activityType,
         durationMinutes: Math.max(1, Number(duration) || 1),
-        distanceKm: distanceKm.trim() ? Number(distanceKm) : null,
-        steps: steps.trim() ? Number(steps) : null,
-        calories: calories.trim() ? Number(calories) : null,
+        // Not collected in this simplified form — preserve whatever an
+        // existing log already had rather than wiping it out on edit.
+        distanceKm: log?.distanceKm ?? null,
+        steps: log?.steps ?? null,
+        calories: log?.calories ?? null,
         memo: memo.trim() || null,
       };
       if (log) {
@@ -101,39 +100,6 @@ export function MovementLogForm({
         value={duration}
         onChange={(e) => setDuration(e.target.value)}
       />
-
-      {config.fields.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
-          {config.fields.includes("distanceKm") && (
-            <Field
-              label="거리(km, 선택)"
-              type="number"
-              min={0}
-              step="0.1"
-              value={distanceKm}
-              onChange={(e) => setDistanceKm(e.target.value)}
-            />
-          )}
-          {config.fields.includes("steps") && (
-            <Field
-              label="걸음 수(선택)"
-              type="number"
-              min={0}
-              value={steps}
-              onChange={(e) => setSteps(e.target.value)}
-            />
-          )}
-          {config.fields.includes("calories") && (
-            <Field
-              label="칼로리(kcal, 선택)"
-              type="number"
-              min={0}
-              value={calories}
-              onChange={(e) => setCalories(e.target.value)}
-            />
-          )}
-        </div>
-      )}
 
       <Field label="메모(선택)" value={memo} onChange={(e) => setMemo(e.target.value)} />
 

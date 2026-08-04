@@ -87,20 +87,14 @@ function ExerciseCardImpl({
   }
 
   return (
-    <div className="glass-card p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="mb-1 text-[15px] font-bold tracking-[-0.02em] text-text-primary">
-            {exercise.name}
-          </p>
-          <p className="font-en text-[13px] text-text-secondary">
-            {exercise.targetReps}회 × {exercise.targetSets}세트
-            {exercise.weightKg ? ` · ${exercise.weightKg}kg` : ""}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
+    <div className="glass-card p-3.5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 truncate text-[14px] font-bold tracking-[-0.02em] text-text-primary">
+          {exercise.name}
+        </p>
+        <div className="flex shrink-0 items-center gap-1.5">
           <span
-            className="rounded-full px-2.5 py-1 text-[11px] font-semibold"
+            className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
             style={
               complete
                 ? { background: "var(--color-success-soft)", color: "var(--color-success)" }
@@ -143,8 +137,15 @@ function ExerciseCardImpl({
           )}
         </div>
       </div>
-      <SetDots sets={sets} onToggle={toggleSet} size={28} />
-      {exercise.memo && <p className="mt-3 text-xs text-text-muted">메모 · {exercise.memo}</p>}
+
+      <p className="font-en mt-0.5 text-[12px] font-medium text-text-secondary">
+        {exercise.targetReps}회{exercise.weightKg ? ` · ${exercise.weightKg}kg` : ""}
+      </p>
+      {exercise.memo && <p className="mt-1 text-[11px] text-text-muted">메모 · {exercise.memo}</p>}
+
+      <div className="mt-2 flex justify-end">
+        <SetDots sets={sets} onToggle={toggleSet} size={34} />
+      </div>
       {saveError && <p className="mt-2 text-xs text-error">{saveError}</p>}
     </div>
   );

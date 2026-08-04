@@ -12,7 +12,7 @@ export function SetDots({
   size?: number;
 }) {
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-2">
       {sets.map((done, i) => {
         const Comp = onToggle ? "button" : "div";
         return (

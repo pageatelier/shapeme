@@ -28,11 +28,12 @@ export function RoutineChips({
                 type="button"
                 onClick={() => onSelect(routine.id)}
                 className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold whitespace-nowrap ${active ? "pill-selected" : "pill-unselected"}`}
+                // Softer than pill-selected's own border/shadow — scoped here
+                // via inline style so the shared class (used all over the
+                // app) stays untouched.
+                style={active ? { border: "1px solid rgba(217, 126, 148, 0.3)", boxShadow: "0 2px 6px rgba(217, 126, 148, 0.14)" } : undefined}
               >
-                {routine.name}
-                {routine.days.length > 0 && (
-                  <span className="font-en ml-1.5 text-[11px] opacity-80">{routine.days.join("·")}</span>
-                )}
+                {routine.days.length > 0 ? `${routine.days.join("·")} · ${routine.name}` : routine.name}
               </button>
             );
           })}
