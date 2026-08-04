@@ -7,7 +7,8 @@ import { getRoutinesSafe } from "@/lib/workout/queries";
 
 export default async function MoveSettingsPage() {
   const user = await getCurrentUser();
-  const routines = user ? await getRoutinesSafe(user.id, todayIsoDate()) : [];
+  const date = todayIsoDate();
+  const routines = user ? await getRoutinesSafe(user.id, date) : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +23,7 @@ export default async function MoveSettingsPage() {
         <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">루틴 관리</h1>
       </div>
 
-      <RoutineManager routines={routines} />
+      <RoutineManager routines={routines} date={date} />
     </div>
   );
 }
