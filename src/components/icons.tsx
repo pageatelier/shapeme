@@ -1,4 +1,4 @@
-import { Accessibility, Settings } from "lucide-react";
+import { Footprints, Settings } from "lucide-react";
 
 type IconProps = {
   className?: string;
@@ -31,10 +31,10 @@ export function DumbbellIcon({ className }: IconProps) {
 }
 
 /** Move — deliberately not gym-equipment (running/dance/yoga all count as
- * "Move"), so this wraps Lucide's generic Accessibility glyph instead of
- * DumbbellIcon, restyled to this file's shared stroke width. */
+ * "Move"), so this wraps Lucide's Footprints glyph instead of DumbbellIcon,
+ * restyled to this file's shared stroke width. */
 export function MoveIcon({ className }: IconProps) {
-  return <Accessibility className={className} strokeWidth={1.6} />;
+  return <Footprints className={className} strokeWidth={1.6} />;
 }
 
 export function SettingsIcon({ className }: IconProps) {
