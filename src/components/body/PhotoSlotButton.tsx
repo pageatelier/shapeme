@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CameraIcon } from "@/components/icons";
-import { uploadBodyPhoto } from "@/lib/body/upload";
+import { deleteBodyPhoto, uploadBodyPhoto } from "@/lib/body/upload";
 import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 
@@ -32,6 +32,8 @@ export function PhotoSlotButton({
   const [isFilled, setIsFilled] = useState(filled);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -50,6 +52,22 @@ export function PhotoSlotButton({
     }
   }
 
+  async function handleDelete() {
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteBodyPhoto({ date, slot });
+      setPreview(null);
+      setIsFilled(false);
+      setConfirmingDelete(false);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="flex flex-col items-center gap-2">
       <button
@@ -58,7 +76,7 @@ export function PhotoSlotButton({
         className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
         style={
           isFilled
-            ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
+            ? { background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }
             : { background: "var(--surface-card)", border: "1px dashed rgba(78, 59, 54, 0.18)" }
         }
       >
@@ -82,13 +100,46 @@ export function PhotoSlotButton({
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="text-[11px] font-semibold text-pink-500"
-      >
-        {isFilled ? "사진 변경" : "사진 선택"}
-      </button>
+      {confirmingDelete ? (
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-text-secondary">삭제할까요?</span>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-[11px] font-semibold text-error disabled:opacity-60"
+          >
+            {deleting ? "삭제 중..." : "삭제"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(false)}
+            disabled={deleting}
+            className="text-[11px] font-semibold text-text-muted disabled:opacity-60"
+          >
+            취소
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="text-[11px] font-semibold text-pink-500"
+          >
+            {isFilled ? "사진 변경" : "사진 선택"}
+          </button>
+          {isFilled && (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="text-[11px] font-semibold text-text-muted"
+            >
+              삭제
+            </button>
+          )}
+        </div>
+      )}
       {error && <span className="text-center text-[10px] text-error">{error}</span>}
     </div>
   );

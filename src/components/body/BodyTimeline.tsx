@@ -3,7 +3,6 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { FlowerIcon } from "@/components/icons";
 import { formatYearMonthLabel } from "@/lib/body/date";
 import { primaryPhotoUrl } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
@@ -76,7 +75,7 @@ export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weig
                     onClick={() => setOpenDate(entry.date)}
                     aria-label={`${entry.dateLabel} 기록 보기`}
                     className="relative aspect-square"
-                    style={{ background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }}
+                    style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }}
                   >
                     {url && (
                       <Image
@@ -97,11 +96,9 @@ export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weig
               {Array.from({ length: (3 - (monthEntries.length % 3)) % 3 }).map((_, i) => (
                 <div
                   key={`empty-${i}`}
-                  className="relative flex aspect-square items-center justify-center"
-                  style={{ background: "linear-gradient(160deg, var(--color-peach-100), var(--color-pink-100))" }}
-                >
-                  <FlowerIcon className="h-6 w-6 text-white/70" />
-                </div>
+                  className="relative aspect-square"
+                  style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-100))" }}
+                />
               ))}
             </div>
           </div>

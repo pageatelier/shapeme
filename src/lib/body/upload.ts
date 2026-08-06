@@ -64,3 +64,46 @@ export async function uploadBodyPhoto({
 
   return { path, signedUrl: signed?.signedUrl ?? null };
 }
+
+/**
+ * Deletes one slot's photo — the Storage object and the column reference on
+ * that day's body_entries row. The row itself is never deleted, just that
+ * one column nulled out, so the other two slots (and the memo) survive.
+ * Looks up the current path itself (the client only ever holds a short-lived
+ * signed URL, not the raw storage path) so callers don't need to track it.
+ */
+export async function deleteBodyPhoto({
+  date,
+  slot,
+}: {
+  date: string;
+  slot: BodyPhotoSlot;
+}): Promise<void> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("로그인이 필요해요.");
+
+  const column = slotColumn[slot];
+  const { data: row, error: fetchError } = await supabase
+    .from("body_entries")
+    .select(column)
+    .eq("user_id", user.id)
+    .eq("date", date)
+    .maybeSingle();
+  if (fetchError) throw fetchError;
+
+  const path = (row as Record<string, string | null> | null)?.[column] ?? null;
+  if (path) {
+    const { error: removeError } = await supabase.storage.from(BODY_PHOTOS_BUCKET).remove([path]);
+    if (removeError) throw removeError;
+  }
+
+  const { error: updateError } = await supabase
+    .from("body_entries")
+    .update({ [column]: null })
+    .eq("user_id", user.id)
+    .eq("date", date);
+  if (updateError) throw updateError;
+}
