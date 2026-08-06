@@ -34,3 +34,13 @@ export type BodyEntry = {
 export function primaryPhotoUrl(entry: BodyEntry): string | undefined {
   return entry.frontImageUrl ?? entry.sideImageUrl ?? entry.backImageUrl;
 }
+
+/** Same front → side → back precedence as primaryPhotoUrl, but returns which
+ * slot is being shown — needed anywhere the primary photo can be deleted, so
+ * the delete call knows which column to clear. */
+export function primarySlot(entry: BodyEntry): BodyPhotoSlot | null {
+  if (entry.front) return "front";
+  if (entry.side) return "side";
+  if (entry.back) return "back";
+  return null;
+}

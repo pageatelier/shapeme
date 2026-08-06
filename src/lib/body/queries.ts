@@ -72,7 +72,12 @@ export async function getBodyEntries(userId: string): Promise<BodyEntry[]> {
     .order("date", { ascending: false });
 
   if (error) throw error;
-  const rows = data as BodyEntryRow[];
+  // A row survives with every slot null once all its photos are deleted
+  // (deleteBodyPhoto only nulls the column, never drops the row) — filtered
+  // out here so 지난 기록 doesn't show an empty tile for a day with nothing left.
+  const rows = (data as BodyEntryRow[]).filter(
+    (row) => row.front_image || row.side_image || row.back_image,
+  );
   const signedUrlByPath = await resolveSignedUrls(supabase, rows);
   return rows.map((row) => toBodyEntry(row, signedUrlByPath));
 }

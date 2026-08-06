@@ -109,7 +109,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
       className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-[var(--radius-md)] text-[11px] text-text-inverse"
       style={
         filled
-          ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
+          ? { background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }
           : { background: "var(--color-bg-warm)", color: "var(--color-text-muted)" }
       }
     >

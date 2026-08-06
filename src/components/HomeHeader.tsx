@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { HeartIcon } from "@/components/icons";
 import { CHEER_RECEIVED_PHRASE } from "@/lib/friends/types";
 import type { CheerType } from "@/lib/friends/types";
 
@@ -21,14 +22,14 @@ export function HomeHeader({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="오늘 받은 응원 확인"
-        className="absolute right-0 flex h-9 w-9 items-center justify-center rounded-full"
-        style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+        className="absolute right-0 flex h-8 w-8 items-center justify-center rounded-full"
+        style={{ background: "#FFF8F4", border: "1px solid #E9DDD2" }}
       >
-        <span className="text-[16px] leading-none">🌷</span>
+        <HeartIcon className="h-4 w-4 text-[#D88F95]" />
         {hasCheers && (
           <span
             className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full"
-            style={{ background: "var(--color-error)", border: "1.5px solid var(--color-bg)" }}
+            style={{ background: "#E7A1A6", border: "1.5px solid var(--color-bg)" }}
           />
         )}
       </button>

@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CloseIcon } from "@/components/icons";
 import { formatDateLabelWithYear, todayIsoDate } from "@/lib/body/date";
-import { primaryPhotoUrl } from "@/lib/body/types";
+import { deleteBodyPhoto } from "@/lib/body/upload";
+import { primaryPhotoUrl, primarySlot } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
 
 /**
@@ -27,6 +29,42 @@ export function BodyFeedViewer({
   // honest to show it next to today's entry, not implied for past dates.
   const todayIso = todayIsoDate();
   const itemRefs = useRef(new Map<string, HTMLDivElement>());
+  const router = useRouter();
+
+  // Local copy so a delete can update this scroll view immediately instead
+  // of waiting for router.refresh() to flow a new `entries` prop back down.
+  const [localEntries, setLocalEntries] = useState(entries);
+  const [confirmingDeleteDate, setConfirmingDeleteDate] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleDelete(entry: BodyEntry) {
+    const slot = primarySlot(entry);
+    if (!slot) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteBodyPhoto({ date: entry.date, slot });
+      setLocalEntries((prev) =>
+        prev
+          .map((e) => {
+            if (e.date !== entry.date) return e;
+            if (slot === "front") return { ...e, front: false, frontImageUrl: undefined };
+            if (slot === "side") return { ...e, side: false, sideImageUrl: undefined };
+            return { ...e, back: false, backImageUrl: undefined };
+          })
+          // A day with no photo left has nothing to show here — matches
+          // getBodyEntries filtering the same rows out of 지난 기록.
+          .filter((e) => e.front || e.side || e.back),
+      );
+      setConfirmingDeleteDate(null);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     itemRefs.current.get(initialDate)?.scrollIntoView({ block: "start" });
@@ -66,8 +104,9 @@ export function BodyFeedViewer({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-[var(--container-sm)] flex-col gap-6 px-5 py-5">
-          {entries.map((entry) => {
+          {localEntries.map((entry) => {
             const url = primaryPhotoUrl(entry);
+            const isConfirming = confirmingDeleteDate === entry.date;
             return (
               <div
                 key={entry.date}
@@ -77,15 +116,47 @@ export function BodyFeedViewer({
                 }}
                 className="flex flex-col gap-2"
               >
-                <p className="text-[13px] font-bold text-text-primary">
-                  {formatDateLabelWithYear(entry.date)}
-                  {entry.date === todayIso && weightKg != null && (
-                    <span className="ml-1.5 font-normal text-text-secondary">· 체중 {weightKg}kg</span>
-                  )}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[13px] font-bold text-text-primary">
+                    {formatDateLabelWithYear(entry.date)}
+                    {entry.date === todayIso && weightKg != null && (
+                      <span className="ml-1.5 font-normal text-text-secondary">· 체중 {weightKg}kg</span>
+                    )}
+                  </p>
+                  {url &&
+                    (isConfirming ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-text-secondary">삭제할까요?</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(entry)}
+                          disabled={deleting}
+                          className="text-[11px] font-semibold text-error disabled:opacity-60"
+                        >
+                          {deleting ? "삭제 중..." : "삭제"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingDeleteDate(null)}
+                          disabled={deleting}
+                          className="text-[11px] font-semibold text-text-muted disabled:opacity-60"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingDeleteDate(entry.date)}
+                        className="text-[11px] font-semibold text-text-muted"
+                      >
+                        삭제
+                      </button>
+                    ))}
+                </div>
                 <div
                   className="relative aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-lg)]"
-                  style={{ background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }}
+                  style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }}
                 >
                   {url && (
                     <Image
@@ -102,6 +173,7 @@ export function BodyFeedViewer({
               </div>
             );
           })}
+          {error && <p className="text-center text-[11px] text-error">{error}</p>}
         </div>
       </div>
     </div>
