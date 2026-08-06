@@ -59,7 +59,7 @@ export function PhotoSlotButton({
         style={
           isFilled
             ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
-            : { background: "var(--surface-card)", border: "1px dashed rgba(86, 62, 58, 0.18)" }
+            : { background: "var(--surface-card)", border: "1px dashed rgba(78, 59, 54, 0.18)" }
         }
       >
         {preview ? (

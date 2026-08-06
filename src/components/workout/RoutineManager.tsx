@@ -68,7 +68,7 @@ export function RoutineManager({ routines, date }: { routines: WorkoutRoutine[];
             {expanded && (
               <div
                 className="flex flex-col gap-3 border-t px-4 py-4"
-                style={{ borderColor: "rgba(86, 62, 58, 0.07)" }}
+                style={{ borderColor: "rgba(78, 59, 54, 0.07)" }}
               >
                 {editingRoutineId === routine.id ? (
                   <RoutineForm
@@ -164,7 +164,7 @@ export function RoutineManager({ routines, date }: { routines: WorkoutRoutine[];
                     type="button"
                     onClick={() => setAddingExerciseFor(routine.id)}
                     className="flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[12px] font-semibold text-text-secondary"
-                    style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
+                    style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(78, 59, 54, 0.12)" }}
                   >
                     <PlusIcon className="h-3.5 w-3.5" />이 루틴에 운동 추가
                   </button>
@@ -186,7 +186,7 @@ export function RoutineManager({ routines, date }: { routines: WorkoutRoutine[];
           type="button"
           onClick={() => setAdding(true)}
           className="flex min-h-[48px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[13px] font-semibold text-text-secondary"
-          style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
+          style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(78, 59, 54, 0.12)" }}
         >
           <PlusIcon className="h-4 w-4" />
           새 루틴 만들기

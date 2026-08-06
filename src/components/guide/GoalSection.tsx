@@ -134,7 +134,7 @@ function PhotoPickCard({ label, caption }: { label: string; caption: string }) {
         type="button"
         onClick={() => inputRef.current?.click()}
         className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
-        style={preview ? undefined : { background: "var(--surface-card)", border: "1px dashed rgba(86, 62, 58, 0.18)" }}
+        style={preview ? undefined : { background: "var(--surface-card)", border: "1px dashed rgba(78, 59, 54, 0.18)" }}
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element

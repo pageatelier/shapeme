@@ -62,7 +62,7 @@ export function MealCard({ meal }: { meal: MealLog }) {
           style={
             filled
               ? { background: "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))" }
-              : { border: "1px dashed rgba(86, 62, 58, 0.18)" }
+              : { border: "1px dashed rgba(78, 59, 54, 0.18)" }
           }
         >
           {preview ? (

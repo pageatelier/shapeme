@@ -56,7 +56,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
                   }
                 : {
                     background: "var(--surface-card)",
-                    border: "1px dashed rgba(86, 62, 58, 0.16)",
+                    border: "1px dashed rgba(78, 59, 54, 0.16)",
                     color: "var(--color-text-muted)",
                   }
             }

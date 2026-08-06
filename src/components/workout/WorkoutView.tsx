@@ -90,7 +90,7 @@ export function WorkoutView({
           type="button"
           onClick={() => setAddingMovement(true)}
           className="flex min-h-[52px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[13px] font-semibold text-text-secondary"
-          style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
+          style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(78, 59, 54, 0.12)" }}
         >
           <PlusIcon className="h-4 w-4" />
           다른 움직임 기록
@@ -224,7 +224,7 @@ export function WorkoutView({
               type="button"
               onClick={() => setAddingExerciseFor(routine.id)}
               className="flex min-h-[48px] items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[13px] font-semibold text-text-secondary"
-              style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(86, 62, 58, 0.12)" }}
+              style={{ background: "var(--color-peach-100)", border: "1px dashed rgba(78, 59, 54, 0.12)" }}
             >
               <PlusIcon className="h-4 w-4" />이 루틴에 운동 추가
             </button>

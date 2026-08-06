@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#faf7f3",
+  themeColor: "#f4ebdd",
   // BottomNav and .app-content both lean on env(safe-area-inset-bottom) to
   // clear the home indicator — that variable only ever resolves to a real
   // value (instead of silently falling back to 0px) once the viewport opts

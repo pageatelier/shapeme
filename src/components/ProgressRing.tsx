@@ -36,9 +36,9 @@ export function ProgressRing({
         />
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f2bdca" />
-            <stop offset="48%" stopColor="#eda6a8" />
-            <stop offset="100%" stopColor="#f3a16f" />
+            <stop offset="0%" style={{ stopColor: "var(--color-pink-300)" }} />
+            <stop offset="52%" style={{ stopColor: "var(--color-pink-400)" }} />
+            <stop offset="100%" style={{ stopColor: "var(--color-pink-500)" }} />
           </linearGradient>
         </defs>
       </svg>

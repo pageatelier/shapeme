@@ -149,7 +149,7 @@ export function BodyCapture({
             type="button"
             onClick={() => setShowMore(true)}
             className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-text-secondary"
-            style={{ background: "var(--surface-card)", border: "1px dashed rgba(86, 62, 58, 0.2)" }}
+            style={{ background: "var(--surface-card)", border: "1px dashed rgba(78, 59, 54, 0.2)" }}
           >
             <PlusIcon className="h-3.5 w-3.5" />
             다른 각도 추가

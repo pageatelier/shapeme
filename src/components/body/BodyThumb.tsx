@@ -26,7 +26,7 @@ export function BodyThumb({
           background: filled
             ? "linear-gradient(160deg, var(--color-peach-200), var(--color-pink-200))"
             : "var(--surface-card)",
-          border: filled ? "none" : "1px dashed rgba(86, 62, 58, 0.18)",
+          border: filled ? "none" : "1px dashed rgba(78, 59, 54, 0.18)",
           color: filled ? "var(--color-text-inverse)" : "var(--color-text-muted)",
         }}
       >

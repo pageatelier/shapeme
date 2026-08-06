@@ -13,39 +13,40 @@
   --font-cormorant: "Cormorant Garamond", var(--font-en);
 
   /* Background */
-  --color-bg: #f7f1e4;
-  --color-bg-warm: #f3e9d6;
-  --color-bg-pink: #f9edef;
+  --color-bg: #f4ebdd;
+  --color-bg-warm: #f8f1e8;
+  --color-bg-pink: #f8dfdf;
 
-  /* Pink */
-  --color-pink-100: #f9e9ed;
-  --color-pink-200: #f3d7de;
-  --color-pink-300: #edbdc8;
-  --color-pink-400: #e99aac;
-  --color-pink-500: #d97e94;
+  /* Pink — dried-rose family; keep saturation restrained, never neon */
+  --color-pink-100: #f8dfdf;
+  --color-pink-200: #efc7c6;
+  --color-pink-300: #e7b0ae;
+  --color-pink-400: #d89293;
+  --color-pink-500: #cf8588;
 
-  /* Peach */
-  --color-peach-100: #fbe9dd;
-  --color-peach-200: #f8d2bc;
-  --color-peach-300: #f3b28b;
-  --color-peach-400: #ee9567;
-  --color-peach-500: #df7850;
+  /* Peach — recast as warm terracotta-beige, not orange, so it still pairs
+     with pink for depth without drifting toward yellow */
+  --color-peach-100: #f5e8da;
+  --color-peach-200: #ead3be;
+  --color-peach-300: #dbb99c;
+  --color-peach-400: #c89a7c;
+  --color-peach-500: #b37f5f;
 
   /* Accent */
-  --color-butter: #f4e4bd;
-  --color-lilac: #e7dce9;
-  --color-rose-mist: #eddfe3;
+  --color-butter: #f3e2d3;
+  --color-lilac: #e8e0dc;
+  --color-rose-mist: #f3dedd;
 
   /* Text */
-  --color-text-primary: #493b38;
-  --color-text-secondary: #796966;
-  --color-text-muted: #a39894;
-  --color-text-disabled: #c4bbb8;
-  --color-text-inverse: #fffaf8;
+  --color-text-primary: #4e3b36;
+  --color-text-secondary: #8c7a73;
+  --color-text-muted: #b8aaa3;
+  --color-text-disabled: #cdbfb8;
+  --color-text-inverse: #fffbf7;
 
   /* Status */
-  --color-success: #88a58a;
-  --color-success-soft: #e5eee4;
+  --color-success: #97a98f;
+  --color-success-soft: #e8efe4;
   --color-warning: #dfa166;
   --color-warning-soft: #faead9;
   --color-error: #cb7480;
@@ -54,41 +55,46 @@
   /* Gradient */
   --gradient-primary: linear-gradient(
     135deg,
-    #f2bdca 0%,
-    #eda6a8 48%,
-    #f3a16f 100%
+    #e7b0ae 0%,
+    #d89293 50%,
+    #cf8588 100%
   );
   --gradient-soft: linear-gradient(
     145deg,
-    #faf4f1 0%,
-    #f8e9ed 52%,
-    #f8eadc 100%
+    #fffdfc 0%,
+    #f8dfdf 52%,
+    #f8f1e8 100%
   );
   --gradient-ambient: radial-gradient(
       circle at 20% 20%,
-      rgba(214, 178, 128, 0.35),
-      transparent 38%
+      rgba(231, 176, 174, 0.18),
+      transparent 40%
     ),
-    radial-gradient(circle at 85% 35%, rgba(196, 154, 108, 0.28), transparent 42%),
-    radial-gradient(circle at 55% 90%, rgba(228, 210, 178, 0.32), transparent 40%);
+    radial-gradient(circle at 85% 35%, rgba(219, 185, 156, 0.14), transparent 42%),
+    radial-gradient(circle at 55% 90%, rgba(248, 223, 223, 0.2), transparent 42%);
 
   /* Surface */
-  --surface-card: rgba(255, 253, 251, 0.88);
-  --surface-soft: rgba(255, 255, 255, 0.58);
-  --surface-solid: #fffdfb;
+  --surface-card: rgba(255, 249, 245, 0.92);
+  --surface-soft: rgba(255, 253, 250, 0.6);
+  --surface-solid: #fffdfc;
 
   /* Glass */
-  --glass-background: rgba(255, 255, 255, 0.58);
-  --glass-background-strong: rgba(255, 255, 255, 0.74);
-  --glass-border: rgba(255, 255, 255, 0.72);
-  --glass-border-dark: rgba(91, 66, 62, 0.08);
+  --glass-background: rgba(255, 249, 245, 0.62);
+  --glass-background-strong: rgba(255, 249, 245, 0.78);
+  --glass-border: rgba(255, 253, 250, 0.75);
+  --glass-border-dark: rgba(78, 59, 54, 0.08);
   --glass-blur: 24px;
   --glass-saturation: 125%;
 
   /* Border */
-  --border-soft: 1px solid rgba(86, 62, 58, 0.07);
-  --border-default: 1px solid rgba(86, 62, 58, 0.11);
-  --border-focus: 1px solid rgba(217, 126, 148, 0.62);
+  --border-soft: 1px solid #e9ddd2;
+  --border-default: 1px solid #d2c7bd;
+  --border-focus: 1px solid rgba(207, 133, 136, 0.62);
+
+  /* Tab bar (BottomNav) */
+  --tab-bg: rgba(255, 248, 244, 0.88);
+  --tab-active: #d88f95;
+  --tab-inactive: #a99890;
 
   /* Radius */
   --radius-xs: 8px;
@@ -99,12 +105,13 @@
   --radius-2xl: 36px;
   --radius-full: 999px;
 
-  /* Shadow */
-  --shadow-xs: 0 2px 8px rgba(91, 64, 58, 0.05);
-  --shadow-sm: 0 8px 24px rgba(91, 64, 58, 0.07);
-  --shadow-card: 0 18px 50px rgba(102, 73, 66, 0.1);
-  --shadow-floating: 0 24px 70px rgba(102, 73, 66, 0.15);
-  --shadow-pink: 0 18px 40px rgba(224, 137, 157, 0.25);
+  /* Shadow — a touch more visible than before so cards lift off the
+     lighter beige background instead of blending into it */
+  --shadow-xs: 0 2px 8px rgba(78, 59, 54, 0.07);
+  --shadow-sm: 0 8px 24px rgba(78, 59, 54, 0.09);
+  --shadow-card: 0 18px 50px rgba(78, 59, 54, 0.12);
+  --shadow-floating: 0 24px 70px rgba(78, 59, 54, 0.17);
+  --shadow-pink: 0 18px 40px rgba(207, 133, 136, 0.28);
 
   /* Spacing */
   --space-1: 4px;
@@ -127,10 +134,10 @@
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Progress */
-  --progress-track: rgba(231, 213, 217, 0.55);
+  --progress-track: rgba(233, 221, 210, 0.55);
 
   /* Calendar-ish accents reused for meal dots */
-  --calendar-complete: #e98579;
+  --calendar-complete: #d89293;
 }
 
 /* Expose select tokens as Tailwind utilities (bg-*, text-*, rounded-*, shadow-*, font-*) */
@@ -223,13 +230,17 @@ body {
   --color-text-muted: #8f817b;
   --color-text-disabled: #5f544f;
 
-  --color-success-soft: rgba(136, 165, 138, 0.18);
+  --color-success-soft: rgba(151, 169, 143, 0.18);
   --color-warning-soft: rgba(223, 161, 102, 0.18);
   --color-error-soft: rgba(203, 116, 128, 0.18);
 
   --surface-card: rgba(38, 32, 29, 0.88);
   --surface-soft: rgba(255, 255, 255, 0.06);
   --surface-solid: #241f1c;
+
+  --tab-bg: rgba(40, 34, 31, 0.82);
+  --tab-active: #e3a3a6;
+  --tab-inactive: #9c8f88;
 
   /* Only consumer is the Story Viewer sheet — the light version is a warm
      cream/pink gradient that stayed hardcoded-light without this override. */

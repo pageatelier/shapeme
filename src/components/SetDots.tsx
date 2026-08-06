@@ -27,8 +27,8 @@ export function SetDots({
               width: size,
               height: size,
               background: done ? "var(--gradient-primary)" : "rgba(255,255,255,0.72)",
-              borderColor: done ? "transparent" : "rgba(86, 62, 58, 0.12)",
-              boxShadow: done ? "0 6px 14px rgba(217, 126, 148, 0.24)" : "none",
+              borderColor: done ? "transparent" : "rgba(78, 59, 54, 0.12)",
+              boxShadow: done ? "0 6px 14px rgba(207, 133, 136, 0.24)" : "none",
             }}
           >
             {done ? (

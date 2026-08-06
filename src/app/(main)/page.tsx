@@ -140,7 +140,7 @@ export default async function TodayPage() {
           {dateLabel}
         </p>
         <p className="text-[15px] leading-[1.5] tracking-[-0.02em] text-text-secondary">
-          세상에서 가장 소중한 <span className="font-bold text-text-primary">{displayName}</span>님 🌷
+          세상에서 가장 소중한 <span className="font-bold text-text-primary">{displayName}</span>님
         </p>
         <h1 className="mt-1 text-[clamp(22px,5vw,26px)] leading-[1.3] font-bold tracking-[-0.04em] text-text-primary">
           {dailyMessage}

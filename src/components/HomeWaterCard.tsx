@@ -111,7 +111,7 @@ export function HomeWaterCard({
             onClick={handleRemove}
             disabled={pending !== null || !lastEntry}
             className="flex min-h-[34px] flex-1 items-center justify-center rounded-full border text-xs font-semibold text-text-primary disabled:opacity-40"
-            style={{ borderColor: "rgba(86, 62, 58, 0.07)", background: "rgba(255,255,255,0.7)" }}
+            style={{ borderColor: "rgba(78, 59, 54, 0.07)", background: "rgba(255,255,255,0.7)" }}
           >
             {pending === "remove" ? "삭제 중..." : `− ${cupMl}ml 빼기`}
           </button>
@@ -120,7 +120,7 @@ export function HomeWaterCard({
             onClick={handleAdd}
             disabled={pending !== null}
             className="flex min-h-[34px] flex-1 items-center justify-center rounded-full border text-xs font-semibold text-text-primary disabled:opacity-60"
-            style={{ borderColor: "rgba(86, 62, 58, 0.07)", background: "rgba(255,255,255,0.7)" }}
+            style={{ borderColor: "rgba(78, 59, 54, 0.07)", background: "rgba(255,255,255,0.7)" }}
           >
             {pending === "add" ? "저장 중..." : `+ ${cupMl}ml 추가`}
           </button>

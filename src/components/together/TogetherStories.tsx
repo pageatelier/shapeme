@@ -63,7 +63,7 @@ export function TogetherStories({
           >
             <div
               className="flex h-[60px] w-[60px] items-center justify-center rounded-full"
-              style={{ border: "1px dashed rgba(86, 62, 58, 0.2)", background: "var(--surface-card)" }}
+              style={{ border: "1px dashed rgba(78, 59, 54, 0.2)", background: "var(--surface-card)" }}
             >
               <PlusIcon className="h-4 w-4 text-text-muted" />
             </div>
