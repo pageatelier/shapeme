@@ -43,7 +43,7 @@ export function SettingsGroup({ title, children }: { title: string; children: Re
   return (
     <section>
       <p className="mb-2 px-1 text-[13px] font-bold text-text-secondary">{title}</p>
-      <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
+      <div className="surface-card divide-y divide-[rgba(78,59,54,0.07)]">
         {children}
       </div>
     </section>

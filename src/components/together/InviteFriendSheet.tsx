@@ -115,7 +115,7 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
           {friends.length === 0 ? (
             <p className="text-[12px] text-text-disabled">아직 친구가 없어요.</p>
           ) : (
-            <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
+            <div className="surface-card divide-y divide-[rgba(78,59,54,0.07)]">
               {friends.map((friend) => (
                 <div key={friend.friendId} className="flex flex-col gap-2 px-4 py-3">
                   <div className="flex items-center justify-between">

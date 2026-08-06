@@ -60,7 +60,7 @@ export function GoalsSettings({ settings }: { settings: Settings }) {
             편집
           </button>
         </div>
-        <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
+        <div className="surface-card divide-y divide-[rgba(78,59,54,0.07)]">
           <StaticRow
             label="목표 체중 (선택)"
             value={settings.goalWeightKg ? `${settings.goalWeightKg}kg` : "설정 안 함"}

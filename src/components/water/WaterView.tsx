@@ -102,7 +102,7 @@ export function WaterView({
 
       <section>
         <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">오늘의 기록</p>
-        <div className="surface-card divide-y divide-[rgba(86,62,58,0.07)]">
+        <div className="surface-card divide-y divide-[rgba(78,59,54,0.07)]">
           {localEntries.length === 0 && (
             <p className="p-4 text-[13px] text-text-muted">아직 기록이 없어요.</p>
           )}

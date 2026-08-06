@@ -69,7 +69,7 @@ export function CalendarGrid({
                 outline: day.isToday
                   ? "2px solid var(--color-pink-500)"
                   : selectedIso === day.isoDate
-                    ? "2px solid rgba(86,62,58,0.3)"
+                    ? "2px solid rgba(78,59,54,0.3)"
                     : "none",
                 outlineOffset: 1,
               }}

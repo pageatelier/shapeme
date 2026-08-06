@@ -127,7 +127,7 @@ export function MyRecordsCalendar({
                   outline: day.isToday
                     ? "1.5px solid var(--color-pink-500)"
                     : selectedIso === day.isoDate
-                      ? "1.5px solid rgba(86,62,58,0.35)"
+                      ? "1.5px solid rgba(78,59,54,0.35)"
                       : "none",
                   outlineOffset: 1,
                 }}
@@ -136,10 +136,27 @@ export function MyRecordsCalendar({
               </button>
             ))}
           </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] text-text-muted">
+            <LegendDot style={{ background: "var(--color-bg-warm)" }} label="0%" />
+            <LegendDot style={{ background: "var(--color-pink-100)" }} label="1~39%" />
+            <LegendDot style={{ background: "var(--color-peach-300)" }} label="40~69%" />
+            <LegendDot style={{ background: "var(--color-pink-400)" }} label="70~99%" />
+            <LegendDot style={{ background: "var(--gradient-primary)" }} label="100%" />
+          </div>
         </div>
       </div>
 
       {detail && <MyRecordDetail detail={detail} todayIso={todayIso} />}
     </section>
+  );
+}
+
+function LegendDot({ style, label }: { style: CSSProperties; label: string }) {
+  return (
+    <span className="flex items-center gap-1">
+      <span className="h-2.5 w-2.5 rounded-full" style={style} />
+      {label}
+    </span>
   );
 }
