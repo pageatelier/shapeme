@@ -23,7 +23,13 @@ const ROUTINE_NAME: Record<ExerciseDayType, string> = {
  */
 export async function saveStartingWeekToMove(days: StartingWeekDay[]): Promise<void> {
   const workoutDays = days.filter((d) => d.dayType !== "rest") as (StartingWeekDay & { dayType: ExerciseDayType })[];
-  if (workoutDays.length === 0) return;
+  // Every daysPerWeek option (2–5) always schedules at least one workout
+  // day, so this should be unreachable — throwing instead of silently
+  // no-op'ing means a real bug here surfaces as an error on the review
+  // screen instead of a "successful" save that created nothing.
+  if (workoutDays.length === 0) {
+    throw new Error("생성된 루틴에 운동일이 없어요. 다시 시도해주세요.");
+  }
 
   const occurrencesByType = new Map<ExerciseDayType, (StartingWeekDay & { dayType: ExerciseDayType })[]>();
   for (const day of workoutDays) {

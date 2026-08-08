@@ -18,7 +18,7 @@ export function GuideView() {
       <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Guide</h1>
 
       <GoalSection onCreatePlan={showComingSoon} />
-      <AiGuideSection onAction={showComingSoon} />
+      <AiGuideSection />
       <BodyMeditationSection onSelect={showComingSoon} />
 
       {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}

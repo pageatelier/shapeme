@@ -5,8 +5,10 @@ import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { HeartIcon } from "@/components/icons";
 import { JournalForm } from "@/components/journal/JournalForm";
+import { TodayAiRoutineCard } from "@/components/TodayAiRoutineCard";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
+import { getRoutineDayDetailsSafe, hasAnyAiRoutineSafe } from "@/lib/aiRoutine/queries";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
@@ -73,6 +75,21 @@ export default async function TodayPage() {
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
 
   const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
+
+  // Depends on todayRoutines' ids, so this can't join the Promise.all above —
+  // only fetched when there's something to look up for.
+  const [routineDayDetails, hasAnyAiRoutine] = user
+    ? await Promise.all([
+        getRoutineDayDetailsSafe(
+          user.id,
+          todayRoutines.map((r) => r.id),
+        ),
+        hasAnyAiRoutineSafe(user.id),
+      ])
+    : [new Map(), false];
+  const todayAiRoutine = todayRoutines
+    .map((r) => ({ routine: r, detail: routineDayDetails.get(r.id) }))
+    .find((x) => x.detail);
 
   const waterPct = Math.min(100, Math.round((water.totalMl / settings.waterGoalMl) * 100));
 
@@ -208,6 +225,13 @@ export default async function TodayPage() {
             })}
           </div>
         </div>
+      )}
+
+      {hasAnyAiRoutine && (
+        <TodayAiRoutineCard
+          detail={todayAiRoutine?.detail ?? null}
+          exercises={todayAiRoutine?.routine.exercises ?? []}
+        />
       )}
 
       {settings.mealTrackingEnabled && (

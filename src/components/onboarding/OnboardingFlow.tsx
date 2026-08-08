@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/icons";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
-import { generateStartingWeek, swapExercise } from "@/lib/onboarding/generateStartingWeek";
+import { generateStartingWeek } from "@/lib/onboarding/generateStartingWeek";
 import type { StartingWeekDay } from "@/lib/onboarding/generateStartingWeek";
 import { saveOnboardingProfile } from "@/lib/onboarding/mutations";
 import { saveStartingWeekToMove } from "@/lib/onboarding/saveStartingWeek";
@@ -56,8 +56,6 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("steps");
   const [startingWeek, setStartingWeek] = useState<StartingWeekDay[] | null>(null);
-  const [regenerateSeed, setRegenerateSeed] = useState(0);
-  const [swapAttempts, setSwapAttempts] = useState<Record<string, number>>({});
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -100,34 +98,6 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
     }
   }
 
-  function handleSwapExercise(weekday: string, exerciseIndex: number) {
-    if (!startingWeek) return;
-    const day = startingWeek.find((d) => d.weekday === weekday);
-    if (!day || day.dayType === "rest") return;
-
-    const slotKey = `${weekday}-${exerciseIndex}`;
-    const attempt = (swapAttempts[slotKey] ?? 0) + 1;
-    const currentNames = day.exercises.map((e) => e.name);
-    const replacement = swapExercise(day.dayType, currentNames, attempt, profile);
-    if (!replacement) return; // no other eligible exercise for this day type
-
-    setSwapAttempts((prev) => ({ ...prev, [slotKey]: attempt }));
-    setStartingWeek((prev) =>
-      (prev ?? []).map((d) =>
-        d.weekday !== weekday
-          ? d
-          : { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? replacement : e)) },
-      ),
-    );
-  }
-
-  function handleRegenerate() {
-    const nextSeed = regenerateSeed + 1;
-    setRegenerateSeed(nextSeed);
-    setSwapAttempts({});
-    setStartingWeek(generateStartingWeek(profile, nextSeed));
-  }
-
   async function handleStart() {
     if (!startingWeek) return;
     setStarting(true);
@@ -145,14 +115,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
 
   if (phase === "review" && startingWeek) {
     return (
-      <StartingWeekReview
-        days={startingWeek}
-        onSwapExercise={handleSwapExercise}
-        onRegenerate={handleRegenerate}
-        onStart={handleStart}
-        starting={starting}
-        error={startError}
-      />
+      <StartingWeekReview days={startingWeek} onStart={handleStart} starting={starting} error={startError} />
     );
   }
 

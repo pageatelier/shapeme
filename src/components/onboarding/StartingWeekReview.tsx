@@ -20,22 +20,18 @@ const DAY_TYPE_FULL_LABEL: Record<ExerciseDayType, string> = {
 };
 
 /**
- * ⑧ — full exercise-level review, plus ⑨'s Regenerate/Start actions.
- * "Change a workout" (per-exercise swap) lives inline as a small 교체
- * button on each row rather than its own screen, matching the wireframe's
- * one-tap description.
+ * ⑧ — exercise-level review, plus ⑨'s Start action. Per-exercise swap and
+ * whole-week regenerate are intentionally out of scope for this pass (the
+ * MVP goal is just "recommended week saves to Move and is usable") — can be
+ * reintroduced later without touching this component's core shape.
  */
 export function StartingWeekReview({
   days,
-  onSwapExercise,
-  onRegenerate,
   onStart,
   starting,
   error,
 }: {
   days: StartingWeekDay[];
-  onSwapExercise: (weekday: string, exerciseIndex: number) => void;
-  onRegenerate: () => void;
   onStart: () => void;
   starting: boolean;
   error: string | null;
@@ -66,22 +62,13 @@ export function StartingWeekReview({
             </p>
             <div className="flex flex-col gap-2">
               {day.exercises.map((exercise, i) => (
-                <div key={`${exercise.name}-${i}`} className="flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] text-text-primary">
-                      {exercise.name} — {exercise.targetSets} × {exercise.targetReps}
-                    </p>
-                    {exercise.suggestedWeightKg != null && (
-                      <p className="text-[11px] text-text-muted">Suggested {exercise.suggestedWeightKg} kg</p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onSwapExercise(day.weekday, i)}
-                    className="shrink-0 text-[11px] font-semibold text-pink-500"
-                  >
-                    교체
-                  </button>
+                <div key={`${exercise.name}-${i}`}>
+                  <p className="truncate text-[13px] text-text-primary">
+                    {exercise.name} — {exercise.targetSets} × {exercise.targetReps}
+                  </p>
+                  {exercise.suggestedWeightKg != null && (
+                    <p className="text-[11px] text-text-muted">Suggested {exercise.suggestedWeightKg} kg</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -95,26 +82,15 @@ export function StartingWeekReview({
 
       {error && <p className="text-center text-[12px] text-error">{error}</p>}
 
-      <div className="flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={onStart}
-          disabled={starting}
-          className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
-        >
-          {starting ? "저장 중..." : "Start my week ♡"}
-        </button>
-        <button
-          type="button"
-          onClick={onRegenerate}
-          disabled={starting}
-          className="flex min-h-[44px] items-center justify-center rounded-full text-[13px] font-semibold text-text-secondary disabled:opacity-60"
-          style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-        >
-          Regenerate
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={starting}
+        className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
+        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+      >
+        {starting ? "저장 중..." : "Start my week ♡"}
+      </button>
     </div>
   );
 }
