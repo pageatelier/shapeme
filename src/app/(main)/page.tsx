@@ -4,7 +4,6 @@ import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { HeartIcon } from "@/components/icons";
-import { JournalForm } from "@/components/journal/JournalForm";
 import { TodayAiRoutineCard } from "@/components/TodayAiRoutineCard";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { TogetherStories } from "@/components/together/TogetherStories";
@@ -13,7 +12,6 @@ import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/dat
 import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
 import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
-import { getJournalEntryByDateSafe } from "@/lib/journal/queries";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
 import { today as mockToday } from "@/lib/mock-data";
@@ -44,15 +42,14 @@ export default async function TodayPage() {
   const dailyMessage = getDailyMessage(todayIso);
 
   // Independent reads — fetched together instead of one-after-another so
-  // this page doesn't wait on 8 sequential round trips just to render.
-  const [routines, movementLogs, water, meals, dailyNote, journalEntry, friends, receivedCheers] = user
+  // this page doesn't wait on 7 sequential round trips just to render.
+  const [routines, movementLogs, water, meals, dailyNote, friends, receivedCheers] = user
     ? await Promise.all([
         getRoutinesSafe(user.id, todayIso),
         getMovementLogsByDateSafe(user.id, todayIso),
         getWaterLogsSafe(user.id, todayIso),
         getMealLogsSafe(user.id, todayIso),
         getDailyNoteSafe(user.id, todayIso),
-        getJournalEntryByDateSafe(user.id, todayIso),
         getFriendsTodaySafe(),
         getCheersReceivedTodaySafe(user.id, todayIso),
       ])
@@ -62,7 +59,6 @@ export default async function TodayPage() {
         { entries: [], totalMl: 0 },
         MEAL_TYPES.map((type) => ({ type, date: todayIso, filled: false })),
         { memo: null, isPublic: false },
-        null,
         [],
         [],
       ];
@@ -264,16 +260,6 @@ export default async function TodayPage() {
           오늘의 메모
         </p>
         <DailyMemo date={todayIso} note={dailyNote} />
-      </section>
-
-      <section>
-        <p className="mb-3 text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">Journal</p>
-        <JournalForm
-          date={todayIso}
-          initialMood={journalEntry?.mood ?? null}
-          initialDayText={journalEntry?.dayText ?? ""}
-          initialGoodThing={journalEntry?.goodThing ?? ""}
-        />
       </section>
     </div>
   );

@@ -1,4 +1,3 @@
-import type { Mood } from "@/lib/journal/types";
 import type { MealLog } from "@/lib/meal/types";
 import type { MovementLog } from "@/lib/movement/types";
 import type { WaterLog } from "@/lib/water/types";
@@ -32,5 +31,4 @@ export type RecordDetail = {
   meals: MealLog[];
   /** Null when water tracking is off, or nothing was logged that day. */
   water: { entries: WaterLog[]; totalMl: number; goalMl: number; pct: number } | null;
-  journal: { mood: Mood | null; dayText: string | null; goodThing: string | null } | null;
 };

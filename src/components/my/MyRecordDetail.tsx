@@ -4,7 +4,7 @@ import { MEAL_TITLES } from "@/lib/meal/types";
 import { ACTIVITY_CONFIG } from "@/lib/movement/types";
 import type { RecordDetail } from "@/lib/records/types";
 import { WEEKDAYS } from "@/lib/workout/types";
-import { CameraIcon, MealIcon, MoveIcon, NoteIcon, WaterDropIcon } from "@/components/icons";
+import { CameraIcon, MealIcon, MoveIcon, WaterDropIcon } from "@/components/icons";
 
 function dateHeaderLabel(isoDate: string) {
   const [year, month, day] = isoDate.split("-").map(Number);
@@ -16,7 +16,6 @@ const CATEGORY_CHIPS = [
   { key: "move", label: "Move" },
   { key: "meals", label: "식단" },
   { key: "water", label: "물" },
-  { key: "journal", label: "Journal" },
 ] as const;
 
 export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; todayIso: string }) {
@@ -26,7 +25,6 @@ export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; tod
   if (detail.move) presentKeys.add("move");
   if (detail.meals.length > 0) presentKeys.add("meals");
   if (detail.water) presentKeys.add("water");
-  if (detail.journal) presentKeys.add("journal");
 
   return (
     <div className="flex flex-col gap-4">
@@ -155,32 +153,6 @@ export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; tod
                 {" / "}
                 {detail.water.goalMl.toLocaleString()}ml · 달성률 {detail.water.pct}%
               </p>
-            </section>
-          )}
-
-          {detail.journal && (
-            <section className="glass-card p-4">
-              <SectionTitle icon={<NoteIcon className="h-3.5 w-3.5" />} label="Journal" />
-              <div className="mt-3 flex flex-col gap-3">
-                {detail.journal.mood && (
-                  <div>
-                    <p className="text-[11px] font-semibold text-text-muted">오늘 내 몸의 상태</p>
-                    <p className="mt-0.5 text-[13px] text-text-secondary">{detail.journal.mood}</p>
-                  </div>
-                )}
-                {detail.journal.dayText && (
-                  <div>
-                    <p className="text-[11px] font-semibold text-text-muted">몸이 나에게 하고 싶은 말</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-text-secondary">{detail.journal.dayText}</p>
-                  </div>
-                )}
-                {detail.journal.goodThing && (
-                  <div>
-                    <p className="text-[11px] font-semibold text-text-muted">내가 몸에게 해주고 싶은 말</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-text-secondary">{detail.journal.goodThing}</p>
-                  </div>
-                )}
-              </div>
             </section>
           )}
         </div>

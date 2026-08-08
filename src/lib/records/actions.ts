@@ -3,7 +3,6 @@
 import { isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { getBodyEntryByDateSafe } from "@/lib/body/queries";
 import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
-import { getJournalEntryByDateSafe } from "@/lib/journal/queries";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { getMovementLogsByDateSafe } from "@/lib/movement/queries";
 import { readSettings } from "@/lib/settings/types";
@@ -33,7 +32,6 @@ const EMPTY_DETAIL = (isoDate: string, isFuture: boolean): RecordDetail => ({
   move: null,
   meals: [],
   water: null,
-  journal: null,
 });
 
 /** My's calendar date-select — fetches one day's full record detail,
@@ -51,13 +49,12 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
 
   const settings = readSettings(user.user_metadata);
 
-  const [bodyEntry, routines, movementLogs, meals, water, journal, moveSnapshot] = await Promise.all([
+  const [bodyEntry, routines, movementLogs, meals, water, moveSnapshot] = await Promise.all([
     getBodyEntryByDateSafe(user.id, isoDate),
     getRoutinesSafe(user.id, isoDate),
     getMovementLogsByDateSafe(user.id, isoDate),
     getMealLogsSafe(user.id, isoDate),
     getWaterLogsSafe(user.id, isoDate),
-    getJournalEntryByDateSafe(user.id, isoDate),
     getDailyMoveSnapshotSafe(user.id, isoDate),
   ]);
 
@@ -92,8 +89,7 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
   const hasBodyPhoto = !!(bodyEntry?.front || bodyEntry?.side || bodyEntry?.back);
   const hasMove = workoutTotalSets > 0 || movementLogs.length > 0;
   const hasWater = water.entries.length > 0;
-  const hasJournal = !!(journal?.mood || journal?.dayText || journal?.goodThing);
-  const hasAnyRecord = hasBodyPhoto || hasMove || mealDoneToday || hasWater || hasJournal;
+  const hasAnyRecord = hasBodyPhoto || hasMove || mealDoneToday || hasWater;
 
   return {
     isoDate,
@@ -121,6 +117,5 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
       settings.waterTrackingEnabled && hasWater
         ? { entries: water.entries, totalMl: water.totalMl, goalMl: settings.waterGoalMl, pct: waterPct }
         : null,
-    journal: hasJournal ? { mood: journal!.mood, dayText: journal!.dayText, goodThing: journal!.goodThing } : null,
   };
 }
