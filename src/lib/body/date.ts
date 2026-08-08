@@ -23,6 +23,14 @@ export function weekdayIndex(iso: string): number {
   return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 }
 
+/** Timezone-independent date arithmetic for a YYYY-MM-DD key — `days` may be
+ * negative to go backward. */
+export function addDays(iso: string, days: number): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day + days));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
 export function formatDateLabel(iso: string): string {
   const [, month, day] = iso.split("-");
   return `${Number(month)}월 ${Number(day)}일`;

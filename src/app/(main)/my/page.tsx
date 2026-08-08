@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ChevronRightIcon } from "@/components/icons";
 import { MyRecordsCalendar } from "@/components/my/MyRecordsCalendar";
 import { ProfileHeader } from "@/components/my/ProfileHeader";
 import { isoDateInTimeZone } from "@/lib/body/date";
@@ -38,6 +40,19 @@ export default async function MyPage() {
   return (
     <div className="flex flex-col gap-6">
       <ProfileHeader displayName={displayName} avatarUrl={avatarUrl} bio={bio} monthlyGoal={monthlyGoal} timezone={timezone} />
+
+      <Link
+        href="/my/weekly-review"
+        className="glass-card flex items-center justify-between gap-3 p-4"
+      >
+        <div>
+          <p className="text-[13px] font-bold text-text-primary">이번 주 리뷰 보기 ⭐</p>
+          <p className="mt-0.5 text-[11px] text-text-secondary">
+            잘한 점, 조정할 점, 그리고 다음 주 루틴까지 함께 확인해요.
+          </p>
+        </div>
+        <ChevronRightIcon className="h-4 w-4 shrink-0 text-text-muted" />
+      </Link>
 
       <MyRecordsCalendar
         initialYear={year}

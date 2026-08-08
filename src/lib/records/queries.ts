@@ -119,7 +119,7 @@ export async function getMyRecordsMonth(
 
     const weekday = WEEKDAYS[weekdayIndex(isoDate)];
     const workoutDoneSets = doneSetsByDate.get(isoDate) ?? 0;
-    const workoutTotalSets = moveSnapshots.get(isoDate) ?? weekdayTotalTargetSets.get(weekday) ?? 0;
+    const workoutTotalSets = moveSnapshots.get(isoDate)?.totalTargetSets ?? weekdayTotalTargetSets.get(weekday) ?? 0;
     const movePercent = movePercentFor({
       workoutDoneSets,
       workoutTotalSets,

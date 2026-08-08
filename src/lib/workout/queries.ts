@@ -114,31 +114,33 @@ export async function getRoutinesSafe(userId: string, logDate: string): Promise<
   }
 }
 
+export type DailyMoveSnapshot = { totalTargetSets: number; difficulty: string | null };
+
 /**
- * Frozen total-target-sets per date within [start, end] — see
- * supabase/migrations/0011_daily_move_snapshots.sql. Dates with no snapshot
- * row (written before that migration shipped, or a day Move was never
- * opened) are simply absent from the map; callers fall back to the old
- * live-derived total for those.
+ * Frozen total-target-sets (+ that day's difficulty feedback, if answered)
+ * per date within [start, end] — see
+ * supabase/migrations/0011_daily_move_snapshots.sql and 0012's difficulty
+ * column. Dates with no snapshot row (written before 0011 shipped, or a day
+ * Move was never opened) are simply absent from the map; callers fall back
+ * to the old live-derived total for those.
  */
 export async function getDailyMoveSnapshotsInRange(
   userId: string,
   start: string,
   end: string,
-): Promise<Map<string, number>> {
+): Promise<Map<string, DailyMoveSnapshot>> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("daily_move_snapshots")
-    .select("log_date, total_target_sets")
+    .select("log_date, total_target_sets, difficulty")
     .eq("user_id", userId)
     .gte("log_date", start)
     .lte("log_date", end);
   if (error) throw error;
   return new Map(
-    ((data as { log_date: string; total_target_sets: number }[] | null) ?? []).map((r) => [
-      r.log_date,
-      r.total_target_sets,
-    ]),
+    ((data as { log_date: string; total_target_sets: number; difficulty: string | null }[] | null) ?? []).map(
+      (r) => [r.log_date, { totalTargetSets: r.total_target_sets, difficulty: r.difficulty }],
+    ),
   );
 }
 
@@ -146,7 +148,7 @@ export async function getDailyMoveSnapshotsInRangeSafe(
   userId: string,
   start: string,
   end: string,
-): Promise<Map<string, number>> {
+): Promise<Map<string, DailyMoveSnapshot>> {
   try {
     return await getDailyMoveSnapshotsInRange(userId, start, end);
   } catch (error) {
