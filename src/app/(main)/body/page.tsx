@@ -9,7 +9,6 @@ export default async function BodyPage() {
   const user = await getCurrentUser();
 
   const entries = user ? await getBodyEntriesSafe(user.id) : [];
-  const weightKg = (user?.user_metadata as { weight_kg?: number } | undefined)?.weight_kg ?? null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -20,9 +19,9 @@ export default async function BodyPage() {
         몸 사진은 로그인한 본인만 볼 수 있도록 비공개로 저장돼요.
       </p>
 
-      <BodyCapture entries={entries} weightKg={weightKg} />
+      <BodyCapture entries={entries} />
       <BodyCompare entries={entries} />
-      <BodyTimeline entries={entries} weightKg={weightKg} />
+      <BodyTimeline entries={entries} />
     </div>
   );
 }

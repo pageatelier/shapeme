@@ -20,7 +20,7 @@ function yearMonthKey(date: string) {
   return date.slice(0, 7); // "YYYY-MM"
 }
 
-export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weightKg: number | null }) {
+export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [openDate, setOpenDate] = useState<string | null>(null);
 
@@ -117,12 +117,7 @@ export function BodyTimeline({ entries, weightKg }: { entries: BodyEntry[]; weig
       )}
 
       {openDate && (
-        <BodyFeedViewer
-          entries={visible}
-          initialDate={openDate}
-          weightKg={weightKg}
-          onClose={() => setOpenDate(null)}
-        />
+        <BodyFeedViewer entries={visible} initialDate={openDate} onClose={() => setOpenDate(null)} />
       )}
     </section>
   );

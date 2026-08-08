@@ -21,10 +21,6 @@ export type RecordDetail = {
     frontImageUrl?: string;
     sideImageUrl?: string;
     backImageUrl?: string;
-    /** Only ever set when isoDate is today — weight isn't stored per past
-     * day anywhere, only as the profile's single "current" value, so
-     * showing it against a past date would be misleading. */
-    weightKg: number | null;
   } | null;
   move: {
     routineName: string | null;

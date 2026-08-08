@@ -8,7 +8,6 @@ export async function updateProfile({
   avatarFile,
   bio,
   heightCm,
-  weightKg,
   language,
   country,
   timezone,
@@ -18,7 +17,6 @@ export async function updateProfile({
   avatarFile?: File;
   bio?: string;
   heightCm?: number | null;
-  weightKg?: number | null;
   language?: string;
   country?: string;
   timezone?: string;
@@ -57,7 +55,6 @@ export async function updateProfile({
       ...(avatarUrl !== undefined && { avatar_url: avatarUrl }),
       ...(bio !== undefined && { bio }),
       ...(heightCm !== undefined && { height_cm: heightCm }),
-      ...(weightKg !== undefined && { weight_kg: weightKg }),
       ...(language !== undefined && { language }),
       ...(country !== undefined && { country }),
       ...(timezone !== undefined && { timezone }),

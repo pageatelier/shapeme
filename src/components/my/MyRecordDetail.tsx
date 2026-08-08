@@ -4,7 +4,7 @@ import { MEAL_TITLES } from "@/lib/meal/types";
 import { ACTIVITY_CONFIG } from "@/lib/movement/types";
 import type { RecordDetail } from "@/lib/records/types";
 import { WEEKDAYS } from "@/lib/workout/types";
-import { CameraIcon, MealIcon, MoveIcon, NoteIcon, ScaleIcon, WaterDropIcon } from "@/components/icons";
+import { CameraIcon, MealIcon, MoveIcon, NoteIcon, WaterDropIcon } from "@/components/icons";
 
 function dateHeaderLabel(isoDate: string) {
   const [year, month, day] = isoDate.split("-").map(Number);
@@ -94,12 +94,6 @@ export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; tod
                   </div>
                 ))}
               </div>
-              {detail.body.weightKg != null && (
-                <p className="mt-3 flex items-center gap-1.5 text-[13px] text-text-secondary">
-                  <ScaleIcon className="h-3.5 w-3.5 text-text-muted" />
-                  {detail.body.weightKg}kg
-                </p>
-              )}
             </section>
           )}
 

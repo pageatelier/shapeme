@@ -44,7 +44,7 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const metadata = user.user_metadata as { timezone?: string; weight_kg?: number } | undefined;
+  const metadata = user.user_metadata as { timezone?: string } | undefined;
   const timezone = metadata?.timezone || "Asia/Seoul";
   const todayIso = isoDateInTimeZone(new Date(), timezone);
   if (isoDate > todayIso) return EMPTY_DETAIL(isoDate, true);
@@ -105,7 +105,6 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
           frontImageUrl: bodyEntry?.frontImageUrl,
           sideImageUrl: bodyEntry?.sideImageUrl,
           backImageUrl: bodyEntry?.backImageUrl,
-          weightKg: isoDate === todayIso ? (metadata?.weight_kg ?? null) : null,
         }
       : null,
     move: hasMove

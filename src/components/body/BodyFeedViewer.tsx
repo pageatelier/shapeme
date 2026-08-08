@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { UIEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CloseIcon } from "@/components/icons";
-import { formatDateLabelWithYear, todayIsoDate } from "@/lib/body/date";
+import { formatDateLabelWithYear } from "@/lib/body/date";
 import { deleteBodyPhoto } from "@/lib/body/upload";
 import { primarySlot, SLOT_LABELS } from "@/lib/body/types";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
@@ -34,17 +34,12 @@ function availableSlots(entry: BodyEntry): { slot: BodyPhotoSlot; url: string }[
 export function BodyFeedViewer({
   entries,
   initialDate,
-  weightKg,
   onClose,
 }: {
   entries: BodyEntry[];
   initialDate: string;
-  weightKg: number | null;
   onClose: () => void;
 }) {
-  // Only the current weight is stored (no per-date history), so it's only
-  // honest to show it next to today's entry, not implied for past dates.
-  const todayIso = todayIsoDate();
   const itemRefs = useRef(new Map<string, HTMLDivElement>());
   const router = useRouter();
 
@@ -119,8 +114,9 @@ export function BodyFeedViewer({
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "var(--color-bg)" }}>
       <div
-        className="flex shrink-0 items-center justify-end px-4 py-3"
+        className="flex shrink-0 items-center justify-end px-4 pb-3"
         style={{
+          paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))",
           background: "var(--glass-background-strong)",
           borderBottom: "1px solid var(--glass-border)",
           backdropFilter: "blur(var(--glass-blur)) saturate(var(--glass-saturation))",
@@ -159,12 +155,7 @@ export function BodyFeedViewer({
                 className="flex flex-col gap-2"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[13px] font-bold text-text-primary">
-                    {formatDateLabelWithYear(entry.date)}
-                    {entry.date === todayIso && weightKg != null && (
-                      <span className="ml-1.5 font-normal text-text-secondary">· 체중 {weightKg}kg</span>
-                    )}
-                  </p>
+                  <p className="text-[13px] font-bold text-text-primary">{formatDateLabelWithYear(entry.date)}</p>
                   {url &&
                     (isConfirming ? (
                       <div className="flex items-center gap-2">

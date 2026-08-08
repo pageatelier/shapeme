@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
 import { todayIsoDate } from "@/lib/body/date";
-import { updateProfile } from "@/lib/profile/mutations";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
 
@@ -23,75 +21,20 @@ function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
  * body_entries photo column is independently nullable) — this only
  * changes which slots are visible by default.
  */
-export function BodyCapture({
-  entries,
-  weightKg,
-}: {
-  entries: BodyEntry[];
-  weightKg: number | null;
-}) {
-  const router = useRouter();
+export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
   const today = todayIsoDate();
   const [selectedDate, setSelectedDate] = useState(today);
   const entry = entries.find((e) => e.date === selectedDate) ?? null;
   const [showMore, setShowMore] = useState(() => hasAdditionalAngles(entry));
-
-  const [editingWeight, setEditingWeight] = useState(false);
-  const [weightInput, setWeightInput] = useState(weightKg != null ? String(weightKg) : "");
-  const [savingWeight, setSavingWeight] = useState(false);
 
   function changeDate(next: string) {
     setSelectedDate(next);
     setShowMore(hasAdditionalAngles(entries.find((e) => e.date === next)));
   }
 
-  async function handleSaveWeight() {
-    setSavingWeight(true);
-    try {
-      const parsed = weightInput.trim() ? Number(weightInput) : null;
-      await updateProfile({ weightKg: parsed });
-      router.refresh();
-      setEditingWeight(false);
-    } finally {
-      setSavingWeight(false);
-    }
-  }
-
   return (
     <section className="glass-card p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 기록</p>
-        <button
-          type="button"
-          onClick={() => setEditingWeight((v) => !v)}
-          className="text-xs font-semibold text-text-secondary underline decoration-dotted underline-offset-2"
-        >
-          {weightKg != null ? `체중 ${weightKg}kg` : "체중 입력"}
-        </button>
-      </div>
-
-      {editingWeight && (
-        <div className="mb-4 flex items-center gap-2">
-          <input
-            type="number"
-            inputMode="decimal"
-            value={weightInput}
-            onChange={(e) => setWeightInput(e.target.value)}
-            placeholder="kg"
-            className="min-h-[36px] w-20 rounded-full px-3 text-[13px] font-semibold text-text-primary"
-            style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-          />
-          <button
-            type="button"
-            onClick={handleSaveWeight}
-            disabled={savingWeight}
-            className="rounded-full px-3 py-1.5 text-[12px] font-semibold text-text-inverse disabled:opacity-60"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            {savingWeight ? "저장 중..." : "저장"}
-          </button>
-        </div>
-      )}
+      <p className="mb-4 text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 기록</p>
 
       <div className="mb-4 flex items-center gap-2">
         <input
