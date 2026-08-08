@@ -23,6 +23,8 @@ type ExerciseRow = {
 type SetLogRow = {
   exercise_id: string;
   sets: boolean[];
+  actual_weight_kg: number | null;
+  actual_reps: number | null;
 };
 
 function normalizeSets(sets: boolean[] | undefined, targetSets: number): boolean[] {
@@ -55,7 +57,7 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
       .order("order_index", { ascending: true }),
     supabase
       .from("workout_set_logs")
-      .select("exercise_id, sets")
+      .select("exercise_id, sets, actual_weight_kg, actual_reps")
       .eq("user_id", userId)
       .eq("log_date", logDate),
   ]);
@@ -68,11 +70,12 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
 
   const exercises = (exercisesResult.data ?? []) as ExerciseRow[];
   const logsByExerciseId = new Map(
-    ((logsResult.data as SetLogRow[] | null) ?? []).map((r) => [r.exercise_id, r.sets]),
+    ((logsResult.data as SetLogRow[] | null) ?? []).map((r) => [r.exercise_id, r]),
   );
 
   const exercisesByRoutineId = new Map<string, WorkoutExercise[]>();
   for (const e of exercises) {
+    const log = logsByExerciseId.get(e.id);
     const exercise: WorkoutExercise = {
       id: e.id,
       routineId: e.routine_id,
@@ -83,7 +86,9 @@ export async function getRoutines(userId: string, logDate: string): Promise<Work
       restSeconds: e.rest_seconds,
       memo: e.memo,
       orderIndex: e.order_index,
-      sets: normalizeSets(logsByExerciseId.get(e.id), e.target_sets),
+      sets: normalizeSets(log?.sets, e.target_sets),
+      actualWeightKg: log?.actual_weight_kg ?? null,
+      actualReps: log?.actual_reps ?? null,
     };
     const bucket = exercisesByRoutineId.get(e.routine_id);
     if (bucket) bucket.push(exercise);
@@ -168,6 +173,30 @@ export async function getDailyMoveSnapshotSafe(userId: string, date: string): Pr
     return await getDailyMoveSnapshot(userId, date);
   } catch (error) {
     console.error("[workout] getDailyMoveSnapshot failed, falling back to null:", error);
+    return null;
+  }
+}
+
+/** Today's already-answered "Too light / Just right / Too hard" feedback,
+ * if any — read by WorkoutView so the one-time prompt doesn't reappear
+ * after it's been answered (see saveDailyDifficulty in mutations.ts). */
+export async function getDailyMoveDifficulty(userId: string, date: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("daily_move_snapshots")
+    .select("difficulty")
+    .eq("user_id", userId)
+    .eq("log_date", date)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as { difficulty: string | null } | null)?.difficulty ?? null;
+}
+
+export async function getDailyMoveDifficultySafe(userId: string, date: string): Promise<string | null> {
+  try {
+    return await getDailyMoveDifficulty(userId, date);
+  } catch (error) {
+    console.error("[workout] getDailyMoveDifficulty failed, falling back to null:", error);
     return null;
   }
 }

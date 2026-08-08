@@ -38,6 +38,8 @@ function ExerciseCardImpl({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [reordering, setReordering] = useState(false);
+  const [actualReps, setActualReps] = useState(exercise.actualReps ?? exercise.targetReps);
+  const [actualWeightKg, setActualWeightKg] = useState(exercise.actualWeightKg ?? exercise.weightKg);
 
   const done = sets.filter(Boolean).length;
   const complete = done === exercise.targetSets && exercise.targetSets > 0;
@@ -52,6 +54,15 @@ function ExerciseCardImpl({
     } catch (err) {
       setSets(sets);
       onSetsChange?.(exercise.id, sets);
+      setSaveError(err instanceof Error ? err.message : "저장에 실패했어요.");
+    }
+  }
+
+  async function saveActuals() {
+    setSaveError(null);
+    try {
+      await saveSetLog({ exerciseId: exercise.id, date, sets, actualWeightKg, actualReps });
+    } catch (err) {
       setSaveError(err instanceof Error ? err.message : "저장에 실패했어요.");
     }
   }
@@ -143,7 +154,34 @@ function ExerciseCardImpl({
       </p>
       {exercise.memo && <p className="mt-1 text-[11px] text-text-muted">메모 · {exercise.memo}</p>}
 
-      <div className="mt-2 flex justify-end">
+      <div className="mt-2 flex items-center justify-between gap-2">
+        {done > 0 ? (
+          <div className="flex items-center gap-1 text-[11px] text-text-muted">
+            <span>실제</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={actualReps}
+              onChange={(e) => setActualReps(Number(e.target.value))}
+              onBlur={saveActuals}
+              className="w-9 rounded-[var(--radius-sm)] px-1 py-0.5 text-center text-text-primary"
+              style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
+            />
+            <span>회</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={actualWeightKg ?? ""}
+              onChange={(e) => setActualWeightKg(e.target.value === "" ? null : Number(e.target.value))}
+              onBlur={saveActuals}
+              className="w-11 rounded-[var(--radius-sm)] px-1 py-0.5 text-center text-text-primary"
+              style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
+            />
+            <span>kg</span>
+          </div>
+        ) : (
+          <span />
+        )}
         <SetDots sets={sets} onToggle={toggleSet} size={34} />
       </div>
       {saveError && <p className="mt-2 text-xs text-error">{saveError}</p>}

@@ -2,26 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/locale/region";
 import { updateProfile } from "@/lib/profile/mutations";
 import { LabeledSelect, SettingsGroup } from "./SettingsPrimitives";
-
-const LANGUAGE_OPTIONS = [
-  { value: "ko", label: "한국어" },
-  { value: "en", label: "English" },
-];
-
-const COUNTRY_OPTIONS = [
-  { value: "KR", label: "대한민국" },
-  { value: "JP", label: "일본" },
-  { value: "US", label: "미국" },
-  { value: "GB", label: "영국" },
-  { value: "MY", label: "말레이시아" },
-  { value: "ES", label: "스페인" },
-  { value: "FR", label: "프랑스" },
-  { value: "ID", label: "인도네시아" },
-  { value: "TH", label: "태국" },
-  { value: "OTHER", label: "기타" },
-];
 
 const TIMEZONE_OPTIONS = [
   { value: "Asia/Seoul", label: "서울 (GMT+9)" },

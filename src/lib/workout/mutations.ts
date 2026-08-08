@@ -158,10 +158,16 @@ export async function saveSetLog({
   exerciseId,
   date,
   sets,
+  actualWeightKg,
+  actualReps,
 }: {
   exerciseId: string;
   date: string;
   sets: boolean[];
+  /** Omit to leave whatever's already saved untouched — only ExerciseCard's
+   * actual-weight/reps fields pass these, the plain set-dot toggle doesn't. */
+  actualWeightKg?: number | null;
+  actualReps?: number | null;
 }) {
   const { supabase, userId } = await requireUserId();
   const { error } = await supabase.from("workout_set_logs").upsert(
@@ -170,9 +176,34 @@ export async function saveSetLog({
       exercise_id: exerciseId,
       log_date: date,
       sets,
+      ...(actualWeightKg !== undefined && { actual_weight_kg: actualWeightKg }),
+      ...(actualReps !== undefined && { actual_reps: actualReps }),
       updated_at: new Date().toISOString(),
     },
     { onConflict: "exercise_id,log_date" },
   );
+  if (error) throw error;
+}
+
+/**
+ * The once-a-day "Too light / Just right / Too hard" prompt (see
+ * WorkoutView) — updates daily_move_snapshots.difficulty for today. Assumes
+ * that row already exists, which it does by the time a user could reach
+ * 100% completion: snapshotTodayMoveTotal above upserts it on every Move
+ * page view, well before any set gets checked off.
+ */
+export async function saveDailyDifficulty({
+  date,
+  difficulty,
+}: {
+  date: string;
+  difficulty: string;
+}) {
+  const { supabase, userId } = await requireUserId();
+  const { error } = await supabase
+    .from("daily_move_snapshots")
+    .update({ difficulty, updated_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("log_date", date);
   if (error) throw error;
 }

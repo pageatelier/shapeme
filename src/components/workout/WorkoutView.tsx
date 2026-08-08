@@ -8,9 +8,9 @@ import { MovementLogCard } from "@/components/move/MovementLogCard";
 import { MovementLogForm } from "@/components/move/MovementLogForm";
 import { weekdayIndex } from "@/lib/body/date";
 import type { MovementActivityType, MovementLog } from "@/lib/movement/types";
-import { snapshotTodayMoveTotal } from "@/lib/workout/mutations";
+import { saveDailyDifficulty, snapshotTodayMoveTotal } from "@/lib/workout/mutations";
 import { WEEKDAYS } from "@/lib/workout/types";
-import type { WorkoutRoutine } from "@/lib/workout/types";
+import type { WorkoutDifficulty, WorkoutRoutine } from "@/lib/workout/types";
 import { ExerciseCard } from "./ExerciseCard";
 import { ExerciseForm } from "./ExerciseForm";
 
@@ -31,14 +31,24 @@ function SettingsLink() {
   );
 }
 
+const DIFFICULTY_OPTIONS: { value: WorkoutDifficulty; label: string }[] = [
+  { value: "too_light", label: "Too light" },
+  { value: "just_right", label: "Just right" },
+  { value: "too_hard", label: "Too hard" },
+];
+
 export function WorkoutView({
   routines,
   date,
   movementLogs,
+  difficulty,
 }: {
   routines: WorkoutRoutine[];
   date: string;
   movementLogs: MovementLog[];
+  /** Today's already-answered difficulty feedback, if any — null shows the
+   * one-time prompt once today's routine hits 100%. */
+  difficulty: string | null;
 }) {
   const todayLabel = todayWeekdayLabel(date);
   // Every routine scheduled for today, not just one — routines can share a
@@ -65,6 +75,20 @@ export function WorkoutView({
   function closeMovementFlow() {
     setAddingMovement(false);
     setPickedType(null);
+  }
+
+  const [savedDifficulty, setSavedDifficulty] = useState(difficulty);
+  const [savingDifficulty, setSavingDifficulty] = useState(false);
+  async function handleDifficulty(value: WorkoutDifficulty) {
+    setSavingDifficulty(true);
+    try {
+      await saveDailyDifficulty({ date, difficulty: value });
+      setSavedDifficulty(value);
+    } catch (err) {
+      console.error("[workout] saveDailyDifficulty failed:", err);
+    } finally {
+      setSavingDifficulty(false);
+    }
   }
 
   const totalSets = todayRoutines.reduce(
@@ -171,6 +195,25 @@ export function WorkoutView({
               style={{ width: `${progress}%`, background: "var(--gradient-primary)" }}
             />
           </div>
+
+          {progress === 100 && !savedDifficulty && (
+            <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--glass-border)" }}>
+              <p className="mb-2 text-[12px] font-semibold text-text-secondary">오늘 운동 강도는 어땠나요?</p>
+              <div className="flex gap-2">
+                {DIFFICULTY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleDifficulty(opt.value)}
+                    disabled={savingDifficulty}
+                    className="pill-unselected flex-1 rounded-full py-2 text-[12px] font-semibold disabled:opacity-60"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="glass-card flex flex-col items-center gap-2 p-6 text-center">

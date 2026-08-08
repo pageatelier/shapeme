@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { BottomNav } from "@/components/BottomNav";
 import { DateRolloverWatcher } from "@/components/DateRolloverWatcher";
+import { readOnboardingProfile } from "@/lib/onboarding/types";
 import { readSettings } from "@/lib/settings/types";
 import { getCurrentUser } from "@/lib/supabase/server";
 
@@ -9,6 +11,12 @@ export default async function MainLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
+  // Applies to every account, not just new signups — accounts created
+  // before onboarding existed have onboardingCompleted unset too, so they
+  // get routed through it here rather than being grandfathered in.
+  if (user && !readOnboardingProfile(user.user_metadata).onboardingCompleted) {
+    redirect("/onboarding");
+  }
   const settings = readSettings(user?.user_metadata);
 
   return (
