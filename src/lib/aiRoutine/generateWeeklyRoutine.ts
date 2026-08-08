@@ -4,76 +4,90 @@ import type { AIRoutineDay, AIRoutineWeek, RoutineGenerationInput } from "./type
 
 const MODEL = "gpt-5-mini";
 
-const ROUTINE_SCHEMA = {
-  type: "object",
-  properties: {
-    frequency: { type: "integer" },
-    workout_days: { type: "array", items: { type: "string", enum: WEEKDAYS_EN } },
-    days: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          day: { type: "string", enum: WEEKDAYS_EN },
-          title: { type: "string" },
-          estimated_minutes: { type: "integer" },
-          warmup: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: { name: { type: "string" }, duration_or_reps: { type: "string" } },
-              required: ["name", "duration_or_reps"],
-              additionalProperties: false,
+/** Lower bound on main-exercise count so a 60분 session can't come back
+ * with 2-3 moves — roughly one exercise (incl. rest) per ~10 minutes,
+ * floored at 3. Schema-level minItems is a hard guarantee; the prompt below
+ * repeats the same guidance in words since minItems alone doesn't explain
+ * *why* to the model. */
+function minWorkoutItems(sessionMinutes: number): number {
+  return Math.max(3, Math.floor(sessionMinutes / 10));
+}
+
+function buildRoutineSchema(sessionMinutes: number) {
+  return {
+    type: "object",
+    properties: {
+      frequency: { type: "integer" },
+      workout_days: { type: "array", items: { type: "string", enum: WEEKDAYS_EN } },
+      days: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            day: { type: "string", enum: WEEKDAYS_EN },
+            title: { type: "string" },
+            estimated_minutes: { type: "integer" },
+            warmup: {
+              type: "array",
+              minItems: 3,
+              items: {
+                type: "object",
+                properties: { name: { type: "string" }, duration_or_reps: { type: "string" } },
+                required: ["name", "duration_or_reps"],
+                additionalProperties: false,
+              },
             },
-          },
-          workout: {
-            type: "array",
-            items: {
+            workout: {
+              type: "array",
+              minItems: minWorkoutItems(sessionMinutes),
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  target_muscle: { type: "string" },
+                  sets: { type: "integer" },
+                  reps: { type: "integer" },
+                  suggested_intensity: { type: "string" },
+                  rest_seconds: { type: "integer" },
+                },
+                required: ["name", "target_muscle", "sets", "reps", "suggested_intensity", "rest_seconds"],
+                additionalProperties: false,
+              },
+            },
+            cardio: {
               type: "object",
               properties: {
-                name: { type: "string" },
-                target_muscle: { type: "string" },
-                sets: { type: "integer" },
-                reps: { type: "integer" },
-                suggested_intensity: { type: "string" },
-                rest_seconds: { type: "integer" },
+                type: { type: "string" },
+                minutes: { type: "integer" },
+                intensity: { type: ["string", "null"] },
               },
-              required: ["name", "target_muscle", "sets", "reps", "suggested_intensity", "rest_seconds"],
+              required: ["type", "minutes", "intensity"],
               additionalProperties: false,
             },
-          },
-          cardio: {
-            type: "object",
-            properties: {
-              type: { type: "string" },
-              minutes: { type: "integer" },
-              intensity: { type: ["string", "null"] },
-            },
-            required: ["type", "minutes", "intensity"],
-            additionalProperties: false,
-          },
-          cooldown: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                duration_seconds: { type: "integer" },
-                target_area: { type: "string" },
+            cooldown: {
+              type: "array",
+              minItems: 3,
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  duration_seconds: { type: "integer" },
+                  target_area: { type: "string" },
+                },
+                required: ["name", "duration_seconds", "target_area"],
+                additionalProperties: false,
               },
-              required: ["name", "duration_seconds", "target_area"],
-              additionalProperties: false,
             },
           },
+          required: ["day", "title", "estimated_minutes", "warmup", "workout", "cardio", "cooldown"],
+          additionalProperties: false,
         },
-        required: ["day", "title", "estimated_minutes", "warmup", "workout", "cardio", "cooldown"],
-        additionalProperties: false,
       },
     },
-  },
-  required: ["frequency", "workout_days", "days"],
-  additionalProperties: false,
-};
+    required: ["frequency", "workout_days", "days"],
+    additionalProperties: false,
+  };
+}
 
 function buildPrompt(input: RoutineGenerationInput): string {
   return `사용자 정보:
@@ -86,13 +100,16 @@ function buildPrompt(input: RoutineGenerationInput): string {
 - 운동 경험 수준: ${input.experience}
 - 사용 가능한 운동기구: ${input.equipment.join(", ") || "맨몸만"}
 
-위 정보로 정확히 [${input.workoutDays.join(", ")}] 요일에 대해서만 하루씩 루틴을 만들어줘. 그 외 요일은 절대 포함하지 마.`;
+위 정보로 정확히 [${input.workoutDays.join(", ")}] 요일에 대해서만 하루씩 루틴을 만들어줘. 그 외 요일은 절대 포함하지 마.
+이 사용자는 1회에 ${input.sessionMinutes}분을 쓸 수 있으니, 본운동 개수를 최소 ${minWorkoutItems(input.sessionMinutes)}개 이상으로 구성해서 warmup+workout(세트×휴식 포함)+cardio+cooldown 시간 합이 ${input.sessionMinutes}분에 가깝게 채워줘.`;
 }
 
 const SYSTEM_PROMPT = `너는 ShapeMe 앱의 운동 루틴 코치야. 사용자가 지정한 요일에만 각각 하루치 루틴을 만든다.
 
 규칙:
 - 반드시 입력에 주어진 workout_days 요일에 대해서만 하루씩 만들어라. 하나라도 빠지거나 추가되면 안 된다.
+- 각 요일마다 warmup은 반드시 3~5개 동작(총 5~10분), cooldown은 반드시 3~5개 스트레칭(총 5~10분)을 채워라. 절대 빈 배열로 두지 마라 — 사용자가 명시적으로 요청한 필수 섹션이다.
+- 본운동(workout) 개수는 1회 운동 가능 시간에 맞춰라. 시간이 길수록 본운동을 더 많이 넣어서 warmup+workout+cardio+cooldown 합계 시간이 사용자가 말한 시간에 가깝게 채워져야 한다. 짧게 끝내지 마라.
 - 연속된 날에 같은 근육군을 반복하지 말고, 회복 시간을 고려해 부위를 분산해라.
 - 사용자가 밝힌 불편한/피하고 싶은 부위에 부담을 주는 동작은 넣지 마라.
 - 사용 가능한 운동기구 안에서만 운동을 구성해라 (맨몸만이면 맨몸 운동만).
@@ -161,7 +178,7 @@ export async function generateWeeklyRoutine(input: RoutineGenerationInput): Prom
       format: {
         type: "json_schema",
         name: "weekly_routine",
-        schema: ROUTINE_SCHEMA,
+        schema: buildRoutineSchema(input.sessionMinutes),
         strict: true,
       },
     },
@@ -185,6 +202,20 @@ export async function generateWeeklyRoutine(input: RoutineGenerationInput): Prom
   if (missing.length > 0 || extra.length > 0) {
     throw new Error(
       `AI가 요청한 요일과 다르게 응답했어요 (누락: ${missing.join(", ") || "없음"}, 추가: ${extra.join(", ") || "없음"}). 다시 시도해주세요.`,
+    );
+  }
+
+  // Belt-and-suspenders on top of the schema's minItems — strict mode is
+  // supposed to enforce these, but a thin day (e.g. 1시간인데 운동 2개, 빈
+  // warmup/cooldown) reaching the user silently is worse than a clear retry
+  // prompt, so check the actual content rather than trusting the schema alone.
+  const minWorkout = minWorkoutItems(input.sessionMinutes);
+  const thinDay = parsed.days.find(
+    (d) => d.warmup.length < 3 || d.cooldown.length < 3 || d.workout.length < minWorkout,
+  );
+  if (thinDay) {
+    throw new Error(
+      `AI가 ${thinDay.day} 루틴을 너무 짧게 만들었어요 (워밍업 ${thinDay.warmup.length}개, 운동 ${thinDay.workout.length}개, 쿨다운 ${thinDay.cooldown.length}개). 다시 시도해주세요.`,
     );
   }
 
