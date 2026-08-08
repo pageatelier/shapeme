@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/icons";
+import { generateWeeklyRoutineAction } from "@/lib/aiRoutine/actions";
+import { saveWeeklyRoutineToMove } from "@/lib/aiRoutine/saveWeeklyRoutine";
+import type { AIRoutineWeek } from "@/lib/aiRoutine/types";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
-import { generateStartingWeek } from "@/lib/onboarding/generateStartingWeek";
-import type { StartingWeekDay } from "@/lib/onboarding/generateStartingWeek";
 import { saveOnboardingProfile } from "@/lib/onboarding/mutations";
-import { saveStartingWeekToMove } from "@/lib/onboarding/saveStartingWeek";
+import { cautionLabel } from "@/lib/onboarding/types";
 import type { OnboardingProfile } from "@/lib/onboarding/types";
 import { StartingWeekReview } from "./StartingWeekReview";
-import { StartingWeekSummary } from "./StartingWeekSummary";
 import { BodyGoalsStep } from "./steps/BodyGoalsStep";
 import { CautionsStep } from "./steps/CautionsStep";
 import { FocusAreaStep } from "./steps/FocusAreaStep";
@@ -28,7 +28,7 @@ function canContinue(step: number, profile: OnboardingProfile): boolean {
     case 2:
       return profile.focusAreas.length > 0;
     case 3:
-      return profile.daysPerWeek !== null && profile.place !== null && profile.minutesPerSession !== null && profile.experience !== null;
+      return profile.workoutDays.length > 0 && profile.place !== null && profile.minutesPerSession !== null && profile.experience !== null;
     case 4:
       return true; // cautions are optional ("없음" is a real answer, not a skip)
     default:
@@ -36,14 +36,12 @@ function canContinue(step: number, profile: OnboardingProfile): boolean {
   }
 }
 
-type Phase = "steps" | "summary" | "review";
+type Phase = "steps" | "review";
 
 /**
- * Steps ②–⑥ collect the profile; ⑦ generates and shows the compact Starting
- * Week summary; ⑧–⑨ is the exercise-level review with Change
- * workout/Regenerate/Start my week. Generation is currently a deterministic
- * mock (see generateStartingWeek.ts) standing in for the real AI call,
- * blocked on OpenAI billing for now. Saves the profile once on step ⑥'s
+ * Steps ②–⑥ collect the profile, then ⑦ calls the real weekday-based AI
+ * generator (src/lib/aiRoutine/) — same service Guide uses — and ⑧–⑨ is
+ * the review with Start my week. Saves the profile once on step ⑥'s
  * Continue (not per-step, so leaving mid-flow doesn't half-write metadata);
  * onboardingCompleted only flips true once the week is actually saved to
  * Move in ⑨, since that's the real "finished onboarding" moment.
@@ -55,7 +53,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("steps");
-  const [startingWeek, setStartingWeek] = useState<StartingWeekDay[] | null>(null);
+  const [week, setWeek] = useState<AIRoutineWeek | null>(null);
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -85,12 +83,32 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
       setStep((s) => s + 1);
       return;
     }
+    if (profile.workoutDays.length === 0 || !profile.place || !profile.minutesPerSession || !profile.experience) {
+      return; // canContinue already guards this; narrows types for the call below
+    }
     setSaving(true);
     setError(null);
     try {
       await saveOnboardingProfile(profile);
-      setStartingWeek(generateStartingWeek(profile));
-      setPhase("summary");
+      const result = await generateWeeklyRoutineAction({
+        workoutDays: profile.workoutDays,
+        sessionMinutes: profile.minutesPerSession,
+        place: profile.place,
+        goals: profile.bodyGoals,
+        focusAreas: profile.focusAreas,
+        avoidAreas: [
+          ...profile.cautions.map(cautionLabel),
+          ...(profile.avoidedExercisesNote.trim() ? [profile.avoidedExercisesNote.trim()] : []),
+        ],
+        experience: profile.experience,
+        equipment: profile.equipment,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setWeek(result.week);
+      setPhase("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했어요.");
     } finally {
@@ -99,11 +117,11 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
   }
 
   async function handleStart() {
-    if (!startingWeek) return;
+    if (!week) return;
     setStarting(true);
     setStartError(null);
     try {
-      await saveStartingWeekToMove(startingWeek);
+      await saveWeeklyRoutineToMove(week);
       await saveOnboardingProfile({ onboardingCompleted: true });
       router.push("/move");
     } catch (err) {
@@ -113,36 +131,8 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
     }
   }
 
-  if (phase === "review" && startingWeek) {
-    return (
-      <StartingWeekReview days={startingWeek} onStart={handleStart} starting={starting} error={startError} />
-    );
-  }
-
-  if (phase === "summary" && startingWeek) {
-    return (
-      <div className="flex flex-1 flex-col gap-6">
-        <StartingWeekSummary days={startingWeek} />
-        <p className="text-center text-[12px] text-text-muted">
-          완벽하게 시작할 필요는 없어요. 이번 주에는 당신에게 잘 맞는 움직임을 함께 찾아볼게요.
-        </p>
-        <button
-          type="button"
-          onClick={() => setPhase("review")}
-          className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
-        >
-          Continue
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/")}
-          className="text-center text-[12px] font-semibold text-text-muted"
-        >
-          나중에 할게요
-        </button>
-      </div>
-    );
+  if (phase === "review" && week) {
+    return <StartingWeekReview week={week} onStart={handleStart} starting={starting} error={startError} />;
   }
 
   return (
@@ -179,10 +169,11 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
         )}
         {step === 3 && (
           <WorkoutLogisticsStep
-            daysPerWeek={profile.daysPerWeek}
+            workoutDays={profile.workoutDays}
             place={profile.place}
             minutesPerSession={profile.minutesPerSession}
             experience={profile.experience}
+            equipment={profile.equipment}
             onChange={patch}
           />
         )}
@@ -204,7 +195,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
         className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
         style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
       >
-        {saving ? "저장 중..." : "Continue"}
+        {saving ? (step === STEP_COUNT - 1 ? "루틴 만드는 중..." : "저장 중...") : "Continue"}
       </button>
     </div>
   );

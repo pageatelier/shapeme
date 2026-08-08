@@ -1,3 +1,4 @@
+import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import type { CountryCode, LanguageCode } from "@/lib/locale/region";
 
 export type WorkoutPlace = "gym" | "home" | "both";
@@ -34,11 +35,28 @@ export const CAUTION_PRESETS = [
   { value: "wrist", label: "손목" },
 ] as const;
 export type CautionArea = (typeof CAUTION_PRESETS)[number]["value"];
+const CAUTION_LABEL_BY_VALUE = Object.fromEntries(CAUTION_PRESETS.map((p) => [p.value, p.label])) as Record<
+  CautionArea,
+  string
+>;
 
+/** Korean label for a caution entry — presets map to their fixed label,
+ * custom free-text entries pass through as-is. Used when handing cautions
+ * to the AI generator, which expects free-text (avoidAreas: string[]), not
+ * internal preset keys. */
+export function cautionLabel(caution: CautionArea | string): string {
+  return CAUTION_LABEL_BY_VALUE[caution as CautionArea] ?? caution;
+}
+
+/** Historical count-based scheduling — still used by My's Weekly Review
+ * mock generator (src/lib/onboarding/generateStartingWeek.ts /
+ * src/lib/review/), which auto-assigns specific weekdays from a count. The
+ * real onboarding flow now collects workoutDays directly instead (see
+ * below) and doesn't read this. */
 export const WORKOUT_DAYS_OPTIONS = [2, 3, 4, 5] as const;
 export type WorkoutDaysPerWeek = (typeof WORKOUT_DAYS_OPTIONS)[number];
 
-export const SESSION_MINUTES_OPTIONS = [30, 45, 60] as const;
+export const SESSION_MINUTES_OPTIONS = [30, 45, 60, 90] as const;
 export type SessionMinutes = (typeof SESSION_MINUTES_OPTIONS)[number];
 
 /**
@@ -56,6 +74,12 @@ export type OnboardingProfile = {
    * mixed in the same array — a custom entry is just another string. */
   bodyGoals: string[];
   focusAreas: FocusArea[];
+  /** Real weekdays the user picked — feeds the weekday-based AI generator
+   * (src/lib/aiRoutine/) directly. */
+  workoutDays: WeekdayEn[];
+  /** Derived from workoutDays.length, kept in sync by OnboardingFlow —
+   * still read by the older count-based mock generator (Weekly Review), not
+   * by the real generator. */
   daysPerWeek: WorkoutDaysPerWeek | null;
   place: WorkoutPlace | null;
   minutesPerSession: SessionMinutes | null;
@@ -65,6 +89,7 @@ export type OnboardingProfile = {
    * from "not answered yet" — both read as "no cautions" downstream. */
   cautions: (CautionArea | string)[];
   avoidedExercisesNote: string;
+  equipment: Equipment[];
   /** Gates the /onboarding redirect in (main)'s layout once true. */
   onboardingCompleted: boolean;
 };
@@ -74,12 +99,14 @@ export const DEFAULT_ONBOARDING_PROFILE: OnboardingProfile = {
   country: "KR",
   bodyGoals: [],
   focusAreas: [],
+  workoutDays: [],
   daysPerWeek: null,
   place: null,
   minutesPerSession: null,
   experience: null,
   cautions: [],
   avoidedExercisesNote: "",
+  equipment: [],
   onboardingCompleted: false,
 };
 
@@ -88,12 +115,14 @@ type RawMetadata = {
   country?: string;
   body_goals?: string[];
   focus_areas?: string[];
+  workout_days?: string[];
   days_per_week?: number;
   workout_place?: string;
   minutes_per_session?: number;
   experience_level?: string;
   cautions?: string[];
   avoided_exercises_note?: string;
+  equipment?: string[];
   onboarding_completed?: boolean;
 };
 
@@ -106,6 +135,7 @@ export function readOnboardingProfile(metadata: RawMetadata | null | undefined):
     country: (m.country as CountryCode | undefined) ?? DEFAULT_ONBOARDING_PROFILE.country,
     bodyGoals: m.body_goals ?? DEFAULT_ONBOARDING_PROFILE.bodyGoals,
     focusAreas: (m.focus_areas as FocusArea[] | undefined) ?? DEFAULT_ONBOARDING_PROFILE.focusAreas,
+    workoutDays: (m.workout_days as WeekdayEn[] | undefined) ?? DEFAULT_ONBOARDING_PROFILE.workoutDays,
     daysPerWeek:
       (m.days_per_week as WorkoutDaysPerWeek | undefined) ?? DEFAULT_ONBOARDING_PROFILE.daysPerWeek,
     place: (m.workout_place as WorkoutPlace | undefined) ?? DEFAULT_ONBOARDING_PROFILE.place,
@@ -114,6 +144,7 @@ export function readOnboardingProfile(metadata: RawMetadata | null | undefined):
     experience: (m.experience_level as ExperienceLevel | undefined) ?? DEFAULT_ONBOARDING_PROFILE.experience,
     cautions: m.cautions ?? DEFAULT_ONBOARDING_PROFILE.cautions,
     avoidedExercisesNote: m.avoided_exercises_note ?? DEFAULT_ONBOARDING_PROFILE.avoidedExercisesNote,
+    equipment: (m.equipment as Equipment[] | undefined) ?? DEFAULT_ONBOARDING_PROFILE.equipment,
     onboardingCompleted: m.onboarding_completed ?? DEFAULT_ONBOARDING_PROFILE.onboardingCompleted,
   };
 }

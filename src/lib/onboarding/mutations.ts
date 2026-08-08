@@ -20,12 +20,14 @@ export async function saveOnboardingProfile(patch: Partial<OnboardingProfile>) {
   if (patch.country !== undefined) data.country = patch.country;
   if (patch.bodyGoals !== undefined) data.body_goals = patch.bodyGoals;
   if (patch.focusAreas !== undefined) data.focus_areas = patch.focusAreas;
+  if (patch.workoutDays !== undefined) data.workout_days = patch.workoutDays;
   if (patch.daysPerWeek !== undefined) data.days_per_week = patch.daysPerWeek;
   if (patch.place !== undefined) data.workout_place = patch.place;
   if (patch.minutesPerSession !== undefined) data.minutes_per_session = patch.minutesPerSession;
   if (patch.experience !== undefined) data.experience_level = patch.experience;
   if (patch.cautions !== undefined) data.cautions = patch.cautions;
   if (patch.avoidedExercisesNote !== undefined) data.avoided_exercises_note = patch.avoidedExercisesNote;
+  if (patch.equipment !== undefined) data.equipment = patch.equipment;
   if (patch.onboardingCompleted !== undefined) data.onboarding_completed = patch.onboardingCompleted;
 
   const { error } = await supabase.auth.updateUser({ data });

@@ -1,43 +1,26 @@
 "use client";
 
-import type { ExerciseDayType } from "@/lib/onboarding/exercises";
-import type { StartingWeekDay } from "@/lib/onboarding/generateStartingWeek";
-
-const WEEKDAY_FULL_NAME: Record<string, string> = {
-  월: "Monday",
-  화: "Tuesday",
-  수: "Wednesday",
-  목: "Thursday",
-  금: "Friday",
-  토: "Saturday",
-  일: "Sunday",
-};
-
-const DAY_TYPE_FULL_LABEL: Record<ExerciseDayType, string> = {
-  lower: "Lower Body",
-  upper: "Upper Body",
-  full_body: "Full Body",
-};
+import { WEEKDAY_LABEL_KO } from "@/lib/aiRoutine/types";
+import type { AIRoutineWeek } from "@/lib/aiRoutine/types";
 
 /**
- * ⑧ — exercise-level review, plus ⑨'s Start action. Per-exercise swap and
- * whole-week regenerate are intentionally out of scope for this pass (the
- * MVP goal is just "recommended week saves to Move and is usable") — can be
- * reintroduced later without touching this component's core shape.
+ * ⑧ — exercise-level review (warmup/workout/cardio/cooldown), plus ⑨'s
+ * Start action. Per-exercise swap and whole-week regenerate are
+ * intentionally out of scope for this pass. Shares its day-detail shape
+ * with Guide's AiRoutineWeekResult (both render an AIRoutineWeek) — this
+ * one keeps the onboarding-specific "Your first week is ready" framing.
  */
 export function StartingWeekReview({
-  days,
+  week,
   onStart,
   starting,
   error,
 }: {
-  days: StartingWeekDay[];
+  week: AIRoutineWeek;
   onStart: () => void;
   starting: boolean;
   error: string | null;
 }) {
-  const workoutDays = days.filter((d): d is StartingWeekDay & { dayType: ExerciseDayType } => d.dayType !== "rest");
-
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div className="text-center">
@@ -50,27 +33,55 @@ export function StartingWeekReview({
       </div>
 
       <div className="flex flex-col gap-4">
-        {workoutDays.map((day) => (
-          <div key={day.weekday} className="glass-card p-4">
+        {week.days.map((day) => (
+          <div key={day.day} className="glass-card p-4">
             <p className="text-[13px] font-bold text-text-primary">
-              {WEEKDAY_FULL_NAME[day.weekday]} · {DAY_TYPE_FULL_LABEL[day.dayType]}
+              {WEEKDAY_LABEL_KO[day.day]} · {day.title}
             </p>
             <p className="mb-3 text-[11px] text-text-muted">
-              {[day.label.split(" · ")[1], `${day.minutes} min`, `${day.exercises.length} exercises`]
-                .filter(Boolean)
-                .join(" · ")}
+              {day.estimatedMinutes}분 · 운동 {day.workout.length}개
             </p>
-            <div className="flex flex-col gap-2">
-              {day.exercises.map((exercise, i) => (
-                <div key={`${exercise.name}-${i}`}>
-                  <p className="truncate text-[13px] text-text-primary">
-                    {exercise.name} — {exercise.targetSets} × {exercise.targetReps}
+
+            <div className="flex flex-col gap-3 text-[12px]">
+              <div>
+                <p className="mb-1 font-semibold text-text-secondary">워밍업</p>
+                {day.warmup.map((w, i) => (
+                  <p key={i} className="text-text-secondary">
+                    {w.name} · {w.durationOrReps}
                   </p>
-                  {exercise.suggestedWeightKg != null && (
-                    <p className="text-[11px] text-text-muted">Suggested {exercise.suggestedWeightKg} kg</p>
-                  )}
+                ))}
+              </div>
+
+              <div>
+                <p className="mb-1 font-semibold text-text-secondary">운동</p>
+                {day.workout.map((exercise, i) => (
+                  <div key={i} className="mb-1.5">
+                    <p className="text-text-primary">
+                      {exercise.name} — {exercise.sets} × {exercise.reps}
+                    </p>
+                    <p className="text-[11px] text-text-muted">Suggested {exercise.suggestedIntensity}</p>
+                  </div>
+                ))}
+              </div>
+
+              {day.cardio.type !== "none" && day.cardio.minutes > 0 && (
+                <div>
+                  <p className="mb-1 font-semibold text-text-secondary">유산소</p>
+                  <p className="text-text-secondary">
+                    {day.cardio.type} · {day.cardio.minutes}분
+                    {day.cardio.intensity ? ` · ${day.cardio.intensity}` : ""}
+                  </p>
                 </div>
-              ))}
+              )}
+
+              <div>
+                <p className="mb-1 font-semibold text-text-secondary">마무리 스트레칭</p>
+                {day.cooldown.map((c, i) => (
+                  <p key={i} className="text-text-secondary">
+                    {c.name} · {c.durationSeconds}초 · {c.targetArea}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         ))}
