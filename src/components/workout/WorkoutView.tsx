@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PlusIcon, SettingsIcon } from "@/components/icons";
 import { ActivityTypePicker } from "@/components/move/ActivityTypePicker";
 import { MovementLogCard } from "@/components/move/MovementLogCard";
 import { MovementLogForm } from "@/components/move/MovementLogForm";
 import { weekdayIndex } from "@/lib/body/date";
 import type { MovementActivityType, MovementLog } from "@/lib/movement/types";
+import { snapshotTodayMoveTotal } from "@/lib/workout/mutations";
 import { WEEKDAYS } from "@/lib/workout/types";
 import type { WorkoutRoutine } from "@/lib/workout/types";
 import { ExerciseCard } from "./ExerciseCard";
@@ -66,6 +67,27 @@ export function WorkoutView({
     setPickedType(null);
   }
 
+  const totalSets = todayRoutines.reduce(
+    (sum, r) => sum + r.exercises.reduce((s, e) => s + e.targetSets, 0),
+    0,
+  );
+  const doneSets = todayRoutines.reduce(
+    (sum, r) =>
+      sum + r.exercises.reduce((s, e) => s + (liveDoneByExercise[e.id] ?? e.sets.filter(Boolean).length), 0),
+    0,
+  );
+  const progress = totalSets === 0 ? 0 : Math.round((doneSets / totalSets) * 100);
+
+  // Freezes today's target-set total into daily_move_snapshots (see that
+  // migration) so later routine edits never retroactively change past days'
+  // Move % in My's calendar — runs every time Move is opened today, so
+  // today itself still tracks live edits right up until the day is over.
+  useEffect(() => {
+    snapshotTodayMoveTotal({ date, totalTargetSets: totalSets }).catch((err) => {
+      console.error("[workout] snapshotTodayMoveTotal failed:", err);
+    });
+  }, [date, totalSets]);
+
   // "오늘의 다른 움직임" — today's simple (non-strength) movement logs, the
   // add-flow (type picker → duration/optional-memo form), and the CTA.
   // Rendered regardless of whether any strength routine is scheduled today,
@@ -123,17 +145,6 @@ export function WorkoutView({
       </div>
     );
   }
-
-  const totalSets = todayRoutines.reduce(
-    (sum, r) => sum + r.exercises.reduce((s, e) => s + e.targetSets, 0),
-    0,
-  );
-  const doneSets = todayRoutines.reduce(
-    (sum, r) =>
-      sum + r.exercises.reduce((s, e) => s + (liveDoneByExercise[e.id] ?? e.sets.filter(Boolean).length), 0),
-    0,
-  );
-  const progress = totalSets === 0 ? 0 : Math.round((doneSets / totalSets) * 100);
 
   return (
     <div className="flex flex-col gap-5">

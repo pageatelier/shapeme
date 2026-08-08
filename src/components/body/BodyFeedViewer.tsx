@@ -2,12 +2,29 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import type { UIEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CloseIcon } from "@/components/icons";
 import { formatDateLabelWithYear, todayIsoDate } from "@/lib/body/date";
 import { deleteBodyPhoto } from "@/lib/body/upload";
-import { primaryPhotoUrl, primarySlot } from "@/lib/body/types";
-import type { BodyEntry } from "@/lib/body/types";
+import { primarySlot, SLOT_LABELS } from "@/lib/body/types";
+import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
+
+const SLOT_ORDER: BodyPhotoSlot[] = ["front", "side", "back"];
+
+function urlForSlot(entry: BodyEntry, slot: BodyPhotoSlot): string | undefined {
+  if (slot === "front") return entry.frontImageUrl;
+  if (slot === "side") return entry.sideImageUrl;
+  return entry.backImageUrl;
+}
+
+/** Front → side → back, filtered to whichever slots actually have a photo —
+ * the order the swipe carousel presents them in. */
+function availableSlots(entry: BodyEntry): { slot: BodyPhotoSlot; url: string }[] {
+  return SLOT_ORDER.map((slot) => ({ slot, url: urlForSlot(entry, slot) })).filter(
+    (s): s is { slot: BodyPhotoSlot; url: string } => !!s.url,
+  );
+}
 
 /**
  * Full-screen scroll-through view opened from a Timeline grid tile — entries
@@ -34,12 +51,26 @@ export function BodyFeedViewer({
   // Local copy so a delete can update this scroll view immediately instead
   // of waiting for router.refresh() to flow a new `entries` prop back down.
   const [localEntries, setLocalEntries] = useState(entries);
+  // Which slot each entry's swipe carousel is currently showing — defaults
+  // lazily to primarySlot() the first time an entry is rendered/scrolled to,
+  // so 삭제 always acts on whichever photo is actually on screen.
+  const [activeSlotByDate, setActiveSlotByDate] = useState<Record<string, BodyPhotoSlot>>({});
   const [confirmingDeleteDate, setConfirmingDeleteDate] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function handleCarouselScroll(entry: BodyEntry, slots: BodyPhotoSlot[]) {
+    return (e: UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      if (el.clientWidth === 0) return;
+      const index = Math.min(slots.length - 1, Math.max(0, Math.round(el.scrollLeft / el.clientWidth)));
+      const slot = slots[index];
+      setActiveSlotByDate((prev) => (prev[entry.date] === slot ? prev : { ...prev, [entry.date]: slot }));
+    };
+  }
+
   async function handleDelete(entry: BodyEntry) {
-    const slot = primarySlot(entry);
+    const slot = activeSlotByDate[entry.date] ?? primarySlot(entry);
     if (!slot) return;
     setDeleting(true);
     setError(null);
@@ -57,6 +88,11 @@ export function BodyFeedViewer({
           // getBodyEntries filtering the same rows out of 지난 기록.
           .filter((e) => e.front || e.side || e.back),
       );
+      setActiveSlotByDate((prev) => {
+        const next = { ...prev };
+        delete next[entry.date];
+        return next;
+      });
       setConfirmingDeleteDate(null);
       router.refresh();
     } catch (err) {
@@ -105,7 +141,13 @@ export function BodyFeedViewer({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-[var(--container-sm)] flex-col gap-6 px-5 py-5">
           {localEntries.map((entry) => {
-            const url = primaryPhotoUrl(entry);
+            const slots = availableSlots(entry);
+            const url = slots.length > 0 ? slots[0].url : undefined;
+            const activeSlot = activeSlotByDate[entry.date] ?? primarySlot(entry);
+            const activeIndex = Math.max(
+              0,
+              slots.findIndex((s) => s.slot === activeSlot),
+            );
             const isConfirming = confirmingDeleteDate === entry.date;
             return (
               <div
@@ -158,15 +200,46 @@ export function BodyFeedViewer({
                   className="relative aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-lg)]"
                   style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }}
                 >
-                  {url && (
-                    <Image
-                      src={url}
-                      alt={`${entry.dateLabel} 사진`}
-                      fill
-                      sizes="(max-width: 480px) 100vw, 480px"
-                      className="object-cover"
-                      priority={entry.date === initialDate}
-                    />
+                  {slots.length > 0 && (
+                    <div
+                      className="scrollbar-hide flex h-full w-full snap-x snap-mandatory overflow-x-auto"
+                      onScroll={handleCarouselScroll(
+                        entry,
+                        slots.map((s) => s.slot),
+                      )}
+                    >
+                      {slots.map(({ slot, url: slotUrl }) => (
+                        <div key={slot} className="relative h-full w-full shrink-0 snap-start">
+                          <Image
+                            src={slotUrl}
+                            alt={`${entry.dateLabel} ${SLOT_LABELS[slot]} 사진`}
+                            fill
+                            sizes="(max-width: 480px) 100vw, 480px"
+                            className="object-cover"
+                            priority={entry.date === initialDate && slot === slots[0].slot}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {slots.length > 1 && (
+                    <>
+                      <span
+                        className="pointer-events-none absolute top-3 left-3 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
+                        style={{ background: "rgba(0,0,0,0.35)" }}
+                      >
+                        {SLOT_LABELS[slots[activeIndex]?.slot ?? slots[0].slot]}
+                      </span>
+                      <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+                        {slots.map((s, i) => (
+                          <span
+                            key={s.slot}
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ background: i === activeIndex ? "white" : "rgba(255,255,255,0.45)" }}
+                          />
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
                 {entry.memo && <p className="text-[13px] leading-relaxed text-text-secondary">{entry.memo}</p>}

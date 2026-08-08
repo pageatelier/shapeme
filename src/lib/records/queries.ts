@@ -1,6 +1,7 @@
 import { weekdayIndex } from "@/lib/body/date";
 import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
 import { createClient } from "@/lib/supabase/server";
+import { getDailyMoveSnapshotsInRangeSafe } from "@/lib/workout/queries";
 import { WEEKDAYS } from "@/lib/workout/types";
 import type { RecordCalendarDay } from "./types";
 
@@ -18,11 +19,11 @@ function pad(n: number) {
 /**
  * One month's "오늘의 루틴" % per day, for My's compact calendar's coloring —
  * same formula as Today's own card (movePercentFor + routineCompletionPercent),
- * just computed for a whole month at once instead of just today. Matches
- * each day to whichever routine is *currently* scheduled for that weekday
- * (routines aren't versioned by date), the same assumption Today's card
- * already makes for "today" — applying it to past days here is consistent
- * with that, not a new limitation.
+ * just computed for a whole month at once instead of just today. Each past
+ * day's target-set total is read from daily_move_snapshots (frozen the day
+ * it happened) so later routine/exercise edits never retroactively repaint
+ * old days; only dates from before that table existed fall back to today's
+ * live schedule, same as before.
  */
 export async function getMyRecordsMonth(
   userId: string,
@@ -36,7 +37,7 @@ export async function getMyRecordsMonth(
   const end = `${year}-${pad(month)}-${pad(daysInMonth)}`;
   const todayIso = `${new Date().getFullYear()}-${pad(new Date().getMonth() + 1)}-${pad(new Date().getDate())}`;
 
-  const [routinesRes, exercisesRes, setLogsRes, movementRes, mealRes, waterRes] = await Promise.all([
+  const [routinesRes, exercisesRes, setLogsRes, movementRes, mealRes, waterRes, moveSnapshots] = await Promise.all([
     supabase.from("workout_routines").select("id, days").eq("user_id", userId),
     supabase.from("workout_exercises").select("id, routine_id, target_sets").eq("user_id", userId),
     supabase
@@ -59,6 +60,7 @@ export async function getMyRecordsMonth(
       // Explicit +09:00 (KST) offset — see src/lib/water/queries.ts for why.
       .gte("logged_at", `${start}T00:00:00+09:00`)
       .lte("logged_at", `${end}T23:59:59.999+09:00`),
+    getDailyMoveSnapshotsInRangeSafe(userId, start, end),
   ]);
   if (routinesRes.error) throw routinesRes.error;
   if (exercisesRes.error) throw exercisesRes.error;
@@ -70,27 +72,26 @@ export async function getMyRecordsMonth(
   const routines = (routinesRes.data ?? []) as RoutineRow[];
   const exercises = (exercisesRes.data ?? []) as ExerciseRow[];
 
-  // For each weekday, the exercises belonging to *every* routine currently
-  // scheduled for it — routines can share a day (e.g. 월,목 힙 + 월,화 어깨
-  // both apply on 월), so this sums across all matches, not just the first
-  // (mirrors Today's own `routines.filter(...)`).
-  const weekdaySchedule = new Map<string, { exerciseIds: Set<string>; totalTargetSets: number }>();
+  // Fallback total for dates with no daily_move_snapshots row yet (written
+  // before that migration shipped) — for each weekday, target sets summed
+  // across every routine *currently* scheduled for it. Routines can share a
+  // day (e.g. 월,목 힙 + 월,화 어깨 both apply on 월), so this sums across all
+  // matches, not just the first (mirrors Today's own `routines.filter(...)`).
+  const weekdayTotalTargetSets = new Map<string, number>();
   for (const weekday of WEEKDAYS) {
-    const dayRoutines = routines.filter((r) => r.days.includes(weekday));
-    if (dayRoutines.length === 0) continue;
-    const dayRoutineIds = new Set(dayRoutines.map((r) => r.id));
-    const dayExercises = exercises.filter((e) => dayRoutineIds.has(e.routine_id));
-    weekdaySchedule.set(weekday, {
-      exerciseIds: new Set(dayExercises.map((e) => e.id)),
-      totalTargetSets: dayExercises.reduce((sum, e) => sum + e.target_sets, 0),
-    });
+    const dayRoutineIds = new Set(routines.filter((r) => r.days.includes(weekday)).map((r) => r.id));
+    if (dayRoutineIds.size === 0) continue;
+    const total = exercises
+      .filter((e) => dayRoutineIds.has(e.routine_id))
+      .reduce((sum, e) => sum + e.target_sets, 0);
+    weekdayTotalTargetSets.set(weekday, total);
   }
 
+  // "Done" is just what actually got logged that date — a real historical
+  // fact independent of whatever the routine schedule looks like today, so
+  // (unlike the total above) it needs no fallback or weekday filtering.
   const doneSetsByDate = new Map<string, number>();
   for (const row of (setLogsRes.data ?? []) as SetLogRow[]) {
-    const weekday = WEEKDAYS[weekdayIndex(row.log_date)];
-    const scheduled = weekdaySchedule.get(weekday);
-    if (!scheduled || !scheduled.exerciseIds.has(row.exercise_id)) continue;
     const done = row.sets.filter(Boolean).length;
     doneSetsByDate.set(row.log_date, (doneSetsByDate.get(row.log_date) ?? 0) + done);
   }
@@ -117,9 +118,8 @@ export async function getMyRecordsMonth(
     }
 
     const weekday = WEEKDAYS[weekdayIndex(isoDate)];
-    const scheduled = weekdaySchedule.get(weekday);
     const workoutDoneSets = doneSetsByDate.get(isoDate) ?? 0;
-    const workoutTotalSets = scheduled?.totalTargetSets ?? 0;
+    const workoutTotalSets = moveSnapshots.get(isoDate) ?? weekdayTotalTargetSets.get(weekday) ?? 0;
     const movePercent = movePercentFor({
       workoutDoneSets,
       workoutTotalSets,

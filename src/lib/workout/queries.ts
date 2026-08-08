@@ -109,6 +109,69 @@ export async function getRoutinesSafe(userId: string, logDate: string): Promise<
   }
 }
 
+/**
+ * Frozen total-target-sets per date within [start, end] — see
+ * supabase/migrations/0011_daily_move_snapshots.sql. Dates with no snapshot
+ * row (written before that migration shipped, or a day Move was never
+ * opened) are simply absent from the map; callers fall back to the old
+ * live-derived total for those.
+ */
+export async function getDailyMoveSnapshotsInRange(
+  userId: string,
+  start: string,
+  end: string,
+): Promise<Map<string, number>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("daily_move_snapshots")
+    .select("log_date, total_target_sets")
+    .eq("user_id", userId)
+    .gte("log_date", start)
+    .lte("log_date", end);
+  if (error) throw error;
+  return new Map(
+    ((data as { log_date: string; total_target_sets: number }[] | null) ?? []).map((r) => [
+      r.log_date,
+      r.total_target_sets,
+    ]),
+  );
+}
+
+export async function getDailyMoveSnapshotsInRangeSafe(
+  userId: string,
+  start: string,
+  end: string,
+): Promise<Map<string, number>> {
+  try {
+    return await getDailyMoveSnapshotsInRange(userId, start, end);
+  } catch (error) {
+    console.error("[workout] getDailyMoveSnapshotsInRange failed, falling back to empty:", error);
+    return new Map();
+  }
+}
+
+/** Single-date variant for My's per-date record detail. */
+export async function getDailyMoveSnapshot(userId: string, date: string): Promise<number | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("daily_move_snapshots")
+    .select("total_target_sets")
+    .eq("user_id", userId)
+    .eq("log_date", date)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as { total_target_sets: number } | null)?.total_target_sets ?? null;
+}
+
+export async function getDailyMoveSnapshotSafe(userId: string, date: string): Promise<number | null> {
+  try {
+    return await getDailyMoveSnapshot(userId, date);
+  } catch (error) {
+    console.error("[workout] getDailyMoveSnapshot failed, falling back to null:", error);
+    return null;
+  }
+}
+
 /** Total Move records for My page's "전체 기록 개수" — a "record" is a
  * distinct day with at least one checked strength set OR at least one
  * simple movement_logs entry (running, walking, dance, etc.), across

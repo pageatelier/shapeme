@@ -126,6 +126,34 @@ export async function swapExerciseOrder(
   if (secondError) throw secondError;
 }
 
+/**
+ * Freezes today's total target-set count into daily_move_snapshots so later
+ * routine/exercise edits never retroactively change past days' Move % in
+ * My's calendar (see supabase/migrations/0011_daily_move_snapshots.sql).
+ * Called from WorkoutView on every render of the Move page — always for
+ * *today*, since Move's UI only ever shows today, so today's snapshot keeps
+ * following live edits right up until the day is over.
+ */
+export async function snapshotTodayMoveTotal({
+  date,
+  totalTargetSets,
+}: {
+  date: string;
+  totalTargetSets: number;
+}) {
+  const { supabase, userId } = await requireUserId();
+  const { error } = await supabase.from("daily_move_snapshots").upsert(
+    {
+      user_id: userId,
+      log_date: date,
+      total_target_sets: totalTargetSets,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,log_date" },
+  );
+  if (error) throw error;
+}
+
 export async function saveSetLog({
   exerciseId,
   date,

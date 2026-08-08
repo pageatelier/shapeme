@@ -9,7 +9,7 @@ import { getMovementLogsByDateSafe } from "@/lib/movement/queries";
 import { readSettings } from "@/lib/settings/types";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getWaterLogsSafe } from "@/lib/water/queries";
-import { getRoutinesSafe } from "@/lib/workout/queries";
+import { getDailyMoveSnapshotSafe, getRoutinesSafe } from "@/lib/workout/queries";
 import { WEEKDAYS } from "@/lib/workout/types";
 import { getMyRecordsMonthSafe } from "./queries";
 import type { RecordCalendarDay, RecordDetail } from "./types";
@@ -51,13 +51,14 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
 
   const settings = readSettings(user.user_metadata);
 
-  const [bodyEntry, routines, movementLogs, meals, water, journal] = await Promise.all([
+  const [bodyEntry, routines, movementLogs, meals, water, journal, moveSnapshot] = await Promise.all([
     getBodyEntryByDateSafe(user.id, isoDate),
     getRoutinesSafe(user.id, isoDate),
     getMovementLogsByDateSafe(user.id, isoDate),
     getMealLogsSafe(user.id, isoDate),
     getWaterLogsSafe(user.id, isoDate),
     getJournalEntryByDateSafe(user.id, isoDate),
+    getDailyMoveSnapshotSafe(user.id, isoDate),
   ]);
 
   // All routines scheduled for this weekday, not just the first — routines
@@ -66,7 +67,10 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
   const dayRoutines = routines.filter((r) => r.days.includes(weekday));
   const dayExercises = dayRoutines.flatMap((r) => r.exercises);
   const workoutDoneSets = dayExercises.reduce((sum, e) => sum + e.sets.filter(Boolean).length, 0);
-  const workoutTotalSets = dayExercises.reduce((sum, e) => sum + e.targetSets, 0);
+  // Frozen total from the day it happened (see daily_move_snapshots) —
+  // falls back to today's live schedule only for dates before that
+  // migration shipped, same as My's calendar month view.
+  const workoutTotalSets = moveSnapshot ?? dayExercises.reduce((sum, e) => sum + e.targetSets, 0);
 
   const movePercent = movePercentFor({
     workoutDoneSets,
