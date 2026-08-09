@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { WaterDropIcon } from "@/components/icons";
+import { todayCopy } from "@/lib/copy/today";
 import { addWaterLog, removeLastWaterLog } from "@/lib/water/mutations";
 import type { WaterLog } from "@/lib/water/types";
 
@@ -60,7 +61,7 @@ export function HomeWaterCard({
     } catch (err) {
       setLocalEntries((prev) => prev.filter((e) => e.id !== optimistic.id));
       setLocalTotal((prev) => prev - cupMl);
-      setError(err instanceof Error ? err.message : "저장에 실패했어요.");
+      setError(err instanceof Error ? err.message : todayCopy.waterCard.saveError);
     } finally {
       setPending(null);
     }
@@ -79,7 +80,7 @@ export function HomeWaterCard({
     } catch (err) {
       setLocalEntries((prev) => [...prev, removed]);
       setLocalTotal((prev) => prev + removed.amountMl);
-      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+      setError(err instanceof Error ? err.message : todayCopy.waterCard.deleteError);
     } finally {
       setPending(null);
     }
@@ -91,7 +92,7 @@ export function HomeWaterCard({
         <Link href="/water" className="mb-3 block">
           <p className="mb-3 flex items-center gap-1.5 text-[13px] font-bold tracking-[-0.02em] text-text-secondary">
             <WaterDropIcon className="h-[15px] w-[15px] text-pink-400" />
-            물 마시기
+            {todayCopy.waterCard.title}
           </p>
           <p className="font-en mb-2 text-xl font-semibold tracking-[-0.03em] text-text-primary">
             {localTotal.toLocaleString()}
@@ -111,18 +112,18 @@ export function HomeWaterCard({
             onClick={handleRemove}
             disabled={pending !== null || !lastEntry}
             className="flex min-h-[34px] flex-1 items-center justify-center rounded-full border text-xs font-semibold text-text-primary disabled:opacity-40"
-            style={{ borderColor: "rgba(78, 59, 54, 0.07)", background: "rgba(255,255,255,0.7)" }}
+            style={{ borderColor: "rgba(33, 31, 28, 0.1)", background: "rgba(255,255,255,0.7)" }}
           >
-            {pending === "remove" ? "삭제 중..." : `− ${cupMl}ml 빼기`}
+            {pending === "remove" ? todayCopy.waterCard.deleting : todayCopy.waterCard.remove(cupMl)}
           </button>
           <button
             type="button"
             onClick={handleAdd}
             disabled={pending !== null}
             className="flex min-h-[34px] flex-1 items-center justify-center rounded-full border text-xs font-semibold text-text-primary disabled:opacity-60"
-            style={{ borderColor: "rgba(78, 59, 54, 0.07)", background: "rgba(255,255,255,0.7)" }}
+            style={{ borderColor: "rgba(33, 31, 28, 0.1)", background: "rgba(255,255,255,0.7)" }}
           >
-            {pending === "add" ? "저장 중..." : `+ ${cupMl}ml 추가`}
+            {pending === "add" ? todayCopy.waterCard.saving : todayCopy.waterCard.add(cupMl)}
           </button>
         </div>
 

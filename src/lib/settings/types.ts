@@ -14,6 +14,11 @@ export type Settings = {
   darkModeEnabled: boolean;
   mealTrackingEnabled: boolean;
   waterTrackingEnabled: boolean;
+  /** ISO timestamp of when the user started their current goalPeriod
+   * program — stamped once, when onboarding completes. Null for anyone who
+   * hasn't (re)started a program since this field shipped; callers computing
+   * journey progress fall back to the Supabase Auth user's own created_at. */
+  programStartedAt: string | null;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -30,6 +35,7 @@ export const DEFAULT_SETTINGS: Settings = {
   darkModeEnabled: false,
   mealTrackingEnabled: false,
   waterTrackingEnabled: false,
+  programStartedAt: null,
 };
 
 type RawMetadata = {
@@ -46,6 +52,7 @@ type RawMetadata = {
   dark_mode_enabled?: boolean;
   meal_tracking_enabled?: boolean;
   water_tracking_enabled?: boolean;
+  program_started_at?: string | null;
 };
 
 /** Merges saved user_metadata fields over the defaults above. */
@@ -65,5 +72,6 @@ export function readSettings(metadata: RawMetadata | null | undefined): Settings
     darkModeEnabled: m.dark_mode_enabled ?? DEFAULT_SETTINGS.darkModeEnabled,
     mealTrackingEnabled: m.meal_tracking_enabled ?? DEFAULT_SETTINGS.mealTrackingEnabled,
     waterTrackingEnabled: m.water_tracking_enabled ?? DEFAULT_SETTINGS.waterTrackingEnabled,
+    programStartedAt: m.program_started_at ?? DEFAULT_SETTINGS.programStartedAt,
   };
 }

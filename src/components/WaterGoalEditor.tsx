@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LabeledInput } from "@/components/my/SettingsPrimitives";
+import { todayCopy } from "@/lib/copy/today";
 import { updateSettings } from "@/lib/settings/mutations";
 
 /** Header + collapsible settings panel placed above HomeWaterCard — mirrors
@@ -35,7 +36,7 @@ export function WaterGoalEditor({ waterGoalMl, cupMl }: { waterGoalMl: number; c
       router.refresh();
       setOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "저장에 실패했어요.");
+      setError(err instanceof Error ? err.message : todayCopy.waterGoalEditor.saveError);
     } finally {
       setSaving(false);
     }
@@ -44,13 +45,13 @@ export function WaterGoalEditor({ waterGoalMl, cupMl }: { waterGoalMl: number; c
   return (
     <div>
       <div className="mb-3 flex items-center justify-between text-[17px] leading-[1.4] font-bold tracking-[-0.025em] text-text-primary">
-        오늘의 물
+        {todayCopy.waterGoalEditor.title}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="font-en text-[11px] font-semibold tracking-[0.03em] text-text-muted lowercase"
         >
-          편집
+          {todayCopy.waterGoalEditor.edit}
         </button>
       </div>
 
@@ -58,10 +59,22 @@ export function WaterGoalEditor({ waterGoalMl, cupMl }: { waterGoalMl: number; c
         <div className="surface-card mb-3 flex flex-col gap-3 p-4">
           <div className="flex gap-2">
             <div className="flex-1">
-              <LabeledInput label="하루 목표 용량" type="number" suffix="ml" value={goalInput} onChange={setGoalInput} />
+              <LabeledInput
+                label={todayCopy.waterGoalEditor.dailyGoal}
+                type="number"
+                suffix="ml"
+                value={goalInput}
+                onChange={setGoalInput}
+              />
             </div>
             <div className="flex-1">
-              <LabeledInput label="한 컵 용량" type="number" suffix="ml" value={cupInput} onChange={setCupInput} />
+              <LabeledInput
+                label={todayCopy.waterGoalEditor.cupSize}
+                type="number"
+                suffix="ml"
+                value={cupInput}
+                onChange={setCupInput}
+              />
             </div>
           </div>
 
@@ -75,7 +88,7 @@ export function WaterGoalEditor({ waterGoalMl, cupMl }: { waterGoalMl: number; c
               className="min-h-[40px] flex-1 rounded-full text-[13px] font-bold text-text-inverse disabled:opacity-60"
               style={{ background: "var(--gradient-primary)" }}
             >
-              {saving ? "저장 중..." : "저장"}
+              {saving ? todayCopy.waterGoalEditor.saving : todayCopy.waterGoalEditor.save}
             </button>
             <button
               type="button"
@@ -84,7 +97,7 @@ export function WaterGoalEditor({ waterGoalMl, cupMl }: { waterGoalMl: number; c
               className="min-h-[40px] rounded-full px-4 text-[13px] font-semibold text-text-secondary"
               style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
             >
-              취소
+              {todayCopy.waterGoalEditor.cancel}
             </button>
           </div>
         </div>

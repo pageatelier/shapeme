@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { CameraIcon } from "@/components/icons";
+import { todayCopy } from "@/lib/copy/today";
 import { uploadMealPhoto } from "@/lib/meal/mutations";
 import { MEAL_TITLES } from "@/lib/meal/types";
 import type { MealLog } from "@/lib/meal/types";
@@ -30,7 +31,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
       await uploadMealPhoto({ date: meal.date, mealType: meal.type, file });
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "업로드에 실패했어요.");
+      setError(err instanceof Error ? err.message : todayCopy.nourish.uploadError);
     } finally {
       setUploading(null);
     }
@@ -56,7 +57,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
                   }
                 : {
                     background: "var(--surface-card)",
-                    border: "1px dashed rgba(78, 59, 54, 0.16)",
+                    border: "1px dashed rgba(33, 31, 28, 0.16)",
                     color: "var(--color-text-muted)",
                   }
             }
@@ -65,7 +66,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={preview}
-                alt={`${MEAL_TITLES[meal.type]} 사진`}
+                alt={`${MEAL_TITLES[meal.type]} photo`}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
@@ -76,7 +77,7 @@ export function HomeMealGrid({ meals }: { meals: MealLog[] }) {
             )}
             {uploading === meal.type && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/25">
-                <span className="font-en text-[9px] font-semibold text-white">저장 중</span>
+                <span className="text-[9px] font-semibold text-white">{todayCopy.nourish.saving}</span>
               </div>
             )}
             <input

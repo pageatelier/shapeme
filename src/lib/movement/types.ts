@@ -17,15 +17,15 @@ export const ACTIVITY_CONFIG: Record<
   MovementActivityType,
   { label: string; emoji: string; fields: MovementField[] }
 > = {
-  running: { label: "러닝", emoji: "🏃", fields: ["distanceKm", "calories"] },
-  walking: { label: "산책", emoji: "🚶", fields: ["steps"] },
-  dance: { label: "댄스", emoji: "💃", fields: [] },
-  yoga: { label: "요가", emoji: "🧘", fields: [] },
-  pilates: { label: "필라테스", emoji: "🤸", fields: [] },
-  stretching: { label: "스트레칭", emoji: "🙆", fields: [] },
-  cycling: { label: "자전거", emoji: "🚴", fields: ["distanceKm"] },
-  swimming: { label: "수영", emoji: "🏊", fields: ["distanceKm"] },
-  other: { label: "기타", emoji: "✨", fields: [] },
+  running: { label: "Running", emoji: "🏃", fields: ["distanceKm", "calories"] },
+  walking: { label: "Walking", emoji: "🚶", fields: ["steps"] },
+  dance: { label: "Dance", emoji: "💃", fields: [] },
+  yoga: { label: "Yoga", emoji: "🧘", fields: [] },
+  pilates: { label: "Pilates", emoji: "🤸", fields: [] },
+  stretching: { label: "Stretching", emoji: "🙆", fields: [] },
+  cycling: { label: "Cycling", emoji: "🚴", fields: ["distanceKm"] },
+  swimming: { label: "Swimming", emoji: "🏊", fields: ["distanceKm"] },
+  other: { label: "Other", emoji: "✨", fields: [] },
 };
 
 export const ACTIVITY_TYPES = Object.keys(ACTIVITY_CONFIG) as MovementActivityType[];

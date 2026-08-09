@@ -24,6 +24,7 @@ export async function updateSettings(patch: Partial<Settings>) {
   if (patch.darkModeEnabled !== undefined) data.dark_mode_enabled = patch.darkModeEnabled;
   if (patch.mealTrackingEnabled !== undefined) data.meal_tracking_enabled = patch.mealTrackingEnabled;
   if (patch.waterTrackingEnabled !== undefined) data.water_tracking_enabled = patch.waterTrackingEnabled;
+  if (patch.programStartedAt !== undefined) data.program_started_at = patch.programStartedAt;
 
   const { error } = await supabase.auth.updateUser({ data });
   if (error) throw error;

@@ -10,6 +10,7 @@ import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
 import { saveOnboardingProfile } from "@/lib/onboarding/mutations";
 import { cautionLabel } from "@/lib/onboarding/types";
 import type { OnboardingProfile } from "@/lib/onboarding/types";
+import { updateSettings } from "@/lib/settings/mutations";
 import { StartingWeekReview } from "./StartingWeekReview";
 import { BodyGoalsStep } from "./steps/BodyGoalsStep";
 import { CautionsStep } from "./steps/CautionsStep";
@@ -123,6 +124,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
     try {
       await saveWeeklyRoutineToMove(week);
       await saveOnboardingProfile({ onboardingCompleted: true });
+      await updateSettings({ programStartedAt: new Date().toISOString() });
       router.push("/move");
     } catch (err) {
       setStartError(err instanceof Error ? err.message : "저장에 실패했어요.");

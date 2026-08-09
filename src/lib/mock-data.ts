@@ -55,7 +55,7 @@ export const TODAY_ISO = "2026-08-02";
 export const today = {
   dateLabel: "8월 2일 일요일",
   greeting: "오늘도 나를 위한\n하루를 시작해볼까요?",
-  selfLoveMessage: "완벽하지 않아도, 계속하고 있다는 사실이 중요해요.",
+  selfLoveMessage: "It doesn't have to be perfect — showing up is what counts.",
   completionRate: 72,
   memo: "런지할 때 무릎 안 아팠던 게 뿌듯. 물을 평소보다 더 챙겨 마심.",
 };

@@ -3,10 +3,10 @@ export type MealType = "morning" | "lunch" | "dinner" | "snack";
 export const MEAL_TYPES: MealType[] = ["morning", "lunch", "dinner", "snack"];
 
 export const MEAL_TITLES: Record<MealType, string> = {
-  morning: "아침",
-  lunch: "점심",
-  dinner: "저녁",
-  snack: "간식",
+  morning: "Breakfast",
+  lunch: "Lunch",
+  dinner: "Dinner",
+  snack: "Snack",
 };
 
 export const FULLNESS_OPTIONS = ["부족함", "적당함", "배부름", "과식함"] as const;
