@@ -50,7 +50,7 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
                   {imageUrl && (
                     <Image
                       src={imageUrl}
-                      alt={`${SLOT_LABELS[slot]} 사진`}
+                      alt={`${SLOT_LABELS[slot]} photo`}
                       fill
                       sizes="(max-width: 480px) 30vw, 140px"
                       className="object-cover"

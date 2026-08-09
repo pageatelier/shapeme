@@ -33,7 +33,7 @@ export function BodyThumb({
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={`${SLOT_LABELS[slot]} 사진`}
+            alt={`${SLOT_LABELS[slot]} photo`}
             fill
             sizes={`${size}px`}
             className="object-cover"

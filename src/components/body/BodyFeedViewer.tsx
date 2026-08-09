@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { UIEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CloseIcon } from "@/components/icons";
+import { bodyCopy } from "@/lib/copy/body";
 import { formatDateLabelWithYear } from "@/lib/body/date";
 import { deleteBodyPhoto } from "@/lib/body/upload";
 import { primarySlot, SLOT_LABELS } from "@/lib/body/types";
@@ -91,7 +92,7 @@ export function BodyFeedViewer({
       setConfirmingDeleteDate(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+      setError(err instanceof Error ? err.message : bodyCopy.feedViewer.deleteError);
     } finally {
       setDeleting(false);
     }
@@ -126,7 +127,7 @@ export function BodyFeedViewer({
         <button
           type="button"
           onClick={onClose}
-          aria-label="닫기"
+          aria-label={bodyCopy.feedViewer.close}
           className="flex h-9 w-9 items-center justify-center rounded-full"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
@@ -159,14 +160,14 @@ export function BodyFeedViewer({
                   {url &&
                     (isConfirming ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-text-secondary">삭제할까요?</span>
+                        <span className="text-[10px] text-text-secondary">{bodyCopy.feedViewer.confirmDelete}</span>
                         <button
                           type="button"
                           onClick={() => handleDelete(entry)}
                           disabled={deleting}
                           className="text-[11px] font-semibold text-error disabled:opacity-60"
                         >
-                          {deleting ? "삭제 중..." : "삭제"}
+                          {deleting ? bodyCopy.feedViewer.deleting : bodyCopy.feedViewer.delete}
                         </button>
                         <button
                           type="button"
@@ -174,7 +175,7 @@ export function BodyFeedViewer({
                           disabled={deleting}
                           className="text-[11px] font-semibold text-text-muted disabled:opacity-60"
                         >
-                          취소
+                          {bodyCopy.feedViewer.cancel}
                         </button>
                       </div>
                     ) : (
@@ -183,7 +184,7 @@ export function BodyFeedViewer({
                         onClick={() => setConfirmingDeleteDate(entry.date)}
                         className="text-[11px] font-semibold text-text-muted"
                       >
-                        삭제
+                        {bodyCopy.feedViewer.delete}
                       </button>
                     ))}
                 </div>
@@ -203,7 +204,7 @@ export function BodyFeedViewer({
                         <div key={slot} className="relative h-full w-full shrink-0 snap-start">
                           <Image
                             src={slotUrl}
-                            alt={`${entry.dateLabel} ${SLOT_LABELS[slot]} 사진`}
+                            alt={`${entry.dateLabel} ${SLOT_LABELS[slot]} photo`}
                             fill
                             sizes="(max-width: 480px) 100vw, 480px"
                             className="object-cover"

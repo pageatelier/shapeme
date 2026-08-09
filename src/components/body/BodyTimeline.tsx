@@ -3,121 +3,93 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { formatYearMonthLabel } from "@/lib/body/date";
+import { ChevronRightIcon } from "@/components/icons";
+import { bodyCopy } from "@/lib/copy/body";
+import { getJourneyProgress } from "@/lib/journey";
 import { primaryPhotoUrl } from "@/lib/body/types";
 import type { BodyEntry } from "@/lib/body/types";
 
-const PAGE_SIZE = 20;
-
-// Only mounted once a grid photo is tapped, so its JS ships in its own
-// chunk instead of the Body page's initial bundle (same pattern as
-// TogetherStories' StoryViewer).
+// Only mounted once a thumbnail is tapped, so its JS ships in its own chunk
+// instead of the Body page's initial bundle (same pattern as TogetherStories'
+// StoryViewer).
 const BodyFeedViewer = dynamic(() => import("./BodyFeedViewer").then((m) => m.BodyFeedViewer), {
   ssr: false,
 });
 
-function yearMonthKey(date: string) {
-  return date.slice(0, 7); // "YYYY-MM"
-}
+// Caps how many recent entries render at once — this is a glance strip, not
+// a full-history browser (matches the horizontal-scroll footprint of the
+// mockup), and keeps the DOM bounded for anyone with a long streak.
+const VISIBLE_COUNT = 20;
 
-export function BodyTimeline({ entries }: { entries: BodyEntry[] }) {
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+/** Horizontal strip of recent entries, newest first, each captioned by its
+ * program week (not the date — "This Week's Shape" above already gives the
+ * date context) so the strip visually reads as a week-by-week progression. */
+export function BodyTimeline({
+  entries,
+  startedAt,
+  goalPeriod,
+}: {
+  entries: BodyEntry[];
+  startedAt: string;
+  goalPeriod: string;
+}) {
   const [openDate, setOpenDate] = useState<string | null>(null);
 
-  // entries only changes when new server data comes in, but this component
-  // also re-renders on unrelated state (e.g. opening the viewer) — memoized
-  // so the sort/group work doesn't redo itself on every one of those.
-  const sorted = useMemo(() => [...entries].sort((a, b) => b.date.localeCompare(a.date)), [entries]);
-  const visible = sorted.slice(0, visibleCount);
-  const hasMore = sorted.length > visible.length;
-
-  const groups = useMemo(() => {
-    const map = new Map<string, BodyEntry[]>();
-    for (const entry of visible) {
-      const key = yearMonthKey(entry.date);
-      const bucket = map.get(key);
-      if (bucket) {
-        bucket.push(entry);
-      } else {
-        map.set(key, [entry]);
-      }
-    }
-    return map;
-  }, [visible]);
+  const sorted = useMemo(
+    () => [...entries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, VISIBLE_COUNT),
+    [entries],
+  );
 
   if (sorted.length === 0) {
     return (
       <section>
-        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">지난 기록</p>
-        <div className="surface-card p-5 text-center text-[13px] text-text-muted">
-          아직 눈바디 기록이 없어요. 위에서 사진을 촬영해 첫 기록을 남겨보세요.
-        </div>
+        <p className="font-en mb-3 text-[10px] font-semibold tracking-[0.14em] text-text-muted">
+          {bodyCopy.pastShapes.title}
+        </p>
+        <div className="surface-card p-5 text-center text-[13px] text-text-muted">{bodyCopy.pastShapes.empty}</div>
       </section>
     );
   }
 
   return (
     <section>
-      <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">지난 기록</p>
-      <div className="flex flex-col gap-5">
-        {[...groups.entries()].map(([key, monthEntries]) => (
-          <div key={key}>
-            <p className="mb-2 text-[13px] font-bold tracking-[-0.01em] text-text-secondary">
-              {formatYearMonthLabel(monthEntries[0].date)}
-            </p>
-            <div className="grid grid-cols-3 gap-0.5 overflow-hidden rounded-[var(--radius-md)]">
-              {monthEntries.map((entry) => {
-                const url = primaryPhotoUrl(entry);
-                return (
-                  <button
-                    key={entry.date}
-                    type="button"
-                    onClick={() => setOpenDate(entry.date)}
-                    aria-label={`${entry.dateLabel} 기록 보기`}
-                    className="relative aspect-square"
-                    style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }}
-                  >
-                    {url && (
-                      <Image
-                        src={url}
-                        alt=""
-                        fill
-                        sizes="(max-width: 480px) 33vw, 160px"
-                        className="object-cover"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-              {/* Pads the row out to a full multiple of 3 — without this, a
-                  month with e.g. 1 photo left the other two grid tracks
-                  completely empty (see-through to the page background),
-                  which read as a rendering glitch rather than "no photo yet". */}
-              {Array.from({ length: (3 - (monthEntries.length % 3)) % 3 }).map((_, i) => (
-                <div
-                  key={`empty-${i}`}
-                  className="relative aspect-square"
-                  style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-100))" }}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="mb-3 flex items-center justify-between">
+        <p className="font-en text-[10px] font-semibold tracking-[0.14em] text-text-muted">
+          {bodyCopy.pastShapes.title}
+        </p>
+        <button type="button" onClick={() => setOpenDate(sorted[0].date)} aria-label={bodyCopy.pastShapes.loadMore}>
+          <ChevronRightIcon className="h-4 w-4 text-text-muted" />
+        </button>
       </div>
 
-      {hasMore && (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-          className="mt-4 w-full rounded-full py-3 text-center text-[13px] font-semibold text-text-secondary"
-          style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-        >
-          더 보기
-        </button>
-      )}
+      <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-1">
+        {sorted.map((entry) => {
+          const url = primaryPhotoUrl(entry);
+          const week = getJourneyProgress({ startedAt, goalPeriod, now: new Date(entry.date) }).currentWeek;
+          return (
+            <button
+              key={entry.date}
+              type="button"
+              onClick={() => setOpenDate(entry.date)}
+              aria-label={`${entry.dateLabel}`}
+              className="flex shrink-0 flex-col items-center gap-1.5"
+            >
+              <div
+                className="relative h-20 w-16 overflow-hidden rounded-[var(--radius-md)]"
+                style={{ background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }}
+              >
+                {url && <Image src={url} alt="" fill sizes="64px" className="object-cover" />}
+              </div>
+              <span className="font-en text-[9px] font-semibold tracking-[0.06em] text-text-muted">
+                {bodyCopy.pastShapes.week(week)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       {openDate && (
-        <BodyFeedViewer entries={visible} initialDate={openDate} onClose={() => setOpenDate(null)} />
+        <BodyFeedViewer entries={sorted} initialDate={openDate} onClose={() => setOpenDate(null)} />
       )}
     </section>
   );

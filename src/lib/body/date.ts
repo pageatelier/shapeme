@@ -31,17 +31,27 @@ export function addDays(iso: string, days: number): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
-export function formatDateLabel(iso: string): string {
-  const [, month, day] = iso.split("-");
-  return `${Number(month)}월 ${Number(day)}일`;
-}
+const MONTH_ABBR = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-export function formatYearMonthLabel(iso: string): string {
-  const [year, month] = iso.split("-");
-  return `${Number(year)}년 ${Number(month)}월`;
+export function formatDateLabel(iso: string): string {
+  const [, month, day] = iso.split("-").map(Number);
+  return `${MONTH_ABBR[month - 1]} ${day}`;
 }
 
 export function formatDateLabelWithYear(iso: string): string {
-  const [year, month, day] = iso.split("-");
-  return `${Number(year)}년 ${Number(month)}월 ${Number(day)}일`;
+  const [year, month, day] = iso.split("-").map(Number);
+  return `${MONTH_ABBR[month - 1]} ${day}, ${year}`;
 }

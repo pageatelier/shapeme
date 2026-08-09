@@ -38,7 +38,7 @@ export async function uploadBodyPhoto({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요해요.");
+  if (!user) throw new Error("You must be signed in.");
 
   const compressed = await compressImage(file);
   const ext = extensionFor(compressed);
@@ -83,7 +83,7 @@ export async function deleteBodyPhoto({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요해요.");
+  if (!user) throw new Error("You must be signed in.");
 
   const column = slotColumn[slot];
   const { data: row, error: fetchError } = await supabase

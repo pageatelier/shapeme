@@ -1,0 +1,63 @@
+/**
+ * All user-facing copy for the Body page and its subcomponents, centralized
+ * per the same convention as src/lib/copy/today.ts (future i18n extraction
+ * point, not itself an i18n system).
+ */
+export const bodyCopy = {
+  header: {
+    title: "BODY",
+    subtitle: "Track your shape. See your growth.",
+    privacyNote: "Your body photos are private — only you can see them.",
+  },
+  tabs: {
+    thisWeek: "This Week",
+    compare: "Compare",
+  },
+  thisWeek: {
+    shapeLabel: "THIS WEEK'S SHAPE",
+    week: (current: number, total: number) => `WEEK ${String(current).padStart(2, "0")} / ${total}`,
+  },
+  capture: {
+    title: "Take your Shape Shot",
+    subtitle: "Keep the framing similar each week.",
+    cta: "TAKE PHOTO",
+    backfilling: "Adding a past entry",
+    backToToday: "Back to today",
+    addAngle: "Add another angle",
+    collapseAngle: "Hide other angles",
+  },
+  slot: {
+    change: "Change photo",
+    choose: "Choose photo",
+    delete: "Delete",
+    confirmDelete: "Delete this photo?",
+    deleting: "Deleting...",
+    cancel: "Cancel",
+    saving: "Saving...",
+    uploadError: "Upload failed.",
+    deleteError: "Delete failed.",
+  },
+  pastShapes: {
+    title: "PAST SHAPES",
+    empty: "No shape shots yet — take your first one above.",
+    week: (n: number) => `WEEK ${String(n).padStart(2, "0")}`,
+    loadMore: "Show more",
+  },
+  compare: {
+    title: "Compare",
+    needMore: "You need at least 2 entries to compare.",
+    front: "Front",
+    side: "Side",
+    back: "Back",
+    noEntry: "No entry",
+  },
+  feedViewer: {
+    close: "Close",
+    delete: "Delete",
+    confirmDelete: "Delete this photo?",
+    deleting: "Deleting...",
+    cancel: "Cancel",
+    deleteError: "Delete failed.",
+  },
+  loading: "Loading...",
+} as const;

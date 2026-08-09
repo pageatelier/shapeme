@@ -1,11 +1,11 @@
 export type BodyPhotoSlot = "front" | "side" | "back";
 
-/** Shared Korean labels for the 3 photo slots — used anywhere a slot name
- * is shown to the user (Capture, Compare, Timeline detail). */
+/** Shared labels for the 3 photo slots — used anywhere a slot name is shown
+ * to the user (Capture, Compare, Timeline detail). */
 export const SLOT_LABELS: Record<BodyPhotoSlot, string> = {
-  front: "정면",
-  side: "측면",
-  back: "후면",
+  front: "Front",
+  side: "Side",
+  back: "Back",
 };
 
 /**

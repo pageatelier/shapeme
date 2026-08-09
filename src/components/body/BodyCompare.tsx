@@ -1,32 +1,41 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { HourglassIcon } from "@/components/icons";
+import { bodyCopy } from "@/lib/copy/body";
+import { getJourneyProgress } from "@/lib/journey";
+import { formatDateLabelWithYear } from "@/lib/body/date";
 import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 
 const slots: BodyPhotoSlot[] = ["front", "side", "back"];
 
-/**
- * MVP comparison: two dates, side-by-side per angle. A slider comparison
- * is a planned follow-up — this component only needs its `entries` prop
- * swapped for real data later, so the slider can land without touching
- * callers.
- */
-export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
+export function BodyCompare({
+  entries,
+  startedAt,
+  goalPeriod,
+}: {
+  entries: BodyEntry[];
+  startedAt: string;
+  goalPeriod: string;
+}) {
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
   const [leftDate, setLeftDate] = useState(sorted[0]?.date ?? "");
   const [rightDate, setRightDate] = useState(sorted[sorted.length - 1]?.date ?? "");
-  const [expanded, setExpanded] = useState(false);
+  const [activeSlot, setActiveSlot] = useState<BodyPhotoSlot>("front");
+
+  const weekByDate = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const e of sorted) {
+      map.set(e.date, getJourneyProgress({ startedAt, goalPeriod, now: new Date(e.date) }).currentWeek);
+    }
+    return map;
+  }, [sorted, startedAt, goalPeriod]);
 
   if (sorted.length < 2) {
     return (
-      <section>
-        <p className="mb-3 text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
-        <div className="surface-card p-5 text-center text-[13px] text-text-muted">
-          비교하려면 눈바디 기록이 2개 이상 필요해요.
-        </div>
-      </section>
+      <div className="surface-card p-5 text-center text-[13px] text-text-muted">{bodyCopy.compare.needMore}</div>
     );
   }
 
@@ -34,68 +43,74 @@ export function BodyCompare({ entries }: { entries: BodyEntry[] }) {
   const right = sorted.find((e) => e.date === rightDate);
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <p className="text-[17px] font-bold tracking-[-0.025em] text-text-primary">변화 비교</p>
-          {!expanded && <p className="mt-0.5 text-[11px] text-text-secondary">비교할 사진 선택</p>}
-        </div>
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-label={expanded ? "비교 접기" : "비교 펼치기"}
-          aria-expanded={expanded}
-          className="flex h-7 w-7 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-text-secondary"
-          style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
-        >
-          {expanded ? "−" : "+"}
-        </button>
+    <div className="flex flex-col gap-4">
+      <div
+        className="flex items-center justify-between rounded-full px-4 py-2.5"
+        style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+      >
+        <WeekSelect value={leftDate} onChange={setLeftDate} entries={sorted} weekByDate={weekByDate} />
+        <HourglassIcon className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+        <WeekSelect value={rightDate} onChange={setRightDate} entries={sorted} weekByDate={weekByDate} />
       </div>
 
-      {expanded && (
-        <div className="glass-card p-5">
-          <div className="mb-4 grid grid-cols-2 gap-3">
-            <DateSelect value={leftDate} onChange={setLeftDate} entries={sorted} />
-            <DateSelect value={rightDate} onChange={setRightDate} entries={sorted} />
-          </div>
+      <div className="flex gap-1.5">
+        {slots.map((slot) => (
+          <button
+            key={slot}
+            type="button"
+            onClick={() => setActiveSlot(slot)}
+            className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold ${activeSlot === slot ? "pill-selected" : "pill-unselected"}`}
+          >
+            {SLOT_LABELS[slot]}
+          </button>
+        ))}
+      </div>
 
-          {slots.map((slot) => (
-            <div key={slot} className="mb-4 last:mb-0">
-              <p className="mb-2 text-[11px] font-semibold text-text-muted">{SLOT_LABELS[slot]}</p>
-              <div className="grid grid-cols-2 gap-3">
-                <ComparePane entry={left} slot={slot} />
-                <ComparePane entry={right} slot={slot} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+      <div className="grid grid-cols-2 gap-3">
+        <ComparePane entry={left} slot={activeSlot} />
+        <ComparePane entry={right} slot={activeSlot} />
+      </div>
+      <div className="grid grid-cols-2 gap-3 text-center">
+        <EntryCaption entry={left} week={left ? weekByDate.get(left.date) : undefined} />
+        <EntryCaption entry={right} week={right ? weekByDate.get(right.date) : undefined} />
+      </div>
+    </div>
   );
 }
 
-function DateSelect({
+function WeekSelect({
   value,
   onChange,
   entries,
+  weekByDate,
 }: {
   value: string;
   onChange: (v: string) => void;
   entries: BodyEntry[];
+  weekByDate: Map<string, number>;
 }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-full px-3 py-2 text-[13px] font-semibold text-text-primary"
-      style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+      className="font-en bg-transparent text-[11px] font-semibold tracking-[0.08em] text-text-primary"
     >
       {entries.map((e) => (
         <option key={e.date} value={e.date}>
-          {e.dateLabel}
+          {bodyCopy.pastShapes.week(weekByDate.get(e.date) ?? 1)}
         </option>
       ))}
     </select>
+  );
+}
+
+function EntryCaption({ entry, week }: { entry: BodyEntry | undefined; week: number | undefined }) {
+  if (!entry) return <div />;
+  return (
+    <div>
+      <p className="font-en text-[11px] font-semibold text-text-primary">{bodyCopy.pastShapes.week(week ?? 1)}</p>
+      <p className="text-[10px] text-text-muted">{formatDateLabelWithYear(entry.date)}</p>
+    </div>
   );
 }
 
@@ -106,7 +121,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
 
   return (
     <div
-      className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-[var(--radius-md)] text-[11px] text-text-inverse"
+      className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-[var(--radius-lg)] text-[11px] text-text-inverse"
       style={
         filled
           ? { background: "linear-gradient(160deg, var(--color-bg-warm), var(--color-pink-200))" }
@@ -116,7 +131,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt={`${SLOT_LABELS[slot]} 비교 사진`}
+          alt={`${SLOT_LABELS[slot]} comparison photo`}
           fill
           sizes="(max-width: 480px) 45vw, 200px"
           className="object-cover"
@@ -124,7 +139,7 @@ function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: Body
       ) : filled ? (
         ""
       ) : (
-        "기록 없음"
+        bodyCopy.compare.noEntry
       )}
     </div>
   );

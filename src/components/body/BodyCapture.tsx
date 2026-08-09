@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
+import { bodyCopy } from "@/lib/copy/body";
 import { todayIsoDate } from "@/lib/body/date";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
@@ -14,12 +15,11 @@ function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
 
 /**
  * Capture UI for one day's photo(s). Only the front/primary slot is
- * required — side and back are optional extra angles revealed via
- * "다른 각도 추가", auto-expanded if that day already has either saved
- * (so returning to an already-multi-angle day doesn't hide them). Saving
- * with just the primary photo already worked at the data layer (every
- * body_entries photo column is independently nullable) — this only
- * changes which slots are visible by default.
+ * required — side and back are optional extra angles, revealed via "Add
+ * another angle", auto-expanded if that day already has either saved (so
+ * returning to an already-multi-angle day doesn't hide them). The front
+ * slot uses PhotoSlotButton's "cta" empty state (big "Take your Shape
+ * Shot" card) instead of the small tile every other slot uses.
  */
 export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
   const today = todayIsoDate();
@@ -33,35 +33,34 @@ export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
   }
 
   return (
-    <section className="glass-card p-5">
-      <p className="mb-4 text-[15px] font-bold tracking-[-0.02em] text-text-primary">오늘의 기록</p>
-
-      <div className="mb-4 flex items-center gap-2">
+    <section>
+      <div className="mb-3 flex items-center gap-2">
         <input
           type="date"
           value={selectedDate}
           max={today}
           onChange={(e) => changeDate(e.target.value || today)}
-          className="min-h-[36px] rounded-full px-3 text-[13px] font-semibold text-text-primary"
+          className="min-h-[32px] rounded-full px-3 text-[12px] font-semibold text-text-primary"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         />
         {selectedDate !== today && (
-          <button type="button" onClick={() => changeDate(today)} className="text-[11px] font-semibold text-pink-500">
-            오늘로
-          </button>
-        )}
-        {selectedDate !== today && (
-          <span className="text-[11px] text-text-secondary">지난 기록 추가 중</span>
+          <>
+            <button type="button" onClick={() => changeDate(today)} className="text-[11px] font-semibold text-pink-500">
+              {bodyCopy.capture.backToToday}
+            </button>
+            <span className="text-[11px] text-text-secondary">{bodyCopy.capture.backfilling}</span>
+          </>
         )}
       </div>
 
       <div className="flex flex-col gap-3" key={selectedDate}>
-        <div className="mx-auto w-full max-w-[160px]">
+        <div className="mx-auto w-full max-w-[220px]">
           <PhotoSlotButton
             slot="front"
             date={selectedDate}
             filled={!!entry?.front}
             imageUrl={entry?.frontImageUrl}
+            emptyVariant="cta"
           />
         </div>
 
@@ -81,21 +80,20 @@ export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
             <button
               type="button"
               onClick={() => setShowMore(false)}
-              className="flex min-h-[36px] items-center justify-center gap-1.5 rounded-full text-[12px] font-semibold text-text-muted"
+              className="flex min-h-[32px] items-center justify-center gap-1.5 text-[11px] font-semibold text-text-muted"
             >
               <PlusIcon className="h-3 w-3 rotate-45" />
-              다른 각도 접기
+              {bodyCopy.capture.collapseAngle}
             </button>
           </>
         ) : (
           <button
             type="button"
             onClick={() => setShowMore(true)}
-            className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold text-text-secondary"
-            style={{ background: "var(--surface-card)", border: "1px dashed rgba(78, 59, 54, 0.2)" }}
+            className="flex min-h-[32px] items-center justify-center gap-1.5 text-[11px] font-semibold text-text-muted"
           >
-            <PlusIcon className="h-3.5 w-3.5" />
-            다른 각도 추가
+            <PlusIcon className="h-3 w-3" />
+            {bodyCopy.capture.addAngle}
           </button>
         )}
       </div>
