@@ -126,6 +126,9 @@ export default async function TodayPage() {
         <h1 className="font-cormorant mt-1 text-[clamp(26px,6vw,32px)] leading-[1.25] font-semibold tracking-[-0.02em] text-text-primary">
           {dailyMessage}
         </h1>
+        <p className="font-en mt-3 text-[11px] font-semibold tracking-[0.14em] text-text-muted">
+          {todayCopy.journey.dayLabel} {journey.currentDay} / {journey.totalDays}
+        </p>
       </div>
 
       {settings.selfLoveMessageEnabled && (
@@ -142,8 +145,12 @@ export default async function TodayPage() {
           {todayCopy.journey.label}
         </p>
         <div className="mb-3 flex items-baseline justify-between">
-          <span className="font-en text-[15px] font-semibold tracking-[-0.02em] text-text-primary">
-            {todayCopy.journey.week(journey.currentWeek, journey.totalWeeks)}
+          <span className="font-en flex items-baseline gap-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted">
+            {todayCopy.journey.weekLabel}
+            <span className="font-cormorant text-xl font-semibold tracking-normal text-text-primary">
+              {String(journey.currentWeek).padStart(2, "0")}
+            </span>
+            / {journey.totalWeeks}
           </span>
           <span className="font-en text-3xl font-semibold tracking-[-0.05em] text-text-primary">
             {journey.percent}%

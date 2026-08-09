@@ -16,16 +16,17 @@ export function getJourneyProgress({
   /** Settings.goalPeriod, e.g. "12주" — only the leading integer matters. */
   goalPeriod: string;
   now?: Date;
-}): { currentWeek: number; totalWeeks: number; percent: number } {
+}): { currentWeek: number; totalWeeks: number; currentDay: number; totalDays: number; percent: number } {
   const parsed = parseInt(goalPeriod, 10);
   const totalWeeks = Number.isFinite(parsed) && parsed > 0 ? parsed : 12;
+  const totalDays = totalWeeks * 7;
 
   const start = new Date(startedAt);
   const daysElapsed = Math.max(0, (now.getTime() - start.getTime()) / 86_400_000);
-  const totalDays = totalWeeks * 7;
 
   const currentWeek = Math.min(totalWeeks, Math.floor(daysElapsed / 7) + 1);
+  const currentDay = Math.min(totalDays, Math.floor(daysElapsed) + 1);
   const percent = Math.min(100, Math.round((daysElapsed / totalDays) * 100));
 
-  return { currentWeek, totalWeeks, percent };
+  return { currentWeek, totalWeeks, currentDay, totalDays, percent };
 }

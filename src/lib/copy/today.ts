@@ -6,7 +6,8 @@
 export const todayCopy = {
   journey: {
     label: "JOURNEY",
-    week: (current: number, total: number) => `WEEK ${String(current).padStart(2, "0")} / ${total}`,
+    dayLabel: "DAY",
+    weekLabel: "WEEK",
     complete: "COMPLETE",
   },
   focus: {
