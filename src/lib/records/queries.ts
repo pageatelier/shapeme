@@ -130,6 +130,7 @@ export async function getMyRecordsMonth(
 
     const routinePercent = routineCompletionPercent({
       movePercent,
+      hasMoveToday: workoutTotalSets > 0 || workoutDoneSets > 0 || movementDates.has(isoDate),
       mealDoneToday,
       waterPct,
       mealTrackingEnabled: settings.mealTrackingEnabled,

@@ -80,6 +80,7 @@ export async function getMyRecordDetailAction(isoDate: string): Promise<RecordDe
 
   const routinePercent = routineCompletionPercent({
     movePercent,
+    hasMoveToday: workoutTotalSets > 0 || workoutDoneSets > 0 || movementLogs.length > 0,
     mealDoneToday,
     waterPct,
     mealTrackingEnabled: settings.mealTrackingEnabled,

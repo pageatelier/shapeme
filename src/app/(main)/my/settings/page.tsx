@@ -8,8 +8,6 @@ import { MealWaterSettings } from "@/components/my/MealWaterSettings";
 import { NotificationSettings } from "@/components/my/NotificationSettings";
 import { SessionManagementSection } from "@/components/my/SessionManagementSection";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
-import { InviteFriendSheet } from "@/components/together/InviteFriendSheet";
-import { getFriendsTodaySafe, getMyFriendCode } from "@/lib/friends/queries";
 import { readSettings } from "@/lib/settings/types";
 import { getCurrentUser } from "@/lib/supabase/server";
 
@@ -25,11 +23,6 @@ export default async function MySettingsPage() {
   const country = metadata.country || "KR";
   const timezone = metadata.timezone || "Asia/Seoul";
   const settings = readSettings(user?.user_metadata);
-
-  // Independent reads — fetched together instead of one-after-another.
-  const [myFriendCode, friends] = user
-    ? await Promise.all([getMyFriendCode(user.id), getFriendsTodaySafe()])
-    : [null, []];
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,8 +40,6 @@ export default async function MySettingsPage() {
       <SettingsGroup title="사용 옵션">
         <MealWaterSettings settings={settings} />
       </SettingsGroup>
-
-      <InviteFriendSheet myCode={myFriendCode} friends={friends} />
 
       <LanguageRegionSettings language={language} country={country} timezone={timezone} />
 

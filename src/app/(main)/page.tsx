@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
-import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
 import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { HeartIcon } from "@/components/icons";
 import { TodayAiRoutineCard } from "@/components/TodayAiRoutineCard";
 import { WaterGoalEditor } from "@/components/WaterGoalEditor";
-import { TogetherStories } from "@/components/together/TogetherStories";
 import { getRoutineDayDetailsSafe, hasAnyAiRoutineSafe } from "@/lib/aiRoutine/queries";
 import { formatDateLabel, isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { movePercentFor, routineCompletionPercent } from "@/lib/dailyCompletion";
-import { getCheersReceivedTodaySafe, getFriendsTodaySafe } from "@/lib/friends/queries";
 import { getDailyMessage } from "@/lib/greeting";
 import { getMealLogsSafe } from "@/lib/meal/queries";
 import { MEAL_TYPES } from "@/lib/meal/types";
@@ -27,10 +24,7 @@ import { WEEKDAYS } from "@/lib/workout/types";
 export default async function TodayPage() {
   const user = await getCurrentUser();
 
-  const metadata = user?.user_metadata as
-    | { avatar_url?: string; display_name?: string; timezone?: string }
-    | undefined;
-  const avatarUrl = metadata?.avatar_url ?? null;
+  const metadata = user?.user_metadata as { display_name?: string; timezone?: string } | undefined;
   const displayName = metadata?.display_name || "나";
   const timezone = metadata?.timezone || "Asia/Seoul";
   const settings = readSettings(user?.user_metadata);
@@ -42,16 +36,14 @@ export default async function TodayPage() {
   const dailyMessage = getDailyMessage(todayIso);
 
   // Independent reads — fetched together instead of one-after-another so
-  // this page doesn't wait on 7 sequential round trips just to render.
-  const [routines, movementLogs, water, meals, dailyNote, friends, receivedCheers] = user
+  // this page doesn't wait on sequential round trips just to render.
+  const [routines, movementLogs, water, meals, dailyNote] = user
     ? await Promise.all([
         getRoutinesSafe(user.id, todayIso),
         getMovementLogsByDateSafe(user.id, todayIso),
         getWaterLogsSafe(user.id, todayIso),
         getMealLogsSafe(user.id, todayIso),
         getDailyNoteSafe(user.id, todayIso),
-        getFriendsTodaySafe(),
-        getCheersReceivedTodaySafe(user.id, todayIso),
       ])
     : [
         [],
@@ -59,8 +51,6 @@ export default async function TodayPage() {
         { entries: [], totalMl: 0 },
         MEAL_TYPES.map((type) => ({ type, date: todayIso, filled: false })),
         { memo: null, isPublic: false },
-        [],
-        [],
       ];
 
   // All routines scheduled for today — not just the first match, since
@@ -71,6 +61,11 @@ export default async function TodayPage() {
   const workoutTotalSets = todayExercises.reduce((sum, e) => sum + e.targetSets, 0);
 
   const hasMoveToday = workoutDoneSets > 0 || movementLogs.length > 0;
+  // Whether Move counts as part of today at all — a routine is scheduled,
+  // or the user already logged movement voluntarily even without one.
+  // False means a genuine rest day: no "운동 계속하기" nudge, and Move drops
+  // out of the % entirely instead of counting as an unmet 80-100% weight.
+  const moveAppliesToday = workoutTotalSets > 0 || hasMoveToday;
 
   // Depends on todayRoutines' ids, so this can't join the Promise.all above —
   // only fetched when there's something to look up for.
@@ -106,6 +101,7 @@ export default async function TodayPage() {
 
   const todayRoutinePercent = routineCompletionPercent({
     movePercent,
+    hasMoveToday: moveAppliesToday,
     mealDoneToday,
     waterPct,
     mealTrackingEnabled: settings.mealTrackingEnabled,
@@ -115,7 +111,9 @@ export default async function TodayPage() {
   const cupsRemaining = Math.max(0, Math.ceil((settings.waterGoalMl - water.totalMl) / settings.cupMl));
 
   const routineChecklist = [
-    { key: "move", done: hasMoveToday, doneLabel: "운동 진행 중", todoLabel: "운동 계속하기", href: "/move" },
+    ...(moveAppliesToday
+      ? [{ key: "move", done: hasMoveToday, doneLabel: "운동 진행 중", todoLabel: "운동 계속하기", href: "/move" }]
+      : []),
     ...(settings.mealTrackingEnabled
       ? [{ key: "meal", done: mealDoneToday, doneLabel: "식단 기록 완료", todoLabel: "식단 기록하기", href: "/meal" }]
       : []),
@@ -132,22 +130,8 @@ export default async function TodayPage() {
       : []),
   ];
 
-  const myPublicMemo = dailyNote.isPublic ? dailyNote.memo : null;
-  const cheerNotifications = receivedCheers.map((cheer) => ({
-    senderId: cheer.senderId,
-    displayName: friends.find((f) => f.friendId === cheer.senderId)?.displayName ?? "친구",
-    type: cheer.type,
-  }));
-
   return (
     <div className="flex flex-col gap-5">
-      <HomeHeader cheerNotifications={cheerNotifications} />
-
-      <TogetherStories
-        me={{ displayName, avatarUrl, todayProgress: todayRoutinePercent, memo: myPublicMemo }}
-        friends={friends}
-      />
-
       <div>
         <p className="font-en mb-1.5 text-[11px] font-semibold tracking-[0.1em] text-text-muted lowercase">
           {dateLabel}
