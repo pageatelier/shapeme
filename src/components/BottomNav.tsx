@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CameraIcon, HomeIcon, MoveIcon, NoteIcon, UserIcon } from "@/components/icons";
+import { BookIcon, DumbbellIcon, HomeIcon, HourglassIcon, UserIcon } from "@/components/icons";
 
 const items = [
   { href: "/", label: "today", Icon: HomeIcon },
-  { href: "/body", label: "body", Icon: CameraIcon },
-  { href: "/move", label: "move", Icon: MoveIcon },
-  { href: "/guide", label: "guide", Icon: NoteIcon },
+  { href: "/move", label: "move", Icon: DumbbellIcon },
+  { href: "/body", label: "body", Icon: HourglassIcon },
+  { href: "/guide", label: "guide", Icon: BookIcon },
   { href: "/my", label: "my", Icon: UserIcon },
 ];
 

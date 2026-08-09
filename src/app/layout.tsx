@@ -1,15 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
+import { Cormorant_Garamond } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const instrumentSans = Instrument_Sans({
-  variable: "--font-en",
-  subsets: ["latin"],
+// The app's one body/UI face — self-hosted via next/font/local since
+// Pretendard isn't on Google Fonts. Single variable-weight woff2 covers
+// 45–920, so no per-weight file juggling.
+const pretendard = localFont({
+  src: "../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  weight: "45 920",
   display: "swap",
 });
 
-// Wordmark-only serif — scoped to BrandLogo (src/components/BrandLogo.tsx),
-// never applied app-wide. Everything else keeps --font-en/--font-ko.
+// Display/headline serif — see globals.css for where it's used (headings,
+// tracked section labels) vs. the body face above.
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
@@ -35,7 +40,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f4ebdd",
+  themeColor: "#f3f2ed",
   // BottomNav and .app-content both lean on env(safe-area-inset-bottom) to
   // clear the home indicator — that variable only ever resolves to a real
   // value (instead of silently falling back to 0px) once the viewport opts
@@ -51,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${instrumentSans.variable} ${cormorantGaramond.variable} antialiased`}>
+    <html lang="ko" className={`${pretendard.variable} ${cormorantGaramond.variable} antialiased`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

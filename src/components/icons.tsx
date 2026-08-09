@@ -179,6 +179,29 @@ export function NoteIcon({ className }: IconProps) {
   );
 }
 
+/** Nav icon for Body — an hourglass, echoing the app's brand mark, standing
+ * in for "watch your body change over time" better than a literal camera. */
+export function HourglassIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M5 21h14" />
+      <path d="M5 3h14" />
+      <path d="M17 21v-3.5a2.5 2.5 0 0 0-.9-1.9L12 12l4.1-3.6a2.5 2.5 0 0 0 .9-1.9V3" />
+      <path d="M7 21v-3.5a2.5 2.5 0 0 1 .9-1.9L12 12 7.9 8.4A2.5 2.5 0 0 1 7 6.5V3" />
+    </svg>
+  );
+}
+
+/** Nav icon for Guide — an open book. */
+export function BookIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M4 6c2-1 5-1 8 1v12c-3-2-6-2-8-1V6Z" />
+      <path d="M20 6c-2-1-5-1-8 1v12c3-2 6-2 8-1V6Z" />
+    </svg>
+  );
+}
+
 export function BellIcon({ className }: IconProps) {
   return (
     <svg className={className} {...base}>

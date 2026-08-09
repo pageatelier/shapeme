@@ -1,100 +1,99 @@
 @import "tailwindcss";
 
 /*
- * ShapeMe design tokens — ported from shapeme-today.html (Airbrushed Wellness
- * Editorial). Keep this file the single source of truth; update the
- * reference HTML and this file together if tokens change.
+ * ShapeMe design tokens — editorial/minimal palette (Chalk / Bone / Sage Grey
+ * / Muted Butter / Espresso), Cormorant Garamond (display) + Pretendard
+ * (body/UI). Keep this file the single source of truth; update this file
+ * only, not the individual pages, when a token value needs to change.
  */
 :root {
-  /* Fonts */
-  --font-ko: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
-  --font-en: "Instrument Sans", var(--font-ko);
-  /* Wordmark-only serif — see BrandLogo.tsx. Never used as the app's base font. */
-  --font-cormorant: "Cormorant Garamond", var(--font-en);
+  /* Fonts — Pretendard is the app's one body/UI face. font-ko/font-en are
+     kept as aliases (not removed) so the many files still applying `.font-en`
+     for numbers/dates keep working unchanged until each page's own pass. */
+  --font-pretendard: "Pretendard Variable", sans-serif;
+  --font-body: var(--font-pretendard);
+  --font-ko: var(--font-body);
+  --font-en: var(--font-body);
+  --font-cormorant: "Cormorant Garamond", var(--font-body);
 
   /* Background */
-  --color-bg: #f4ebdd;
-  --color-bg-warm: #f8f1e8;
-  --color-bg-pink: #f8dfdf;
+  --color-bg: #f3f2ed; /* Chalk */
+  --color-bg-warm: #e7e2db; /* Bone */
+  --color-bg-pink: #e7e2db; /* legacy name — no more pink surfaces, now Bone */
 
-  /* Pink — dried-rose family; keep saturation restrained, never neon */
-  --color-pink-100: #f8dfdf;
-  --color-pink-200: #efc7c6;
-  --color-pink-300: #e7b0ae;
-  --color-pink-400: #d89293;
-  --color-pink-500: #cf8588;
+  /* Warm neutral scale — same 5-step shape as before so every existing
+     --color-pink-N consumer keeps working, just neutral instead of pink */
+  --color-pink-100: #ece9e2;
+  --color-pink-200: #ddd7cb;
+  --color-pink-300: #c9c2b2;
+  --color-pink-400: #a89e8a;
+  --color-pink-500: #8a8070;
 
-  /* Peach — recast as warm terracotta-beige, not orange, so it still pairs
-     with pink for depth without drifting toward yellow */
-  --color-peach-100: #f5e8da;
-  --color-peach-200: #ead3be;
-  --color-peach-300: #dbb99c;
-  --color-peach-400: #c89a7c;
-  --color-peach-500: #b37f5f;
+  /* Sage — the palette's cooler neutral, replaces the old peach/terracotta
+     family; --color-peach-300 lands exactly on Sage Grey */
+  --color-peach-100: #ecefe8;
+  --color-peach-200: #dee3d6;
+  --color-peach-300: #c9cec2; /* Sage Grey */
+  --color-peach-400: #a9b19c;
+  --color-peach-500: #838c74;
 
   /* Accent */
-  --color-butter: #f3e2d3;
-  --color-lilac: #e8e0dc;
-  --color-rose-mist: #f3dedd;
+  --color-butter: #e4d6a2; /* Muted Butter */
+  --color-lilac: #c9cec2; /* Sage Grey */
+  --color-rose-mist: #e7e2db; /* Bone */
+  --color-sage: #c9cec2;
+  --color-accent: #e4d6a2;
+  --color-ink: #211f1c; /* Espresso */
 
   /* Text */
-  --color-text-primary: #4e3b36;
-  --color-text-secondary: #8c7a73;
-  --color-text-muted: #b8aaa3;
-  --color-text-disabled: #cdbfb8;
-  --color-text-inverse: #fffbf7;
+  --color-text-primary: #211f1c; /* Espresso */
+  --color-text-secondary: #6b655c;
+  --color-text-muted: #9c958a;
+  --color-text-disabled: #c7c0b3;
+  --color-text-inverse: #f3f2ed; /* Chalk */
 
-  /* Status */
-  --color-success: #97a98f;
-  --color-success-soft: #e8efe4;
-  --color-warning: #dfa166;
-  --color-warning-soft: #faead9;
-  --color-error: #cb7480;
-  --color-error-soft: #f7e2e5;
+  /* Status — muted to sit in the same editorial palette, never neon */
+  --color-success: #7e9172;
+  --color-success-soft: #e7ebe1;
+  --color-warning: #b3903f;
+  --color-warning-soft: #f1e7d1;
+  --color-error: #a85f4f;
+  --color-error-soft: #ece0da;
 
-  /* Gradient */
-  --gradient-primary: linear-gradient(
-    135deg,
-    #e7b0ae 0%,
-    #d89293 50%,
-    #cf8588 100%
-  );
-  --gradient-soft: linear-gradient(
-    145deg,
-    #fffdfc 0%,
-    #f8dfdf 52%,
-    #f8f1e8 100%
-  );
+  /* Gradient — near-flat; the mockup's cards read matte, not glossy */
+  --gradient-primary: linear-gradient(135deg, #211f1c 0%, #211f1c 100%);
+  --gradient-soft: linear-gradient(145deg, #f3f2ed 0%, #e7e2db 100%);
   --gradient-ambient: radial-gradient(
       circle at 20% 20%,
-      rgba(231, 176, 174, 0.18),
+      rgba(228, 214, 162, 0.14),
       transparent 40%
     ),
-    radial-gradient(circle at 85% 35%, rgba(219, 185, 156, 0.14), transparent 42%),
-    radial-gradient(circle at 55% 90%, rgba(248, 223, 223, 0.2), transparent 42%);
+    radial-gradient(circle at 85% 35%, rgba(201, 206, 194, 0.16), transparent 42%),
+    radial-gradient(circle at 55% 90%, rgba(231, 226, 219, 0.2), transparent 42%);
 
   /* Surface */
-  --surface-card: rgba(255, 249, 245, 0.92);
-  --surface-soft: rgba(255, 253, 250, 0.6);
-  --surface-solid: #fffdfc;
+  --surface-card: #fbfaf7;
+  --surface-soft: rgba(251, 250, 247, 0.6);
+  --surface-solid: #fbfaf7;
 
-  /* Glass */
-  --glass-background: rgba(255, 249, 245, 0.62);
-  --glass-background-strong: rgba(255, 249, 245, 0.78);
-  --glass-border: rgba(255, 253, 250, 0.75);
-  --glass-border-dark: rgba(78, 59, 54, 0.08);
-  --glass-blur: 24px;
-  --glass-saturation: 125%;
+  /* Glass — vars kept for existing consumers, but .glass-card below no
+     longer applies backdrop-filter: the redesign's cards are flat/matte. */
+  --glass-background: #fbfaf7;
+  --glass-background-strong: #fbfaf7;
+  --glass-border: rgba(33, 31, 28, 0.08);
+  --glass-border-dark: rgba(33, 31, 28, 0.08);
+  --glass-blur: 0px;
+  --glass-saturation: 100%;
 
   /* Border */
-  --border-soft: 1px solid #e9ddd2;
-  --border-default: 1px solid #d2c7bd;
-  --border-focus: 1px solid rgba(207, 133, 136, 0.62);
+  --border-soft: 1px solid rgba(33, 31, 28, 0.08);
+  --border-default: 1px solid rgba(33, 31, 28, 0.14);
+  --border-focus: 1px solid rgba(33, 31, 28, 0.4);
 
   /* Tab bar (BottomNav) */
-  --tab-bg: rgba(255, 248, 244, 0.88);
-  --tab-active: #d88f95;
-  --tab-inactive: #a99890;
+  --tab-bg: rgba(251, 250, 247, 0.92);
+  --tab-active: #211f1c;
+  --tab-inactive: #a9a196;
 
   /* Radius */
   --radius-xs: 8px;
@@ -105,13 +104,12 @@
   --radius-2xl: 36px;
   --radius-full: 999px;
 
-  /* Shadow — a touch more visible than before so cards lift off the
-     lighter beige background instead of blending into it */
-  --shadow-xs: 0 2px 8px rgba(78, 59, 54, 0.07);
-  --shadow-sm: 0 8px 24px rgba(78, 59, 54, 0.09);
-  --shadow-card: 0 18px 50px rgba(78, 59, 54, 0.12);
-  --shadow-floating: 0 24px 70px rgba(78, 59, 54, 0.17);
-  --shadow-pink: 0 18px 40px rgba(207, 133, 136, 0.28);
+  /* Shadow — tinted toward Espresso instead of the old warm brown */
+  --shadow-xs: 0 2px 8px rgba(33, 31, 28, 0.06);
+  --shadow-sm: 0 8px 24px rgba(33, 31, 28, 0.07);
+  --shadow-card: 0 18px 40px rgba(33, 31, 28, 0.08);
+  --shadow-floating: 0 20px 56px rgba(33, 31, 28, 0.14);
+  --shadow-pink: 0 14px 32px rgba(33, 31, 28, 0.12);
 
   /* Spacing */
   --space-1: 4px;
@@ -134,10 +132,10 @@
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Progress */
-  --progress-track: rgba(233, 221, 210, 0.55);
+  --progress-track: rgba(33, 31, 28, 0.1);
 
   /* Calendar-ish accents reused for meal dots */
-  --calendar-complete: #d89293;
+  --calendar-complete: #211f1c;
 }
 
 /* Expose select tokens as Tailwind utilities (bg-*, text-*, rounded-*, shadow-*, font-*) */
@@ -161,6 +159,9 @@
   --color-butter: var(--color-butter);
   --color-lilac: var(--color-lilac);
   --color-rose-mist: var(--color-rose-mist);
+  --color-sage: var(--color-sage);
+  --color-accent: var(--color-accent);
+  --color-ink: var(--color-ink);
 
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
@@ -179,6 +180,7 @@
 
   --font-ko: var(--font-ko);
   --font-en: var(--font-en);
+  --font-body: var(--font-body);
   --font-cormorant: var(--font-cormorant);
 
   --radius-xs: var(--radius-xs);
@@ -202,7 +204,7 @@
 
 body {
   margin: 0;
-  font-family: var(--font-ko);
+  font-family: var(--font-body);
   color: var(--color-text-primary);
   background: var(--color-bg);
 }
@@ -221,33 +223,33 @@ body {
 /* Dark mode — scoped to the app shell (not :root) so it applies purely from
    the user's saved preference, without touching the root <html>/<body>. */
 .app-shell[data-theme="dark"] {
-  --color-bg: #1c1815;
-  --color-bg-warm: #211c18;
-  --color-bg-pink: #241c1f;
+  --color-bg: #171512;
+  --color-bg-warm: #1d1a16;
+  --color-bg-pink: #1d1a16;
 
-  --color-text-primary: #f3ece8;
-  --color-text-secondary: #cabdb7;
-  --color-text-muted: #8f817b;
-  --color-text-disabled: #5f544f;
+  --color-text-primary: #f3f2ed;
+  --color-text-secondary: #cfc9be;
+  --color-text-muted: #8f887d;
+  --color-text-disabled: #5c574e;
 
-  --color-success-soft: rgba(151, 169, 143, 0.18);
-  --color-warning-soft: rgba(223, 161, 102, 0.18);
-  --color-error-soft: rgba(203, 116, 128, 0.18);
+  --color-success-soft: rgba(126, 145, 114, 0.18);
+  --color-warning-soft: rgba(179, 144, 63, 0.18);
+  --color-error-soft: rgba(168, 95, 79, 0.18);
 
-  --surface-card: rgba(38, 32, 29, 0.88);
+  --surface-card: rgba(38, 34, 30, 0.92);
   --surface-soft: rgba(255, 255, 255, 0.06);
-  --surface-solid: #241f1c;
+  --surface-solid: #221f1b;
 
-  --tab-bg: rgba(40, 34, 31, 0.82);
-  --tab-active: #e3a3a6;
-  --tab-inactive: #9c8f88;
+  --tab-bg: rgba(34, 31, 27, 0.9);
+  --tab-active: #e4d6a2;
+  --tab-inactive: #8f887d;
 
-  /* Only consumer is the Story Viewer sheet — the light version is a warm
-     cream/pink gradient that stayed hardcoded-light without this override. */
-  --gradient-soft: linear-gradient(145deg, #241f1c 0%, #2a2124 52%, #26201d 100%);
+  /* Only consumer is the Story Viewer sheet — the light version stayed
+     hardcoded-light without this override. */
+  --gradient-soft: linear-gradient(145deg, #221f1b 0%, #1d1a16 100%);
 
-  --glass-background: rgba(40, 34, 31, 0.58);
-  --glass-background-strong: rgba(40, 34, 31, 0.78);
+  --glass-background: rgba(38, 34, 30, 0.92);
+  --glass-background-strong: rgba(38, 34, 30, 0.96);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-dark: rgba(255, 255, 255, 0.08);
 
@@ -273,14 +275,12 @@ body {
   padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Reusable surfaces */
+/* Reusable surfaces — flat/matte, no backdrop blur (the redesign's cards
+   sit on a solid Bone/Chalk ground, not frosted glass). */
 .glass-card {
   background: var(--glass-background);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur))
-    saturate(var(--glass-saturation));
   border-radius: var(--radius-xl);
 }
 
@@ -303,9 +303,9 @@ body {
 /* Shared chip/pill selection states (mood chips, public/private toggle,
    etc.) — selected reads via background+border+weight, not color alone. */
 .pill-selected {
-  background: var(--color-peach-200);
+  background: var(--color-accent);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-pink-300);
+  border: 1px solid var(--color-ink);
   font-weight: 600;
 }
 
@@ -334,14 +334,6 @@ body {
 .petal-burst span {
   position: absolute;
   animation: petal-float 800ms ease-out forwards;
-}
-
-@supports not (
-  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
-) {
-  .glass-card {
-    background: var(--surface-card);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
