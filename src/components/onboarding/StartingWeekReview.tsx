@@ -100,7 +100,7 @@ export function StartingWeekReview({
         className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
         style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
       >
-        {starting ? "저장 중..." : "Start my week ♡"}
+        {starting ? "저장 중..." : "Start my week"}
       </button>
     </div>
   );

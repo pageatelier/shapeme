@@ -96,7 +96,7 @@ export function AiRoutineWeekResult({ week }: { week: AIRoutineWeek }) {
       {error && <p className="text-center text-[12px] text-error">{error}</p>}
 
       {saved ? (
-        <p className="text-center text-[13px] font-semibold text-text-primary">Move에 저장했어요 🌷</p>
+        <p className="text-center text-[13px] font-semibold text-text-primary">Move에 저장했어요</p>
       ) : (
         <button
           type="button"

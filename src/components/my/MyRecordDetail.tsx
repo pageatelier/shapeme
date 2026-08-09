@@ -57,7 +57,7 @@ export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; tod
           <p className="text-[13px] leading-relaxed text-text-secondary">
             이 날은 기록이 없어요.
             <br />
-            작은 순간부터 천천히 남겨보세요. 🌷
+            작은 순간부터 천천히 남겨보세요.
           </p>
         </div>
       ) : (
@@ -111,7 +111,7 @@ export function MyRecordDetail({ detail, todayIso }: { detail: RecordDetail; tod
                   const config = ACTIVITY_CONFIG[log.activityType];
                   return (
                     <p key={log.id} className="text-[13px] text-text-secondary">
-                      {config.emoji} {config.label} {log.durationMinutes}분
+                      {config.label} {log.durationMinutes}분
                       {log.distanceKm != null ? ` · ${log.distanceKm}km` : ""}
                       {log.steps != null ? ` · ${log.steps}보` : ""}
                     </p>

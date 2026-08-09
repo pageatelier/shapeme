@@ -44,9 +44,7 @@ export function MovementLogCard({ log, date }: { log: MovementLog; date: string 
     <div className="surface-card flex flex-col gap-2 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[14px] font-bold text-text-primary">
-            {config.emoji} {config.label}
-          </p>
+          <p className="text-[14px] font-bold text-text-primary">{config.label}</p>
           <p className="mt-0.5 text-[13px] text-text-secondary">{details.join(" · ")}</p>
           {log.memo && <p className="mt-1 text-[12px] text-text-muted">{log.memo}</p>}
         </div>

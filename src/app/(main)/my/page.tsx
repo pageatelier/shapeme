@@ -46,7 +46,7 @@ export default async function MyPage() {
         className="glass-card flex items-center justify-between gap-3 p-4"
       >
         <div>
-          <p className="text-[13px] font-bold text-text-primary">이번 주 리뷰 보기 ⭐</p>
+          <p className="text-[13px] font-bold text-text-primary">이번 주 리뷰 보기</p>
           <p className="mt-0.5 text-[11px] text-text-secondary">
             잘한 점, 조정할 점, 그리고 다음 주 루틴까지 함께 확인해요.
           </p>

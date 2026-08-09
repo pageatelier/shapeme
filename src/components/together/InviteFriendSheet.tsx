@@ -82,7 +82,7 @@ export function InviteFriendSheet({ myCode, friends }: { myCode: string | null; 
                   : { background: "var(--surface-card)", color: "var(--color-text-secondary)", border: "var(--border-soft)" }
               }
             >
-              {copied ? "복사됨 ✓" : "코드 복사"}
+              {copied ? "복사됨" : "코드 복사"}
             </button>
           </div>
         </div>

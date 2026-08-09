@@ -89,9 +89,7 @@ export function MovementLogForm({
 
   return (
     <div className="glass-card flex flex-col gap-3 p-5">
-      <p className="text-[13px] font-bold text-text-primary">
-        {config.emoji} {config.label}
-      </p>
+      <p className="text-[13px] font-bold text-text-primary">{config.label}</p>
 
       <Field
         label="운동 시간(분)"

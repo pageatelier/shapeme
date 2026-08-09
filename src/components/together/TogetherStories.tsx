@@ -84,7 +84,7 @@ export function TogetherStories({
           index={openIndex}
           onIndexChange={setOpenIndex}
           onClose={() => setOpenIndex(null)}
-          onCheerSent={(name) => setToast(`${name}님에게 응원을 보냈어요 🌷`)}
+          onCheerSent={(name) => setToast(`${name}님에게 응원을 보냈어요`)}
         />
       )}
 

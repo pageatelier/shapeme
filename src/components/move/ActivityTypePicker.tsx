@@ -13,7 +13,7 @@ export function ActivityTypePicker({ onSelect }: { onSelect: (type: MovementActi
       <p className="mb-3 text-[13px] font-bold text-text-primary">어떤 움직임인가요?</p>
       <div className="grid grid-cols-3 gap-2">
         {ACTIVITY_TYPES.map((type) => {
-          const { label, emoji } = ACTIVITY_CONFIG[type];
+          const { label } = ACTIVITY_CONFIG[type];
           return (
             <button
               key={type}
@@ -21,7 +21,6 @@ export function ActivityTypePicker({ onSelect }: { onSelect: (type: MovementActi
               onClick={() => onSelect(type)}
               className="pill-unselected flex flex-col items-center gap-1 rounded-[var(--radius-md)] py-3 text-[12px] font-semibold"
             >
-              <span className="text-xl leading-none">{emoji}</span>
               {label}
             </button>
           );

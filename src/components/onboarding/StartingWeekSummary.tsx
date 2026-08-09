@@ -9,7 +9,7 @@ export function StartingWeekSummary({ days }: { days: StartingWeekDay[] }) {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-center text-2xl font-bold tracking-[-0.03em] text-text-primary">
-        Your Starting Week ♡
+        Your Starting Week
       </h1>
       <div className="glass-card flex flex-col divide-y" style={{ borderColor: "var(--glass-border)" }}>
         {days.map((day) => (

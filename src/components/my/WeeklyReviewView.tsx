@@ -48,7 +48,7 @@ export function WeeklyReviewView({ review }: { review: WeeklyReview }) {
           <ul className="flex flex-col gap-1.5">
             {review.wentWell.map((line, i) => (
               <li key={i} className="text-[13px] leading-relaxed text-text-primary">
-                🌿 {line}
+                {line}
               </li>
             ))}
           </ul>
@@ -59,7 +59,7 @@ export function WeeklyReviewView({ review }: { review: WeeklyReview }) {
           <ul className="flex flex-col gap-1.5">
             {review.toAdjust.map((line, i) => (
               <li key={i} className="text-[13px] leading-relaxed text-text-primary">
-                🌱 {line}
+                {line}
               </li>
             ))}
           </ul>

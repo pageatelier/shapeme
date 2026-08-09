@@ -57,7 +57,7 @@ export function HomeHeader({
                 {cheerNotifications.map(({ senderId, displayName, type }) => (
                   <p key={`${senderId}-${type}`} className="text-[12px] leading-relaxed text-text-secondary">
                     <span className="font-semibold text-text-primary">{displayName}</span>님이{" "}
-                    {CHEER_RECEIVED_PHRASE[type]} 응원했어요 🌷
+                    {CHEER_RECEIVED_PHRASE[type]} 응원했어요
                   </p>
                 ))}
               </div>

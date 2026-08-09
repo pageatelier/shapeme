@@ -5,9 +5,9 @@ import { sendCheer } from "@/lib/friends/mutations";
 import type { CheerType } from "@/lib/friends/types";
 
 const CHEER_OPTIONS: { type: CheerType; label: string }[] = [
-  { type: "slow", label: "🌷 오늘도 천천히" },
-  { type: "doing_great", label: "💗 잘하고 있어" },
-  { type: "together", label: "✨ 같이 해요" },
+  { type: "slow", label: "오늘도 천천히" },
+  { type: "doing_great", label: "잘하고 있어" },
+  { type: "together", label: "같이 해요" },
 ];
 
 /** Only these three fixed, positive phrases — never free text (see
@@ -47,7 +47,7 @@ export function CheerPanel({
         className="flex min-h-[54px] items-center justify-center rounded-[var(--radius-md)] text-[14px] font-bold text-text-secondary"
         style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
       >
-        오늘의 응원을 보냈어요 💗
+        오늘의 응원을 보냈어요
       </div>
     );
   }

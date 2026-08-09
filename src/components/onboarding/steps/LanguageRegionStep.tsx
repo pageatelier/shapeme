@@ -18,7 +18,7 @@ export function LanguageRegionStep({
     <div className="flex flex-col gap-8">
       <div className="text-center">
         <BrandLogo className="mb-3" />
-        <p className="text-[15px] text-text-secondary">Welcome to ShapeMe ♡</p>
+        <p className="text-[15px] text-text-secondary">Welcome to ShapeMe</p>
       </div>
       <div className="glass-card flex flex-col gap-4 p-6">
         <LabeledSelect

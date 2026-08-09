@@ -9,7 +9,7 @@ import { CheerPanel } from "./CheerPanel";
 
 function statusMessage(pct: number): string {
   if (pct <= 0) return "아직 오늘의 기록을 시작하지 않았어요.";
-  if (pct >= 100) return "오늘의 루틴을 모두 완료했어요 ✨";
+  if (pct >= 100) return "오늘의 루틴을 모두 완료했어요";
   return `오늘 ${pct}%를 채웠어요.`;
 }
 
@@ -162,9 +162,39 @@ export function StoryViewer({
 
           {showPetals && (
             <div className="petal-burst pointer-events-none absolute top-4 left-1/2 h-16 w-16 -translate-x-1/2">
-              <span style={{ left: "6px", top: "8px", fontSize: 14, animationDelay: "0ms" }}>🌷</span>
-              <span style={{ left: "26px", top: "0px", fontSize: 14, animationDelay: "90ms" }}>💗</span>
-              <span style={{ left: "44px", top: "10px", fontSize: 14, animationDelay: "160ms" }}>🌷</span>
+              <span
+                style={{
+                  left: "6px",
+                  top: "8px",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--color-accent)",
+                  animationDelay: "0ms",
+                }}
+              />
+              <span
+                style={{
+                  left: "26px",
+                  top: "0px",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--color-ink)",
+                  animationDelay: "90ms",
+                }}
+              />
+              <span
+                style={{
+                  left: "44px",
+                  top: "10px",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--color-accent)",
+                  animationDelay: "160ms",
+                }}
+              />
             </div>
           )}
 
