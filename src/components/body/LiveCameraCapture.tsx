@@ -5,7 +5,10 @@ import { createPortal } from "react-dom";
 import { CloseIcon, FlipCameraIcon } from "@/components/icons";
 import { bodyCopy } from "@/lib/copy/body";
 
-const ZOOM_LEVELS = [1, 1.5, 2] as const;
+// Fixed, not user-adjustable — a consistent framing distance across every
+// slot (front/side/back/full) is what actually makes week-over-week photos
+// comparable, more than the exact factor chosen.
+const FIXED_ZOOM = 2;
 
 /**
  * In-app live camera view (getUserMedia + <video>), so the previous shot for
@@ -36,7 +39,6 @@ export function LiveCameraCapture({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
-  const [zoom, setZoom] = useState<(typeof ZOOM_LEVELS)[number]>(1);
   const [ready, setReady] = useState(false);
   const cameraSupported =
     typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
@@ -77,16 +79,24 @@ export function LiveCameraCapture({
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) return;
     const canvas = document.createElement("canvas");
-    // Crop to match what the zoomed preview shows — otherwise a "2x" shot
+    // Crop to match what the zoomed preview shows — otherwise the shot
     // would upload the full, un-zoomed frame.
-    const cropWidth = video.videoWidth / zoom;
-    const cropHeight = video.videoHeight / zoom;
+    const cropWidth = video.videoWidth / FIXED_ZOOM;
+    const cropHeight = video.videoHeight / FIXED_ZOOM;
     const sx = (video.videoWidth - cropWidth) / 2;
     const sy = (video.videoHeight - cropHeight) / 2;
     canvas.width = cropWidth;
     canvas.height = cropHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    // Selfie mode previews mirrored (below) so it moves the way a real
+    // mirror would — flip the saved frame to match what was actually on
+    // screen, and to stay mirror-consistent with rear-camera-at-a-mirror
+    // shots, which are already naturally flipped by the physical mirror.
+    if (facingMode === "user") {
+      ctx.translate(cropWidth, 0);
+      ctx.scale(-1, 1);
+    }
     ctx.drawImage(video, sx, sy, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
     canvas.toBlob(
       (blob) => {
@@ -131,7 +141,7 @@ export function LiveCameraCapture({
           playsInline
           muted
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ transform: `scale(${zoom})` }}
+          style={{ transform: `${facingMode === "user" ? "scaleX(-1) " : ""}scale(${FIXED_ZOOM})` }}
         />
         {previousImageUrl && ready && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -159,25 +169,6 @@ export function LiveCameraCapture({
             >
               {bodyCopy.camera.gallery}
             </button>
-          </div>
-        )}
-
-        {!error && ready && (
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-full p-1" style={{ background: "rgba(0,0,0,0.4)" }}>
-            {ZOOM_LEVELS.map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setZoom(level)}
-                className="font-en flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-[11px] font-semibold"
-                style={{
-                  background: zoom === level ? "white" : "transparent",
-                  color: zoom === level ? "var(--color-ink)" : "white",
-                }}
-              >
-                {level}×
-              </button>
-            ))}
           </div>
         )}
       </div>
