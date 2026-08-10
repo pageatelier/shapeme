@@ -243,6 +243,18 @@ export function CloseIcon({ className }: IconProps) {
   );
 }
 
+/** Switch/flip camera — used by the live capture view's front/back toggle. */
+export function FlipCameraIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...base}>
+      <path d="M4 12a8 8 0 0 1 13.5-5.5L20 9" />
+      <path d="M20 5v4h-4" />
+      <path d="M20 12a8 8 0 0 1-13.5 5.5L4 15" />
+      <path d="M4 19v-4h4" />
+    </svg>
+  );
+}
+
 export function LockIcon({ className }: IconProps) {
   return (
     <svg className={className} {...base}>

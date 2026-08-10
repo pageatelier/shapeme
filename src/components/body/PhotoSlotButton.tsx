@@ -7,20 +7,19 @@ import { bodyCopy } from "@/lib/copy/body";
 import { deleteBodyPhoto, uploadBodyPhoto } from "@/lib/body/upload";
 import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
+import { LiveCameraCapture } from "./LiveCameraCapture";
 
 /**
  * One Front/Side/Back/Full slot: tap it (or "Choose photo") to open the
- * OS's native picker, which offers both "take a photo" and "choose from
- * library" — no `capture` attribute here on purpose, since that forces the
- * camera open directly and hides the gallery/upload option.
- *
- * When `previousImageUrl` is given (there's an earlier photo in this same
- * slot to compare against), a newly picked file doesn't upload right away —
- * it first shows a review overlay with the previous shot layered faintly on
- * top, so the user can check alignment before committing (retake if it's
- * off) rather than only finding out after the fact on the Compare tab. The
- * very first photo in a slot has nothing to compare against, so it uploads
- * immediately like before.
+ * in-app live camera view (LiveCameraCapture) — chosen over the OS's native
+ * `<input type="file">` picker specifically so the previous shot for this
+ * slot can be overlaid on the live feed while framing the new one, which a
+ * native camera app gives web pages no way to do. Capturing there uploads
+ * immediately (the live overlay already confirmed alignment). The hidden
+ * `<input>` below is the fallback path — reachable via "Choose from
+ * library" inside the camera view, or automatically if the camera is
+ * unavailable/denied — and keeps its own pre-upload alignment review
+ * (there's no live guide for a gallery pick, so it's checked after instead).
  *
  * `emptyVariant="cta"` swaps the not-yet-filled state for a bigger inviting
  * card (BodyCapture's front slot) instead of the small dashed tile every
@@ -40,7 +39,7 @@ export function PhotoSlotButton({
   filled: boolean;
   imageUrl?: string;
   /** Most recent other entry's photo for this same slot, if any — enables
-   * the pre-upload alignment review. */
+   * the live-camera overlay and the gallery-pick alignment review. */
   previousImageUrl?: string;
   emptyVariant?: "tile" | "cta";
 }) {
@@ -54,6 +53,7 @@ export function PhotoSlotButton({
   const [deleting, setDeleting] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   async function upload(file: File) {
     const localUrl = URL.createObjectURL(file);
@@ -71,7 +71,19 @@ export function PhotoSlotButton({
     }
   }
 
-  function onFileSelected(file: File | undefined) {
+  function openGallery() {
+    setCameraOpen(false);
+    inputRef.current?.click();
+  }
+
+  function handleLiveCapture(file: File) {
+    // Alignment was already visible live, via the overlay — no need for a
+    // second static review step.
+    setCameraOpen(false);
+    upload(file);
+  }
+
+  function onGalleryFileSelected(file: File | undefined) {
     if (!file) return;
     if (previousImageUrl) {
       setPendingFile(file);
@@ -117,7 +129,16 @@ export function PhotoSlotButton({
       type="file"
       accept="image/*"
       className="hidden"
-      onChange={(e) => onFileSelected(e.target.files?.[0])}
+      onChange={(e) => onGalleryFileSelected(e.target.files?.[0])}
+    />
+  );
+
+  const camera = cameraOpen && (
+    <LiveCameraCapture
+      previousImageUrl={previousImageUrl}
+      onCapture={handleLiveCapture}
+      onCancel={() => setCameraOpen(false)}
+      onUseGalleryInstead={openGallery}
     />
   );
 
@@ -168,7 +189,7 @@ export function PhotoSlotButton({
       <div className="flex flex-col items-center gap-2">
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
+          onClick={() => setCameraOpen(true)}
           className="flex w-full flex-col items-center gap-3 rounded-[var(--radius-lg)] px-6 py-10 text-center"
           style={{ border: "1px dashed var(--glass-border)" }}
         >
@@ -187,6 +208,7 @@ export function PhotoSlotButton({
         </button>
         {input}
         {error && <span className="text-center text-[10px] text-error">{error}</span>}
+        {camera}
         {reviewOverlay}
       </div>
     );
@@ -196,7 +218,7 @@ export function PhotoSlotButton({
     <div className="flex flex-col items-center gap-2">
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={() => setCameraOpen(true)}
         className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
         style={
           isFilled
@@ -242,7 +264,7 @@ export function PhotoSlotButton({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => inputRef.current?.click()}
+            onClick={() => setCameraOpen(true)}
             className="text-[11px] font-semibold text-pink-500"
           >
             {isFilled ? bodyCopy.slot.change : bodyCopy.slot.choose}
@@ -259,6 +281,7 @@ export function PhotoSlotButton({
         </div>
       )}
       {error && <span className="text-center text-[10px] text-error">{error}</span>}
+      {camera}
       {reviewOverlay}
     </div>
   );
