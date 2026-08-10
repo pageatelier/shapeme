@@ -20,10 +20,15 @@ function imageUrlFor(entry: BodyEntry | null, slot: BodyPhotoSlot): string | und
   return entry?.frontImageUrl;
 }
 
-/** Most recent OTHER entry's photo for this slot (excluding `date` itself)
- * — what a newly picked photo gets compared against before it uploads, so
- * the two shots line up for later side-by-side comparison. */
+/** What a newly picked photo gets compared against before it uploads, so
+ * the two shots line up. Prefers `date`'s own existing photo in this slot —
+ * if you're retaking today's shot, that's the one you actually want to
+ * match — and only falls back to the most recent earlier entry when today
+ * doesn't have one yet. */
 function previousImageUrlFor(entries: BodyEntry[], date: string, slot: BodyPhotoSlot): string | undefined {
+  const current = entries.find((e) => e.date === date);
+  if (current?.[slot]) return imageUrlFor(current, slot);
+
   const prior = entries
     .filter((e) => e.date !== date && e[slot])
     .sort((a, b) => b.date.localeCompare(a.date))[0];
