@@ -78,9 +78,19 @@ export function LoginForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card flex flex-col gap-4 p-6">
+      {/* mt-10 (40px, within the requested 32-48px range) on top of the
+          gap-6 the flex column already gives every child — nudges just this
+          box further down without moving the logo/tagline above it. Opaque
+          card background swaps .glass-card's fully-solid var(--glass-background)
+          for the same color at 90% alpha: enough to let a hint of the photo
+          through without the text turning illegible (below ~88% it does). */}
+      <form
+        onSubmit={handleSubmit}
+        className="glass-card mt-10 flex flex-col gap-4 p-6"
+        style={{ background: "rgba(251, 250, 247, 0.9)" }}
+      >
         <AuthField
-          label="이메일"
+          label="Email"
           type="email"
           autoComplete="email"
           required
@@ -88,7 +98,7 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <AuthField
-          label="비밀번호"
+          label="Password"
           type="password"
           autoComplete="current-password"
           required
@@ -104,14 +114,14 @@ export function LoginForm() {
           className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
         >
-          {loading ? "로그인 중..." : "로그인"}
+          {loading ? "Signing in..." : "Log in"}
         </button>
       </form>
 
       <p className="text-center text-[13px] text-white/80">
-        아직 계정이 없으신가요?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/signup" className="font-semibold text-white">
-          회원가입
+          Sign up
         </Link>
       </p>
     </div>
