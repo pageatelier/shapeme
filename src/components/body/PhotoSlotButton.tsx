@@ -10,14 +10,7 @@ import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 import { LiveCameraCapture } from "./LiveCameraCapture";
 
-/** Front/side benefit from a closer, zoomed-in crop; back/full need the
- * wider native framing to fit the whole pose in — so they shoot at 1x. */
-const ZOOM_BY_SLOT: Record<BodyPhotoSlot, number> = {
-  front: 2,
-  side: 2,
-  back: 1,
-  full: 1,
-};
+const ZOOM = 2;
 
 /**
  * One Front/Side/Back/Full slot: tap it (or "Choose photo") to open the
@@ -151,7 +144,7 @@ export function PhotoSlotButton({
     <LiveCameraCapture
       previousImageUrl={previousImageUrl}
       guideImageUrl={guideImageUrl}
-      zoom={ZOOM_BY_SLOT[slot]}
+      zoom={ZOOM}
       onCapture={handleLiveCapture}
       onCancel={() => setCameraOpen(false)}
       onUseGalleryInstead={openGallery}
