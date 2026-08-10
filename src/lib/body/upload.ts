@@ -41,7 +41,10 @@ export async function uploadBodyPhoto({
   } = await supabase.auth.getUser();
   if (!user) throw new Error("You must be signed in.");
 
-  const compressed = await compressImage(file);
+  // Body photos exist specifically to compare physique across weeks, so
+  // they keep more detail than the shared default (meal/avatar thumbnails
+  // don't need it).
+  const compressed = await compressImage(file, { maxDimension: 2400, quality: 0.9 });
   const ext = extensionFor(compressed);
   const path = bodyPhotoPath(user.id, date, slot, ext);
 

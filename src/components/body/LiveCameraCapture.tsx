@@ -5,11 +5,6 @@ import { createPortal } from "react-dom";
 import { CloseIcon, FlipCameraIcon } from "@/components/icons";
 import { bodyCopy } from "@/lib/copy/body";
 
-// Fixed, not user-adjustable — a consistent framing distance across every
-// slot (front/side/back/full) is what actually makes week-over-week photos
-// comparable, more than the exact factor chosen.
-const FIXED_ZOOM = 2;
-
 /**
  * In-app live camera view (getUserMedia + <video>), so a reference image can
  * be overlaid semi-transparently ON the live feed while framing the new shot
@@ -36,12 +31,16 @@ const FIXED_ZOOM = 2;
 export function LiveCameraCapture({
   previousImageUrl,
   guideImageUrl,
+  zoom,
   onCapture,
   onCancel,
   onUseGalleryInstead,
 }: {
   previousImageUrl?: string;
   guideImageUrl?: string;
+  /** Fixed, not user-adjustable — per-slot, since full/back shots need the
+   * wider native framing while front/side benefit from a closer crop. */
+  zoom: number;
   onCapture: (file: File) => void;
   onCancel: () => void;
   onUseGalleryInstead: () => void;
@@ -71,11 +70,13 @@ export function LiveCameraCapture({
       // Without an explicit resolution hint, browsers commonly default the
       // stream to something low (e.g. 640x480) — and since capture() then
       // crops that down further for the 2x zoom, the saved photo ends up
-      // far blurrier than the device's camera is capable of. `ideal` (not
-      // `min`) lets it gracefully fall back on devices/cameras that can't
-      // hit 1920.
+      // far blurrier than the device's camera is capable of. Ask for well
+      // above what any phone's video pipeline actually delivers (`ideal`,
+      // not `min`, so it still degrades gracefully) — the browser clamps to
+      // whatever the camera can really do, so this just makes sure we're
+      // not the ones leaving resolution on the table.
       .getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1920 } },
+        video: { facingMode, width: { ideal: 4096 }, height: { ideal: 4096 } },
         audio: false,
       })
       .then((stream) => {
@@ -108,8 +109,8 @@ export function LiveCameraCapture({
     const canvas = document.createElement("canvas");
     // Crop to match what the zoomed preview shows — otherwise the shot
     // would upload the full, un-zoomed frame.
-    const cropWidth = video.videoWidth / FIXED_ZOOM;
-    const cropHeight = video.videoHeight / FIXED_ZOOM;
+    const cropWidth = video.videoWidth / zoom;
+    const cropHeight = video.videoHeight / zoom;
     const sx = (video.videoWidth - cropWidth) / 2;
     const sy = (video.videoHeight - cropHeight) / 2;
     canvas.width = cropWidth;
@@ -131,7 +132,7 @@ export function LiveCameraCapture({
         onCapture(new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" }));
       },
       "image/jpeg",
-      0.92,
+      0.97,
     );
   }
 
@@ -180,7 +181,7 @@ export function LiveCameraCapture({
           playsInline
           muted
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ transform: `${facingMode === "user" ? "scaleX(-1) " : ""}scale(${FIXED_ZOOM})` }}
+          style={{ transform: `${facingMode === "user" ? "scaleX(-1) " : ""}scale(${zoom})` }}
         />
         {overlayUrl && ready && (overlayForced || showOverlay) && (
           // eslint-disable-next-line @next/next/no-img-element
