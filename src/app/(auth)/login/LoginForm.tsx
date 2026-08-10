@@ -83,14 +83,20 @@ export function LoginForm() {
           the whole group above) does all the positioning now that logo,
           tagline, and card move together as one bottom-anchored unit.
           Padding/gap trimmed from p-6/gap-4 to p-4/gap-2 keeps the card
-          itself compact. Opaque card background swaps .glass-card's
-          fully-solid var(--glass-background) for the same color at 87%
-          alpha — low enough to let the photo show through, not so low the
-          text over it gets noisy. */}
+          itself compact. Background dropped to 80% alpha + a backdrop blur
+          for an actual frosted-glass look (a solid ~87%-opaque card reads
+          as a generic login panel dropped onto the photo) — the blur is
+          what keeps the lower opacity from making the "Email"/"Password"
+          labels noisy against the busy photo; AuthField's own inputs stay
+          on their normal near-opaque var(--surface-card), untouched. */}
       <form
         onSubmit={handleSubmit}
         className="glass-card flex flex-col gap-2 p-4"
-        style={{ background: "rgba(251, 250, 247, 0.87)" }}
+        style={{
+          background: "rgba(251, 250, 247, 0.8)",
+          backdropFilter: "blur(14px) saturate(1.15)",
+          WebkitBackdropFilter: "blur(14px) saturate(1.15)",
+        }}
       >
         <AuthField
           label="Email"

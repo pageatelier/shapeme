@@ -75,7 +75,11 @@ export default function SignupPage() {
       {checkEmail ? (
         <div
           className="glass-card flex flex-col items-center gap-3 p-6 text-center"
-          style={{ background: "rgba(251, 250, 247, 0.87)" }}
+          style={{
+            background: "rgba(251, 250, 247, 0.8)",
+            backdropFilter: "blur(14px) saturate(1.15)",
+            WebkitBackdropFilter: "blur(14px) saturate(1.15)",
+          }}
         >
           <p className="text-[15px] font-bold text-text-primary">Check your email</p>
           <p className="text-[13px] leading-relaxed text-text-secondary">
@@ -89,7 +93,11 @@ export default function SignupPage() {
         <form
           onSubmit={handleSubmit}
           className="glass-card flex flex-col gap-2 p-4"
-          style={{ background: "rgba(251, 250, 247, 0.87)" }}
+          style={{
+            background: "rgba(251, 250, 247, 0.8)",
+            backdropFilter: "blur(14px) saturate(1.15)",
+            WebkitBackdropFilter: "blur(14px) saturate(1.15)",
+          }}
         >
           <AuthField
             label="Email"
