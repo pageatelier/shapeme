@@ -9,6 +9,17 @@ import { PhotoSlotButton } from "./PhotoSlotButton";
 
 const additionalSlots: BodyPhotoSlot[] = ["side", "back", "full"];
 
+/** Generic reference pose per slot, used as the live-camera overlay only for
+ * a slot's very first-ever photo (before any previousImageUrl exists). Back
+ * has no reference photo yet, so it reuses front's — placeholder until a
+ * real back-pose reference is supplied. */
+const GUIDE_IMAGE_BY_SLOT: Record<BodyPhotoSlot, string> = {
+  front: "/body-guides/front.webp",
+  side: "/body-guides/side.webp",
+  back: "/body-guides/back.webp",
+  full: "/body-guides/full.webp",
+};
+
 function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
   return !!entry?.side || !!entry?.back || !!entry?.full;
 }
@@ -83,6 +94,7 @@ export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
             filled={!!entry?.front}
             imageUrl={entry?.frontImageUrl}
             previousImageUrl={previousImageUrlFor(entries, selectedDate, "front")}
+            guideImageUrl={GUIDE_IMAGE_BY_SLOT.front}
             emptyVariant="cta"
           />
         </div>
@@ -98,6 +110,7 @@ export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
                   filled={!!entry?.[slot]}
                   imageUrl={imageUrlFor(entry, slot)}
                   previousImageUrl={previousImageUrlFor(entries, selectedDate, slot)}
+                  guideImageUrl={GUIDE_IMAGE_BY_SLOT[slot]}
                 />
               ))}
             </div>

@@ -33,6 +33,7 @@ export function PhotoSlotButton({
   filled,
   imageUrl,
   previousImageUrl,
+  guideImageUrl,
   emptyVariant = "tile",
 }: {
   slot: BodyPhotoSlot;
@@ -42,6 +43,9 @@ export function PhotoSlotButton({
   /** Most recent other entry's photo for this same slot, if any — enables
    * the live-camera overlay and the gallery-pick alignment review. */
   previousImageUrl?: string;
+  /** Generic reference pose for this slot, used as the overlay only when
+   * there's no previousImageUrl yet (this slot's very first photo). */
+  guideImageUrl?: string;
   emptyVariant?: "tile" | "cta";
 }) {
   const router = useRouter();
@@ -86,7 +90,7 @@ export function PhotoSlotButton({
 
   function onGalleryFileSelected(file: File | undefined) {
     if (!file) return;
-    if (previousImageUrl) {
+    if (previousImageUrl || guideImageUrl) {
       setPendingFile(file);
       setPendingPreview(URL.createObjectURL(file));
     } else {
@@ -137,6 +141,7 @@ export function PhotoSlotButton({
   const camera = cameraOpen && (
     <LiveCameraCapture
       previousImageUrl={previousImageUrl}
+      guideImageUrl={guideImageUrl}
       onCapture={handleLiveCapture}
       onCancel={() => setCameraOpen(false)}
       onUseGalleryInstead={openGallery}
@@ -148,6 +153,7 @@ export function PhotoSlotButton({
   // stacking context; a fixed-position child in there can never out-rank
   // BottomNav (a sibling of .app-content, not a descendant) no matter its
   // own z-index. See LiveCameraCapture's version of this same fix.
+  const reviewOverlaySource = previousImageUrl ?? guideImageUrl;
   const reviewOverlay = pendingPreview &&
     createPortal(
       <div
@@ -158,10 +164,10 @@ export function PhotoSlotButton({
         <div className="relative aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-[var(--radius-lg)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={pendingPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          {previousImageUrl && (
+          {reviewOverlaySource && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={previousImageUrl}
+              src={reviewOverlaySource}
               alt=""
               className="absolute inset-0 h-full w-full object-cover opacity-45"
             />

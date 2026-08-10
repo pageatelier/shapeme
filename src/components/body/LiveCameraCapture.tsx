@@ -11,10 +11,18 @@ import { bodyCopy } from "@/lib/copy/body";
 const FIXED_ZOOM = 2;
 
 /**
- * In-app live camera view (getUserMedia + <video>), so the previous shot for
- * this slot can be overlaid semi-transparently ON the live feed while
- * framing the new one — the OS's own camera app (the alternative, via a
- * plain <input type="file">) gives web pages no way to draw on top of it.
+ * In-app live camera view (getUserMedia + <video>), so a reference image can
+ * be overlaid semi-transparently ON the live feed while framing the new shot
+ * — the OS's own camera app (the alternative, via a plain
+ * `<input type="file">`) gives web pages no way to draw on top of it.
+ *
+ * The overlay source depends on what's available: `previousImageUrl` (the
+ * user's own last shot in this slot) when there is one; otherwise
+ * `guideImageUrl` (a generic reference pose) for a first-ever shot. A real
+ * previous photo is the more useful guide once it exists, so it's shown by
+ * default but can be hidden; the generic guide is the only thing a
+ * first-time shot has to line up against, so it's forced on with no toggle.
+ *
  * "Choose from library" always stays reachable (permission denial, no
  * camera, unsupported browser) via `onUseGalleryInstead`.
  *
@@ -27,11 +35,13 @@ const FIXED_ZOOM = 2;
  */
 export function LiveCameraCapture({
   previousImageUrl,
+  guideImageUrl,
   onCapture,
   onCancel,
   onUseGalleryInstead,
 }: {
   previousImageUrl?: string;
+  guideImageUrl?: string;
   onCapture: (file: File) => void;
   onCancel: () => void;
   onUseGalleryInstead: () => void;
@@ -43,6 +53,14 @@ export function LiveCameraCapture({
   const cameraSupported =
     typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
   const [error, setError] = useState<string | null>(cameraSupported ? null : bodyCopy.camera.unsupported);
+
+  const overlayUrl = previousImageUrl ?? guideImageUrl;
+  // No own photo yet, only the generic guide — that's the only reference a
+  // first-ever shot has, so it stays on rather than being an easy-to-miss
+  // toggle. Once there's a real previous shot, showing it defaults on too
+  // (most useful case) but can be hidden.
+  const [showOverlay, setShowOverlay] = useState(true);
+  const overlayForced = !previousImageUrl;
 
   useEffect(() => {
     if (!cameraSupported) return;
@@ -123,15 +141,27 @@ export function LiveCameraCapture({
         >
           <CloseIcon className="h-4 w-4 text-white" />
         </button>
-        <button
-          type="button"
-          onClick={() => setFacingMode((f) => (f === "environment" ? "user" : "environment"))}
-          aria-label={bodyCopy.camera.flip}
-          className="flex h-9 w-9 items-center justify-center rounded-full"
-          style={{ background: "rgba(255,255,255,0.15)" }}
-        >
-          <FlipCameraIcon className="h-4 w-4 text-white" />
-        </button>
+        <div className="flex items-center gap-2">
+          {overlayUrl && !overlayForced && (
+            <button
+              type="button"
+              onClick={() => setShowOverlay((v) => !v)}
+              className="rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
+              style={{ background: "rgba(255,255,255,0.15)" }}
+            >
+              {showOverlay ? bodyCopy.camera.hideGuide : bodyCopy.camera.showGuide}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setFacingMode((f) => (f === "environment" ? "user" : "environment"))}
+            aria-label={bodyCopy.camera.flip}
+            className="flex h-9 w-9 items-center justify-center rounded-full"
+            style={{ background: "rgba(255,255,255,0.15)" }}
+          >
+            <FlipCameraIcon className="h-4 w-4 text-white" />
+          </button>
+        </div>
       </div>
 
       <div className="relative flex-1 overflow-hidden">
@@ -143,10 +173,10 @@ export function LiveCameraCapture({
           className="absolute inset-0 h-full w-full object-cover"
           style={{ transform: `${facingMode === "user" ? "scaleX(-1) " : ""}scale(${FIXED_ZOOM})` }}
         />
-        {previousImageUrl && ready && (
+        {overlayUrl && ready && (overlayForced || showOverlay) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={previousImageUrl}
+            src={overlayUrl}
             alt=""
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
           />
@@ -154,7 +184,11 @@ export function LiveCameraCapture({
 
         {!error && (
           <p className="pointer-events-none absolute top-3 left-1/2 max-w-[80%] -translate-x-1/2 text-center text-[11px] leading-relaxed text-white/80">
-            {ready ? bodyCopy.camera.hint : bodyCopy.camera.starting}
+            {!ready
+              ? bodyCopy.camera.starting
+              : previousImageUrl
+                ? bodyCopy.camera.hint
+                : bodyCopy.camera.guideHint}
           </p>
         )}
 

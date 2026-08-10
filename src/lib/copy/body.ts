@@ -65,12 +65,15 @@ export const bodyCopy = {
   },
   camera: {
     hint: "Line up with the faint overlay of your last shot.",
+    guideHint: "Line up with the pose guide.",
     permissionError: "Couldn't access your camera. You can still choose a photo from your library.",
     unsupported: "Live camera isn't available here — choose a photo instead.",
     gallery: "Choose from library",
     flip: "Flip camera",
     close: "Close",
     starting: "Starting camera...",
+    showGuide: "Show guide",
+    hideGuide: "Hide guide",
   },
   loading: "Loading...",
 } as const;
