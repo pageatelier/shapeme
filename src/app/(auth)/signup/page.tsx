@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -37,66 +38,96 @@ export default function SignupPage() {
     }
   }
 
-  if (checkEmail) {
-    return (
-      <div className="glass-card flex flex-col items-center gap-3 p-8 text-center">
-        <p className="text-[15px] font-bold text-text-primary">이메일을 확인해주세요</p>
-        <p className="text-[13px] leading-relaxed text-text-secondary">
-          {email}로 인증 링크를 보냈어요. 링크를 눌러 가입을 완료해주세요.
-        </p>
-        <Link href="/login" className="mt-2 text-[13px] font-semibold text-pink-500">
-          로그인으로 돌아가기
-        </Link>
-      </div>
-    );
-  }
-
+  // Same treatment as the login page (same background photo, same
+  // bottom-anchored logo+tagline+card group) — see LoginForm.tsx for the
+  // reasoning behind each piece (fixed-not-absolute background sizing,
+  // the negative-z-index stacking-context note, the card's 87% alpha).
   return (
-    <div className="flex flex-col gap-6">
+    <div className="relative mt-auto flex flex-col gap-4">
+      <div className="pointer-events-none fixed inset-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2">
+        <Image
+          src="/login-bg.webp"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 480px) 100vw, 480px"
+          className="object-cover"
+          style={{ objectPosition: "center 20%" }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(33,31,28,0.1) 0%, rgba(33,31,28,0.55) 55%, rgba(33,31,28,0.88) 100%)",
+          }}
+        />
+      </div>
+
       <div className="text-center">
-        <BrandLogo className="mb-2" />
-        <p className="text-[13px] text-text-secondary">
-          운동, 식단, 물, 눈바디를 한곳에서 기록해보세요.
+        <BrandLogo className="mb-2" light />
+        <p className="text-[13px] leading-relaxed text-white/80">
+          Shape your body.
+          <br />
+          On your terms.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card flex flex-col gap-4 p-6">
-        <AuthField
-          label="이메일"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <AuthField
-          label="비밀번호"
-          type="password"
-          autoComplete="new-password"
-          minLength={6}
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        {error && <p className="text-[13px] text-error">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+      {checkEmail ? (
+        <div
+          className="glass-card flex flex-col items-center gap-3 p-6 text-center"
+          style={{ background: "rgba(251, 250, 247, 0.87)" }}
         >
-          {loading ? "가입 중..." : "회원가입"}
-        </button>
-      </form>
+          <p className="text-[15px] font-bold text-text-primary">Check your email</p>
+          <p className="text-[13px] leading-relaxed text-text-secondary">
+            We sent a confirmation link to {email}. Follow it to finish creating your account.
+          </p>
+          <Link href="/login" className="mt-2 text-[13px] font-semibold text-pink-500">
+            Back to log in
+          </Link>
+        </div>
+      ) : (
+        <form
+          onSubmit={handleSubmit}
+          className="glass-card flex flex-col gap-2 p-4"
+          style={{ background: "rgba(251, 250, 247, 0.87)" }}
+        >
+          <AuthField
+            label="Email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <AuthField
+            label="Password"
+            type="password"
+            autoComplete="new-password"
+            minLength={6}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-      <p className="text-center text-[13px] text-text-secondary">
-        이미 계정이 있으신가요?{" "}
-        <Link href="/login" className="font-semibold text-pink-500">
-          로그인
-        </Link>
-      </p>
+          {error && <p className="text-[13px] text-error">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
+            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+          >
+            {loading ? "Creating account..." : "Sign up"}
+          </button>
+
+          <p className="mt-3 text-center text-[13px] text-text-secondary">
+            Already have an account?{" "}
+            <Link href="/login" className="font-semibold text-pink-500">
+              Log in
+            </Link>
+          </p>
+        </form>
+      )}
     </div>
   );
 }

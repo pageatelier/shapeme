@@ -183,7 +183,7 @@ export function LiveCameraCapture({
           className="absolute inset-0 h-full w-full object-cover"
           style={{ transform: `${facingMode === "user" ? "scaleX(-1) " : ""}scale(${zoom})` }}
         />
-        {overlayUrl && ready && (overlayForced || showOverlay) && (
+        {overlayUrl && (overlayForced || showOverlay) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={overlayUrl}

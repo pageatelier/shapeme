@@ -121,8 +121,10 @@ export function LoginForm() {
         </button>
 
         {/* Inside the card (not floating below it) so a short viewport
-            can't clip it off-screen underneath the now-lower-anchored box. */}
-        <p className="text-center text-[13px] text-text-secondary">
+            can't clip it off-screen underneath the now-lower-anchored box.
+            mt-3 on top of the form's own gap-2 — flush against the button
+            read as if it belonged to it rather than being a separate link. */}
+        <p className="mt-3 text-center text-[13px] text-text-secondary">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="font-semibold text-pink-500">
             Sign up
