@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { DailyMemo } from "@/components/DailyMemo";
 import { HomeMealGrid } from "@/components/HomeMealGrid";
+import { HomeWaterCard } from "@/components/HomeWaterCard";
 import { CheckIcon, ChevronRightIcon, HourglassIcon } from "@/components/icons";
+import { WaterGoalEditor } from "@/components/WaterGoalEditor";
 import { getRoutineDayDetailsSafe } from "@/lib/aiRoutine/queries";
 import { isoDateInTimeZone, weekdayIndex } from "@/lib/body/date";
 import { todayCopy } from "@/lib/copy/today";
@@ -102,21 +104,18 @@ export default async function TodayPage() {
   const cupsCurrent = Math.round(water.totalMl / settings.cupMl);
   const cupsGoal = Math.round(settings.waterGoalMl / settings.cupMl);
 
-  // "Today's Focus" hero — the AI routine's own title when today has one,
-  // otherwise the scheduled strength routine(s)' name(s), otherwise a
-  // genuine rest day.
+  // "Today's Focus" hero — the scheduled routine's own name always leads
+  // (that's what the user actually called it in Move), with the AI day
+  // detail's estimated minutes folded into the subtitle when one exists,
+  // rather than the AI's generic day-title silently replacing the name.
   const focusDetail = todayAiRoutine?.detail;
-  const focusTitle = focusDetail
-    ? focusDetail.title
-    : todayRoutines.length > 0
-      ? todayRoutines.map((r) => r.name).join(", ")
-      : todayCopy.focus.restTitle;
-  const focusSubtitle = focusDetail
-    ? focusDetail.estimatedMinutes != null
-      ? todayCopy.focus.minutes(focusDetail.estimatedMinutes)
-      : todayCopy.focus.exerciseCount(todayExercises.length)
-    : todayRoutines.length > 0
-      ? todayCopy.focus.exerciseCount(todayExercises.length)
+  const focusTitle =
+    todayRoutines.length > 0 ? todayRoutines.map((r) => r.name).join(", ") : todayCopy.focus.restTitle;
+  const focusSubtitle =
+    todayRoutines.length > 0
+      ? focusDetail?.estimatedMinutes != null
+        ? todayCopy.focus.minutes(focusDetail.estimatedMinutes)
+        : todayCopy.focus.exerciseCount(todayExercises.length)
       : todayCopy.focus.restSubtitle;
 
   return (
@@ -208,14 +207,14 @@ export default async function TodayPage() {
           </div>
         )}
         {settings.waterTrackingEnabled && (
-          <Link href="/water" className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1">
             <span className="font-en text-[9px] font-semibold tracking-[0.1em] text-text-muted">
               {todayCopy.stats.water}
             </span>
             <span className="font-en text-base font-semibold text-text-primary">
               {cupsCurrent} / {cupsGoal}
             </span>
-          </Link>
+          </div>
         )}
       </div>
 
@@ -228,6 +227,19 @@ export default async function TodayPage() {
             </Link>
           </div>
           <HomeMealGrid meals={meals} />
+        </section>
+      )}
+
+      {settings.waterTrackingEnabled && (
+        <section>
+          <WaterGoalEditor waterGoalMl={settings.waterGoalMl} cupMl={settings.cupMl} />
+          <HomeWaterCard
+            date={todayIso}
+            entries={water.entries}
+            totalMl={water.totalMl}
+            goalMl={settings.waterGoalMl}
+            cupMl={settings.cupMl}
+          />
         </section>
       )}
 
