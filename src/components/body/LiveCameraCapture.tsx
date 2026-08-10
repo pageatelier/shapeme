@@ -68,7 +68,16 @@ export function LiveCameraCapture({
     let cancelled = false;
 
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode }, audio: false })
+      // Without an explicit resolution hint, browsers commonly default the
+      // stream to something low (e.g. 640x480) — and since capture() then
+      // crops that down further for the 2x zoom, the saved photo ends up
+      // far blurrier than the device's camera is capable of. `ideal` (not
+      // `min`) lets it gracefully fall back on devices/cameras that can't
+      // hit 1920.
+      .getUserMedia({
+        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1920 } },
+        audio: false,
+      })
       .then((stream) => {
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
