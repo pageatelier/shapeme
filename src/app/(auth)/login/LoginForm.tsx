@@ -78,16 +78,20 @@ export function LoginForm() {
         </p>
       </div>
 
-      {/* mt-10 (40px, within the requested 32-48px range) on top of the
-          gap-6 the flex column already gives every child — nudges just this
-          box further down without moving the logo/tagline above it. Opaque
-          card background swaps .glass-card's fully-solid var(--glass-background)
-          for the same color at 90% alpha: enough to let a hint of the photo
-          through without the text turning illegible (below ~88% it does). */}
+      {/* mt-[88px]: the previous mt-10 (40px) plus another ~48px, landing in
+          the requested 40-56px-further range — pushes the card down enough
+          that the photo's midsection (chest to waist) stays uncovered.
+          Padding/gap trimmed from p-6/gap-4 to p-4/gap-2 (saves ~16px+16px
+          ≈ 30px of card height) so the shorter card needs less room without
+          cramping the fields themselves (AuthField's own label-input gap is
+          untouched). Opaque card background swaps .glass-card's fully-solid
+          var(--glass-background) for the same color at 87% alpha — low
+          enough to let the silhouette show through, not so low the text
+          over it gets noisy. */}
       <form
         onSubmit={handleSubmit}
-        className="glass-card mt-10 flex flex-col gap-4 p-6"
-        style={{ background: "rgba(251, 250, 247, 0.9)" }}
+        className="glass-card mt-[88px] flex flex-col gap-2 p-4"
+        style={{ background: "rgba(251, 250, 247, 0.87)" }}
       >
         <AuthField
           label="Email"
@@ -116,14 +120,16 @@ export function LoginForm() {
         >
           {loading ? "Signing in..." : "Log in"}
         </button>
-      </form>
 
-      <p className="text-center text-[13px] text-white/80">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-white">
-          Sign up
-        </Link>
-      </p>
+        {/* Inside the card (not floating below it) so a short viewport
+            can't clip it off-screen underneath the now-lower-anchored box. */}
+        <p className="text-center text-[13px] text-text-secondary">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-semibold text-pink-500">
+            Sign up
+          </Link>
+        </p>
+      </form>
     </div>
   );
 }

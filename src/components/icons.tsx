@@ -179,15 +179,18 @@ export function NoteIcon({ className }: IconProps) {
   );
 }
 
-/** The actual brand mark (matches public/icons/icon-192.png, the PWA/app
- * icon) — a smooth pinched hourglass silhouette, filled rather than
- * stroked. Used next to the "shapeme" wordmark in BrandLogo. currentColor
- * so it follows the wordmark's own color (white on a photo background,
- * espresso ink elsewhere) instead of needing separate light/dark assets. */
+/** The actual brand mark (matches public/icons/icon-512.png, the PWA/app
+ * icon) — a pinched hourglass silhouette, filled rather than stroked. The
+ * outline is traced from the source PNG's pixel data (sampled at 41
+ * scanlines, mapped into this 24x24 viewBox) rather than hand-drawn, so it
+ * reproduces the real mark's curve instead of an approximation. Used next
+ * to the "shapeme" wordmark in BrandLogo. currentColor so it follows the
+ * wordmark's own color (white on a photo background, espresso ink
+ * elsewhere) instead of needing separate light/dark assets. */
 export function BrandMarkIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M4 4 L20 4 C20 9 16 10 12 12 C16 14 20 15 20 20 L4 20 C4 15 8 14 12 12 C8 10 4 9 4 4 Z" />
+      <path d="M2,2 L22,2 L20.59,2.5 L19.5,3 L18.52,3.5 L17.65,4 L16.89,4.5 L16.24,5 L15.7,5.5 L15.15,6 L14.61,6.5 L14.28,7 L13.85,7.5 L13.52,8 L13.2,8.5 L12.98,9 L12.76,9.5 L12.54,10 L12.43,10.5 L12.33,11 L12.22,11.5 L12.11,12 L12.22,12.5 L12.22,13 L12.33,13.5 L12.54,14 L12.65,14.5 L12.87,15 L13.2,15.5 L13.52,16 L13.85,16.5 L14.28,17 L14.61,17.5 L15.15,18 L15.7,18.5 L16.24,19 L16.89,19.5 L17.65,20 L18.41,20.5 L19.39,21 L20.48,21.5 L21.78,22 L2.22,22 L3.63,21.5 L4.72,21 L5.7,20.5 L6.46,20 L7.22,19.5 L7.76,19 L8.41,18.5 L8.85,18 L9.39,17.5 L9.72,17 L10.15,16.5 L10.48,16 L10.8,15.5 L11.13,15 L11.35,14.5 L11.46,14 L11.67,13.5 L11.78,13 L11.78,12.5 L11.89,12 L11.78,11.5 L11.78,11 L11.57,10.5 L11.46,10 L11.24,9.5 L11.02,9 L10.8,8.5 L10.48,8 L10.15,7.5 L9.72,7 L9.28,6.5 L8.85,6 L8.3,5.5 L7.65,5 L7.11,4.5 L6.35,4 L5.48,3.5 L4.5,3 L3.41,2.5 Z" />
     </svg>
   );
 }
