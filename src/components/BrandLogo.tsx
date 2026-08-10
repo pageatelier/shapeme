@@ -1,18 +1,22 @@
 /**
- * The "shapeme" wordmark — the only place Cormorant Garamond is used in the
+ * The "SHAPEME" wordmark — the only place Cormorant Garamond is used in the
  * app (see --font-cormorant in globals.css / layout.tsx). Every other piece
  * of English UI text keeps --font-en (Instrument Sans).
  *
- * Tracking is looser than the old Instrument Sans wordmark's -0.055em —
- * that value was tuned for a geometric sans and made this serif's letterforms
- * collide, so it's backed off to -0.02em here.
+ * Uppercase tracks looser (+0.02em) than the lowercase version did — capital
+ * serif letterforms don't have descenders/ascenders to collide, so opening
+ * the tracking up (rather than the lowercase version's tightened -0.02em)
+ * reads as editorial rather than cramped.
  */
-export function BrandLogo({ className = "" }: { className?: string }) {
+import { BrandMarkIcon } from "@/components/icons";
+
+export function BrandLogo({ className = "", light = false }: { className?: string; light?: boolean }) {
   return (
-    <p
-      className={`font-cormorant text-2xl font-semibold tracking-[-0.02em] whitespace-nowrap text-text-primary lowercase ${className}`}
-    >
-      shapeme
-    </p>
+    <span className={`inline-flex items-center gap-1.5 ${light ? "text-white" : "text-text-primary"} ${className}`}>
+      <BrandMarkIcon className="h-[0.8em] w-[0.8em]" />
+      <p className="font-cormorant text-2xl font-semibold tracking-[0.02em] whitespace-nowrap uppercase">
+        shapeme
+      </p>
+    </span>
   );
 }

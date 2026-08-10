@@ -179,6 +179,19 @@ export function NoteIcon({ className }: IconProps) {
   );
 }
 
+/** The actual brand mark (matches public/icons/icon-192.png, the PWA/app
+ * icon) — a smooth pinched hourglass silhouette, filled rather than
+ * stroked. Used next to the "shapeme" wordmark in BrandLogo. currentColor
+ * so it follows the wordmark's own color (white on a photo background,
+ * espresso ink elsewhere) instead of needing separate light/dark assets. */
+export function BrandMarkIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 4 L20 4 C20 9 16 10 12 12 C16 14 20 15 20 20 L4 20 C4 15 8 14 12 12 C8 10 4 9 4 4 Z" />
+    </svg>
+  );
+}
+
 /** Nav icon for Body — an hourglass, echoing the app's brand mark, standing
  * in for "watch your body change over time" better than a literal camera. */
 export function HourglassIcon({ className }: IconProps) {
