@@ -9,7 +9,7 @@ import { formatDateLabelWithYear } from "@/lib/body/date";
 import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 
-const slots: BodyPhotoSlot[] = ["front", "side", "back"];
+const slots: BodyPhotoSlot[] = ["front", "side", "back", "full"];
 
 export function BodyCompare({
   entries,
@@ -53,7 +53,7 @@ export function BodyCompare({
         <WeekSelect value={rightDate} onChange={setRightDate} entries={sorted} weekByDate={weekByDate} />
       </div>
 
-      <div className="flex gap-1.5">
+      <div className="flex flex-wrap gap-1.5">
         {slots.map((slot) => (
           <button
             key={slot}
@@ -117,7 +117,13 @@ function EntryCaption({ entry, week }: { entry: BodyEntry | undefined; week: num
 function ComparePane({ entry, slot }: { entry: BodyEntry | undefined; slot: BodyPhotoSlot }) {
   const filled = !!entry?.[slot];
   const imageUrl =
-    slot === "front" ? entry?.frontImageUrl : slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl;
+    slot === "front"
+      ? entry?.frontImageUrl
+      : slot === "side"
+        ? entry?.sideImageUrl
+        : slot === "back"
+          ? entry?.backImageUrl
+          : entry?.fullImageUrl;
 
   return (
     <div

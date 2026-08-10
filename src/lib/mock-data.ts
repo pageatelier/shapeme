@@ -169,6 +169,7 @@ export const bodyEntries: BodyEntry[] = [
     front: true,
     side: true,
     back: false,
+    full: false,
   },
   {
     date: "2026-07-28",
@@ -176,6 +177,7 @@ export const bodyEntries: BodyEntry[] = [
     front: true,
     side: true,
     back: true,
+    full: false,
     memo: "3면 모두 기록 완료",
   },
   {
@@ -184,6 +186,7 @@ export const bodyEntries: BodyEntry[] = [
     front: true,
     side: true,
     back: false,
+    full: false,
   },
   {
     date: TODAY_ISO,
@@ -191,6 +194,7 @@ export const bodyEntries: BodyEntry[] = [
     front: true,
     side: false,
     back: false,
+    full: false,
   },
 ];
 

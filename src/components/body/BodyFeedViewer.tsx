@@ -11,16 +11,17 @@ import { deleteBodyPhoto } from "@/lib/body/upload";
 import { primarySlot, SLOT_LABELS } from "@/lib/body/types";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 
-const SLOT_ORDER: BodyPhotoSlot[] = ["front", "side", "back"];
+const SLOT_ORDER: BodyPhotoSlot[] = ["front", "side", "back", "full"];
 
 function urlForSlot(entry: BodyEntry, slot: BodyPhotoSlot): string | undefined {
   if (slot === "front") return entry.frontImageUrl;
   if (slot === "side") return entry.sideImageUrl;
-  return entry.backImageUrl;
+  if (slot === "back") return entry.backImageUrl;
+  return entry.fullImageUrl;
 }
 
-/** Front → side → back, filtered to whichever slots actually have a photo —
- * the order the swipe carousel presents them in. */
+/** Front → side → back → full, filtered to whichever slots actually have a
+ * photo — the order the swipe carousel presents them in. */
 function availableSlots(entry: BodyEntry): { slot: BodyPhotoSlot; url: string }[] {
   return SLOT_ORDER.map((slot) => ({ slot, url: urlForSlot(entry, slot) })).filter(
     (s): s is { slot: BodyPhotoSlot; url: string } => !!s.url,

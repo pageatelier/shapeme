@@ -9,11 +9,18 @@ import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 
 /**
- * One Front/Side/Back slot: tap it (or "Choose photo") to open the OS's
- * native picker, which offers both "take a photo" and "choose from library"
- * — no `capture` attribute here on purpose, since that forces the camera
- * open directly and hides the gallery/upload option. Uploads immediately on
- * selection via uploadBodyPhoto and refreshes the page's server data.
+ * One Front/Side/Back/Full slot: tap it (or "Choose photo") to open the
+ * OS's native picker, which offers both "take a photo" and "choose from
+ * library" — no `capture` attribute here on purpose, since that forces the
+ * camera open directly and hides the gallery/upload option.
+ *
+ * When `previousImageUrl` is given (there's an earlier photo in this same
+ * slot to compare against), a newly picked file doesn't upload right away —
+ * it first shows a review overlay with the previous shot layered faintly on
+ * top, so the user can check alignment before committing (retake if it's
+ * off) rather than only finding out after the fact on the Compare tab. The
+ * very first photo in a slot has nothing to compare against, so it uploads
+ * immediately like before.
  *
  * `emptyVariant="cta"` swaps the not-yet-filled state for a bigger inviting
  * card (BodyCapture's front slot) instead of the small dashed tile every
@@ -25,12 +32,16 @@ export function PhotoSlotButton({
   date,
   filled,
   imageUrl,
+  previousImageUrl,
   emptyVariant = "tile",
 }: {
   slot: BodyPhotoSlot;
   date: string;
   filled: boolean;
   imageUrl?: string;
+  /** Most recent other entry's photo for this same slot, if any — enables
+   * the pre-upload alignment review. */
+  previousImageUrl?: string;
   emptyVariant?: "tile" | "cta";
 }) {
   const router = useRouter();
@@ -41,9 +52,10 @@ export function PhotoSlotButton({
   const [error, setError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
+  async function upload(file: File) {
     const localUrl = URL.createObjectURL(file);
     setPreview(localUrl);
     setIsFilled(true);
@@ -57,6 +69,30 @@ export function PhotoSlotButton({
     } finally {
       setUploading(false);
     }
+  }
+
+  function onFileSelected(file: File | undefined) {
+    if (!file) return;
+    if (previousImageUrl) {
+      setPendingFile(file);
+      setPendingPreview(URL.createObjectURL(file));
+    } else {
+      upload(file);
+    }
+  }
+
+  function confirmPending() {
+    if (!pendingFile) return;
+    const file = pendingFile;
+    setPendingFile(null);
+    setPendingPreview(null);
+    upload(file);
+  }
+
+  function retake() {
+    setPendingFile(null);
+    setPendingPreview(null);
+    inputRef.current?.click();
   }
 
   async function handleDelete() {
@@ -76,7 +112,55 @@ export function PhotoSlotButton({
   }
 
   const input = (
-    <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => onFileSelected(e.target.files?.[0])}
+    />
+  );
+
+  const reviewOverlay = pendingPreview && (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 p-6"
+      style={{ background: "rgba(33, 31, 28, 0.92)" }}
+    >
+      <p className="text-[13px] font-semibold text-white">{bodyCopy.slot.compareTitle}</p>
+      <div className="relative aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-[var(--radius-lg)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={pendingPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        {previousImageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={previousImageUrl}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-45"
+          />
+        )}
+      </div>
+      <p className="max-w-[260px] text-center text-[11px] leading-relaxed text-white/70">
+        {bodyCopy.slot.compareHint}
+      </p>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={retake}
+          className="rounded-full px-5 py-2.5 text-[12px] font-semibold text-white"
+          style={{ border: "1px solid rgba(255,255,255,0.3)" }}
+        >
+          {bodyCopy.slot.retake}
+        </button>
+        <button
+          type="button"
+          onClick={confirmPending}
+          className="rounded-full px-5 py-2.5 text-[12px] font-semibold"
+          style={{ background: "var(--color-accent)", color: "var(--color-ink)" }}
+        >
+          {bodyCopy.slot.usePhoto}
+        </button>
+      </div>
+    </div>
   );
 
   if (!isFilled && emptyVariant === "cta") {
@@ -103,6 +187,7 @@ export function PhotoSlotButton({
         </button>
         {input}
         {error && <span className="text-center text-[10px] text-error">{error}</span>}
+        {reviewOverlay}
       </div>
     );
   }
@@ -174,6 +259,7 @@ export function PhotoSlotButton({
         </div>
       )}
       {error && <span className="text-center text-[10px] text-error">{error}</span>}
+      {reviewOverlay}
     </div>
   );
 }

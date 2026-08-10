@@ -36,6 +36,10 @@ export const bodyCopy = {
     saving: "Saving...",
     uploadError: "Upload failed.",
     deleteError: "Delete failed.",
+    compareTitle: "Match your last shot",
+    compareHint: "The faint overlay is your last photo in this slot — line up before saving.",
+    retake: "Retake",
+    usePhoto: "Use this photo",
   },
   pastShapes: {
     title: "PAST SHAPES",

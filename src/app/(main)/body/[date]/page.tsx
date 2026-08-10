@@ -7,7 +7,7 @@ import { SLOT_LABELS } from "@/lib/body/types";
 import type { BodyPhotoSlot } from "@/lib/body/types";
 import { getCurrentUser } from "@/lib/supabase/server";
 
-const slots: BodyPhotoSlot[] = ["front", "side", "back"];
+const slots: BodyPhotoSlot[] = ["front", "side", "back", "full"];
 
 export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]">) {
   const { date } = await props.params;
@@ -32,11 +32,17 @@ export default async function BodyEntryDetailPage(props: PageProps<"/body/[date]
       </div>
 
       <div className="glass-card flex flex-col gap-4 p-5">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-2">
           {slots.map((slot) => {
             const filled = entry[slot];
             const imageUrl =
-              slot === "front" ? entry.frontImageUrl : slot === "side" ? entry.sideImageUrl : entry.backImageUrl;
+              slot === "front"
+                ? entry.frontImageUrl
+                : slot === "side"
+                  ? entry.sideImageUrl
+                  : slot === "back"
+                    ? entry.backImageUrl
+                    : entry.fullImageUrl;
             return (
               <div key={slot} className="flex flex-col items-center gap-2">
                 <div

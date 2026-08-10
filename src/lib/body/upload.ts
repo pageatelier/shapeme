@@ -5,10 +5,11 @@ import type { BodyPhotoSlot } from "./types";
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
-const slotColumn: Record<BodyPhotoSlot, "front_image" | "side_image" | "back_image"> = {
+const slotColumn: Record<BodyPhotoSlot, "front_image" | "side_image" | "back_image" | "full_body_image"> = {
   front: "front_image",
   side: "side_image",
   back: "back_image",
+  full: "full_body_image",
 };
 
 function extensionFor(file: File) {

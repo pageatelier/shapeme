@@ -7,17 +7,34 @@ import { todayIsoDate } from "@/lib/body/date";
 import type { BodyEntry, BodyPhotoSlot } from "@/lib/body/types";
 import { PhotoSlotButton } from "./PhotoSlotButton";
 
-const additionalSlots: BodyPhotoSlot[] = ["side", "back"];
+const additionalSlots: BodyPhotoSlot[] = ["side", "back", "full"];
 
 function hasAdditionalAngles(entry: BodyEntry | null | undefined) {
-  return !!entry?.side || !!entry?.back;
+  return !!entry?.side || !!entry?.back || !!entry?.full;
+}
+
+function imageUrlFor(entry: BodyEntry | null, slot: BodyPhotoSlot): string | undefined {
+  if (slot === "side") return entry?.sideImageUrl;
+  if (slot === "back") return entry?.backImageUrl;
+  if (slot === "full") return entry?.fullImageUrl;
+  return entry?.frontImageUrl;
+}
+
+/** Most recent OTHER entry's photo for this slot (excluding `date` itself)
+ * — what a newly picked photo gets compared against before it uploads, so
+ * the two shots line up for later side-by-side comparison. */
+function previousImageUrlFor(entries: BodyEntry[], date: string, slot: BodyPhotoSlot): string | undefined {
+  const prior = entries
+    .filter((e) => e.date !== date && e[slot])
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
+  return prior ? imageUrlFor(prior, slot) : undefined;
 }
 
 /**
  * Capture UI for one day's photo(s). Only the front/primary slot is
- * required — side and back are optional extra angles, revealed via "Add
- * another angle", auto-expanded if that day already has either saved (so
- * returning to an already-multi-angle day doesn't hide them). The front
+ * required — side, back, and full body are optional extra angles, revealed
+ * via "Add another angle", auto-expanded if that day already has any saved
+ * (so returning to an already-multi-angle day doesn't hide them). The front
  * slot uses PhotoSlotButton's "cta" empty state (big "Take your Shape
  * Shot" card) instead of the small tile every other slot uses.
  */
@@ -60,20 +77,22 @@ export function BodyCapture({ entries }: { entries: BodyEntry[] }) {
             date={selectedDate}
             filled={!!entry?.front}
             imageUrl={entry?.frontImageUrl}
+            previousImageUrl={previousImageUrlFor(entries, selectedDate, "front")}
             emptyVariant="cta"
           />
         </div>
 
         {showMore ? (
           <>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {additionalSlots.map((slot) => (
                 <PhotoSlotButton
                   key={slot}
                   slot={slot}
                   date={selectedDate}
                   filled={!!entry?.[slot]}
-                  imageUrl={slot === "side" ? entry?.sideImageUrl : entry?.backImageUrl}
+                  imageUrl={imageUrlFor(entry, slot)}
+                  previousImageUrl={previousImageUrlFor(entries, selectedDate, slot)}
                 />
               ))}
             </div>
