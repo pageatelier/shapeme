@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CloseIcon, FlipCameraIcon } from "@/components/icons";
 import { bodyCopy } from "@/lib/copy/body";
+
+const ZOOM_LEVELS = [1, 1.5, 2] as const;
 
 /**
  * In-app live camera view (getUserMedia + <video>), so the previous shot for
@@ -11,6 +14,13 @@ import { bodyCopy } from "@/lib/copy/body";
  * plain <input type="file">) gives web pages no way to draw on top of it.
  * "Choose from library" always stays reachable (permission denial, no
  * camera, unsupported browser) via `onUseGalleryInstead`.
+ *
+ * Rendered through a portal straight to `document.body` — PhotoSlotButton
+ * lives inside `.app-content`, which sets its own `z-index`/`position` and
+ * so creates a stacking context; a `position: fixed` element nested inside
+ * it can never out-rank BottomNav (a sibling of `.app-content`, not a
+ * descendant) no matter how high its own z-index goes. Escaping to
+ * `document.body` sidesteps that entirely.
  */
 export function LiveCameraCapture({
   previousImageUrl,
@@ -26,6 +36,7 @@ export function LiveCameraCapture({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+  const [zoom, setZoom] = useState<(typeof ZOOM_LEVELS)[number]>(1);
   const [ready, setReady] = useState(false);
   const cameraSupported =
     typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
@@ -66,11 +77,17 @@ export function LiveCameraCapture({
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) return;
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Crop to match what the zoomed preview shows — otherwise a "2x" shot
+    // would upload the full, un-zoomed frame.
+    const cropWidth = video.videoWidth / zoom;
+    const cropHeight = video.videoHeight / zoom;
+    const sx = (video.videoWidth - cropWidth) / 2;
+    const sy = (video.videoHeight - cropHeight) / 2;
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, sx, sy, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -81,7 +98,7 @@ export function LiveCameraCapture({
     );
   }
 
-  return (
+  const view = (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#000" }}>
       <div
         className="flex shrink-0 items-center justify-between px-4 pb-3"
@@ -108,7 +125,14 @@ export function LiveCameraCapture({
       </div>
 
       <div className="relative flex-1 overflow-hidden">
-        <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 h-full w-full object-cover" />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ transform: `scale(${zoom})` }}
+        />
         {previousImageUrl && ready && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -135,6 +159,25 @@ export function LiveCameraCapture({
             >
               {bodyCopy.camera.gallery}
             </button>
+          </div>
+        )}
+
+        {!error && ready && (
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-full p-1" style={{ background: "rgba(0,0,0,0.4)" }}>
+            {ZOOM_LEVELS.map((level) => (
+              <button
+                key={level}
+                type="button"
+                onClick={() => setZoom(level)}
+                className="font-en flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-[11px] font-semibold"
+                style={{
+                  background: zoom === level ? "white" : "transparent",
+                  color: zoom === level ? "var(--color-ink)" : "white",
+                }}
+              >
+                {level}×
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -164,4 +207,6 @@ export function LiveCameraCapture({
       )}
     </div>
   );
+
+  return createPortal(view, document.body);
 }

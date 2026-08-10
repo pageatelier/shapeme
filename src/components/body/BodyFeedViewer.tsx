@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { UIEvent } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { CloseIcon } from "@/components/icons";
 import { bodyCopy } from "@/lib/copy/body";
 import { formatDateLabelWithYear } from "@/lib/body/date";
@@ -79,11 +80,12 @@ export function BodyFeedViewer({
             if (e.date !== entry.date) return e;
             if (slot === "front") return { ...e, front: false, frontImageUrl: undefined };
             if (slot === "side") return { ...e, side: false, sideImageUrl: undefined };
-            return { ...e, back: false, backImageUrl: undefined };
+            if (slot === "back") return { ...e, back: false, backImageUrl: undefined };
+            return { ...e, full: false, fullImageUrl: undefined };
           })
           // A day with no photo left has nothing to show here — matches
-          // getBodyEntries filtering the same rows out of 지난 기록.
-          .filter((e) => e.front || e.side || e.back),
+          // getBodyEntries filtering the same rows out of Past Shapes.
+          .filter((e) => e.front || e.side || e.back || e.full),
       );
       setActiveSlotByDate((prev) => {
         const next = { ...prev };
@@ -113,7 +115,12 @@ export function BodyFeedViewer({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  return (
+  // Portaled straight to document.body — same stacking-context escape as
+  // LiveCameraCapture/PhotoSlotButton's review overlay: this component
+  // renders inside .app-content, which creates its own stacking context, so
+  // a fixed child here can never out-rank BottomNav (a sibling of
+  // .app-content, not a descendant) no matter its own z-index.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "var(--color-bg)" }}>
       <div
         className="flex shrink-0 items-center justify-end px-4 pb-3"
@@ -242,6 +249,7 @@ export function BodyFeedViewer({
           {error && <p className="text-center text-[11px] text-error">{error}</p>}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

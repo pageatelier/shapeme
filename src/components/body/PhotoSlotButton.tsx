@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { CameraIcon } from "@/components/icons";
 import { bodyCopy } from "@/lib/copy/body";
 import { deleteBodyPhoto, uploadBodyPhoto } from "@/lib/body/upload";
@@ -142,47 +143,54 @@ export function PhotoSlotButton({
     />
   );
 
-  const reviewOverlay = pendingPreview && (
-    <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 p-6"
-      style={{ background: "rgba(33, 31, 28, 0.92)" }}
-    >
-      <p className="text-[13px] font-semibold text-white">{bodyCopy.slot.compareTitle}</p>
-      <div className="relative aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-[var(--radius-lg)]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={pendingPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        {previousImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={previousImageUrl}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-45"
-          />
-        )}
-      </div>
-      <p className="max-w-[260px] text-center text-[11px] leading-relaxed text-white/70">
-        {bodyCopy.slot.compareHint}
-      </p>
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={retake}
-          className="rounded-full px-5 py-2.5 text-[12px] font-semibold text-white"
-          style={{ border: "1px solid rgba(255,255,255,0.3)" }}
-        >
-          {bodyCopy.slot.retake}
-        </button>
-        <button
-          type="button"
-          onClick={confirmPending}
-          className="rounded-full px-5 py-2.5 text-[12px] font-semibold"
-          style={{ background: "var(--color-accent)", color: "var(--color-ink)" }}
-        >
-          {bodyCopy.slot.usePhoto}
-        </button>
-      </div>
-    </div>
-  );
+  // Portaled straight to document.body — PhotoSlotButton lives inside
+  // .app-content, which sets its own position+z-index and so creates a
+  // stacking context; a fixed-position child in there can never out-rank
+  // BottomNav (a sibling of .app-content, not a descendant) no matter its
+  // own z-index. See LiveCameraCapture's version of this same fix.
+  const reviewOverlay = pendingPreview &&
+    createPortal(
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 p-6"
+        style={{ background: "rgba(33, 31, 28, 0.92)" }}
+      >
+        <p className="text-[13px] font-semibold text-white">{bodyCopy.slot.compareTitle}</p>
+        <div className="relative aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-[var(--radius-lg)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pendingPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          {previousImageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previousImageUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-45"
+            />
+          )}
+        </div>
+        <p className="max-w-[260px] text-center text-[11px] leading-relaxed text-white/70">
+          {bodyCopy.slot.compareHint}
+        </p>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={retake}
+            className="rounded-full px-5 py-2.5 text-[12px] font-semibold text-white"
+            style={{ border: "1px solid rgba(255,255,255,0.3)" }}
+          >
+            {bodyCopy.slot.retake}
+          </button>
+          <button
+            type="button"
+            onClick={confirmPending}
+            className="rounded-full px-5 py-2.5 text-[12px] font-semibold"
+            style={{ background: "var(--color-accent)", color: "var(--color-ink)" }}
+          >
+            {bodyCopy.slot.usePhoto}
+          </button>
+        </div>
+      </div>,
+      document.body,
+    );
 
   if (!isFilled && emptyVariant === "cta") {
     return (
