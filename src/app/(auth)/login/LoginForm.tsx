@@ -35,11 +35,12 @@ export function LoginForm() {
   }
 
   return (
-    // mt-auto pulls this block toward the bottom of the parent's centered
-    // flex column (an auto margin claims all free space on that side,
-    // overriding the parent's justify-center) — keeps the photo's upper
-    // portion uncovered instead of the form sitting mid-image.
-    <div className="relative mt-auto flex flex-col gap-6">
+    // mt-auto pulls this whole block — logo, tagline, and the card — down
+    // as one bottom-anchored group (an auto margin claims all free space
+    // above it, overriding the parent's justify-center), so the photo's
+    // full upper portion stays uncovered instead of splitting the gap
+    // between "above the block" and "above just the card".
+    <div className="relative mt-auto flex flex-col gap-4">
       {/* fixed (not absolute) so it covers the full viewport height instead
           of just this form's own content box — .app-content centers its
           child vertically (justify-center), so an absolute layer scoped to
@@ -78,19 +79,17 @@ export function LoginForm() {
         </p>
       </div>
 
-      {/* mt-[88px]: the previous mt-10 (40px) plus another ~48px, landing in
-          the requested 40-56px-further range — pushes the card down enough
-          that the photo's midsection (chest to waist) stays uncovered.
-          Padding/gap trimmed from p-6/gap-4 to p-4/gap-2 (saves ~16px+16px
-          ≈ 30px of card height) so the shorter card needs less room without
-          cramping the fields themselves (AuthField's own label-input gap is
-          untouched). Opaque card background swaps .glass-card's fully-solid
-          var(--glass-background) for the same color at 87% alpha — low
-          enough to let the silhouette show through, not so low the text
-          over it gets noisy. */}
+      {/* No extra margin here anymore — the outer gap-4 (plus mt-auto on
+          the whole group above) does all the positioning now that logo,
+          tagline, and card move together as one bottom-anchored unit.
+          Padding/gap trimmed from p-6/gap-4 to p-4/gap-2 keeps the card
+          itself compact. Opaque card background swaps .glass-card's
+          fully-solid var(--glass-background) for the same color at 87%
+          alpha — low enough to let the photo show through, not so low the
+          text over it gets noisy. */}
       <form
         onSubmit={handleSubmit}
-        className="glass-card mt-[88px] flex flex-col gap-2 p-4"
+        className="glass-card flex flex-col gap-2 p-4"
         style={{ background: "rgba(251, 250, 247, 0.87)" }}
       >
         <AuthField
