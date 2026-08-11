@@ -194,8 +194,17 @@ function difficultyAllowed(experience: ExperienceLevel, difficulty: ExerciseTemp
   return true;
 }
 
+/** "bodyweight" is never actually equipment to select — everyone has
+ * their own body regardless of what gym gear they picked, so it's treated
+ * as always available rather than something the onboarding checkboxes have
+ * to grant. Without this, a user who (reasonably) only ticks the machines
+ * they have access to at the gym loses every bodyweight-required exercise
+ * — including Reverse Lunge/Walking Lunge/Bulgarian Split Squat/Goblet
+ * Squat/Romanian Deadlift/Curtsy Lunge, which the equipment audit
+ * deliberately made bodyweight-required — leaving a day like Lower Body
+ * with almost nothing left to fill its slots. */
 function equipmentSatisfied(required: Equipment[], available: Equipment[]): boolean {
-  return required.every((e) => available.includes(e));
+  return required.every((e) => e === "bodyweight" || available.includes(e));
 }
 
 /** `"exclude"`-severity cautions remove a candidate outright; `"review"`

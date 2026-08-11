@@ -256,5 +256,34 @@ console.log("\n5) Multiple Focus Areas (up to 3) don't crash");
   }
 }
 
+// --- Scenario 6: "bodyweight" is never a real equipment requirement, even
+// when it's not explicitly ticked — everyone has their own body regardless
+// of which gym machines they selected. This was a real user report: gym
+// equipment picked (leg press, lat pulldown, dumbbell) without ticking a
+// "bodyweight" checkbox produced a Lower Body day with only 1 exercise
+// (Leg Press), because required=["bodyweight"] on several exercises (the
+// squat/lunge/hinge audit from Scenario 4b) was being treated like any
+// other missing equipment instead of being implicitly always available. ---
+console.log('\n6) "bodyweight" is implicitly available even when not selected');
+{
+  const week = generateStartingWeek(
+    profile({
+      workoutDays: ["monday", "wednesday", "friday"],
+      daysPerWeek: 3,
+      place: "gym",
+      minutesPerSession: 30,
+      experience: "occasional",
+      equipment: ["leg_press", "lat_pulldown", "dumbbell"], // deliberately no "bodyweight"
+      focusAreas: [],
+    }),
+  );
+  const lowerBodyDay = workoutDaysOf(week).find((d) => d.dayType === "lower_body")!;
+  check(
+    "Lower Body @ 30min still reaches the target (4) without an explicit bodyweight selection",
+    lowerBodyDay.exercises.length === 4,
+    `got ${lowerBodyDay.exercises.length}`,
+  );
+}
+
 console.log(failures === 0 ? "\nAll scenarios passed.\n" : `\n${failures} assertion(s) failed.\n`);
 process.exit(failures === 0 ? 0 : 1);
