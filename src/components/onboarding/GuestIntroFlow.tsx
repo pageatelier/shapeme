@@ -17,7 +17,6 @@ import { updateSettings } from "@/lib/settings/mutations";
 import { OnboardingFlow } from "./OnboardingFlow";
 import { StartingWeekReview } from "./StartingWeekReview";
 import { AccountCreationStep } from "./steps/AccountCreationStep";
-import { BodyGoalsStep } from "./steps/BodyGoalsStep";
 import { CautionsStep } from "./steps/CautionsStep";
 import { DailyCareStep } from "./steps/DailyCareStep";
 import { FocusAreaStep } from "./steps/FocusAreaStep";
@@ -30,10 +29,15 @@ import { WorkoutLogisticsStep } from "./steps/WorkoutLogisticsStep";
 // routine") has nowhere further to go until Phase 6 exists, so this is the
 // step count until create_for_me is chosen.
 const INTRO_STEP_COUNT = 3;
-// + My Week (BodyGoals), My Focus (FocusArea), My Movement (WorkoutLogistics),
-// Cautions — Path A's own steps, rewired here onto the draft instead of
-// Supabase (Phase 5). Step 4's Continue generates the week and moves to review.
-const PATH_A_STEP_COUNT = 7;
+// + My Focus (FocusArea), My Movement (WorkoutLogistics), Cautions — Path
+// A's own steps, rewired here onto the draft instead of Supabase (Phase 5).
+// My Week (BodyGoals) is deliberately skipped in this flow: Inspiration
+// (step 1) already collects an equivalent visual body-goal signal, and
+// generateStartingWeek() never reads bodyGoals anyway (unlike focusAreas,
+// which drives the weekly split) — it's the legacy OnboardingFlow's only
+// body-goal input, so that flow keeps BodyGoalsStep unchanged. Last step's
+// Continue generates the week and moves to review.
+const PATH_A_STEP_COUNT = 6;
 
 // Draft stages with an unfinished tail worth resuming — see OnboardingStage's
 // doc comment in draft.ts for what each one means.
@@ -48,12 +52,10 @@ function canContinueForStep(step: number, draft: OnboardingDraft): boolean {
     case 2:
       return draft.routinePreference === "create_for_me";
     case 3:
-      return draft.bodyGoals.length > 0;
-    case 4:
       return draft.focusAreas.length > 0;
-    case 5:
+    case 4:
       return draft.workoutDays.length > 0 && draft.minutesPerSession !== null && draft.experience !== null;
-    case 6:
+    case 5:
       return true; // cautions are optional
     default:
       return false;
@@ -71,9 +73,10 @@ type Phase = "steps" | "review" | "account" | "dailyCare" | "bodyCheckIn";
  * Steps 0–2 (Welcome/Inspiration/Routine Preference) always run for a
  * fresh guest. "I have my own routine" is disabled until Path B (type/paste
  * + photo import) ships. "Create a routine for me" continues into Path A's
- * existing steps (My Week/My Focus/My Movement/Cautions), reused as-is but
- * pointed at patchDraft() instead of saveOnboardingProfile(), through to
- * Starting Week review.
+ * existing steps (My Focus/My Movement/Cautions — My Week/BodyGoalsStep is
+ * skipped here, see PATH_A_STEP_COUNT's comment), reused as-is but pointed
+ * at patchDraft() instead of saveOnboardingProfile(), through to Starting
+ * Week review.
  *
  * From there, Account Creation is the first moment anything touches
  * Supabase — on success the whole draft (profile fields + the generated
@@ -380,12 +383,9 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
           />
         )}
         {step === 3 && (
-          <BodyGoalsStep bodyGoals={draft.bodyGoals} onChange={(bodyGoals) => patch({ bodyGoals })} />
-        )}
-        {step === 4 && (
           <FocusAreaStep focusAreas={draft.focusAreas} onChange={(focusAreas) => patch({ focusAreas })} />
         )}
-        {step === 5 && (
+        {step === 4 && (
           <WorkoutLogisticsStep
             workoutDays={draft.workoutDays}
             minutesPerSession={draft.minutesPerSession}
@@ -394,7 +394,7 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
             onChange={patch}
           />
         )}
-        {step === 6 && (
+        {step === 5 && (
           <CautionsStep cautions={draft.cautions} avoidedExercisesNote={draft.avoidedExercisesNote} onChange={patch} />
         )}
       </div>
