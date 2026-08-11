@@ -285,5 +285,50 @@ console.log('\n6) "bodyweight" is implicitly available even when not selected');
   );
 }
 
+// --- Scenario 7: week-level variety — a supporting exercise shouldn't
+// repeat across two days that share an exercise pool (Lower Body and
+// Glutes both draw from squat/lunge/hinge exercises), but the day's own
+// anchor movement (slot 0, the one that gets extra sets) SHOULD be free to
+// repeat across the week — that's normal programming (e.g. Hip Thrust
+// showing up on both a Lower day and a Glutes day), not a bug. This was a
+// direct user request after seeing near-identical Monday/Thursday
+// exercise lists. ---
+console.log("\n7) Week-level variety: anchor lift can repeat, supporting exercises shouldn't");
+{
+  const week = generateStartingWeek(
+    profile({
+      workoutDays: ["monday", "tuesday", "thursday", "friday"],
+      daysPerWeek: 4,
+      place: "gym",
+      minutesPerSession: 60,
+      experience: "occasional",
+      equipment: ["leg_press", "lat_pulldown", "dumbbell", "bench"],
+      focusAreas: [],
+    }),
+  );
+  const monday = week.find((d) => d.dayType === "lower_body")!;
+  const thursday = week.find((d) => d.dayType === "glutes")!;
+  const mondayNames = monday.exercises.map((e) => e.name);
+  const thursdayNames = thursday.exercises.map((e) => e.name);
+
+  // With this exact equipment set, Dumbbell Hip Thrust is the priority-1
+  // thrust_bridge pick — it should show up as Monday's supporting exercise
+  // (Leg Press is Monday's anchor) AND as Thursday's own anchor, appearing
+  // in the week twice on purpose.
+  check(
+    "Dumbbell Hip Thrust appears on both Monday (supporting) and Thursday (anchor)",
+    mondayNames.includes("Dumbbell Hip Thrust") && thursdayNames[0] === "Dumbbell Hip Thrust",
+    `Monday: ${mondayNames.join(", ")} | Thursday anchor: ${thursdayNames[0]}`,
+  );
+  const mondaySupporting = mondayNames.slice(1);
+  const thursdaySupporting = thursdayNames.slice(1);
+  const overlap = thursdaySupporting.filter((n) => mondaySupporting.includes(n));
+  check(
+    "Monday Lower Body and Thursday Glutes' supporting exercises (slots 1+) mostly don't overlap",
+    overlap.length <= 1,
+    `overlap: ${overlap.join(", ") || "none"}`,
+  );
+}
+
 console.log(failures === 0 ? "\nAll scenarios passed.\n" : `\n${failures} assertion(s) failed.\n`);
 process.exit(failures === 0 ? 0 : 1);

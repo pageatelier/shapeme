@@ -249,6 +249,19 @@ function eligibleForSlot(
   });
 }
 
+/** Picks the best candidate from an already-filtered, priority-sorted list.
+ * Split out from pickFromSlot() so the week-level "prefer fresh" pass below
+ * can reuse the exact same priority/tie-break logic on a narrowed list. */
+function pickBest(candidates: ExerciseTemplate[], inspiration: Inspiration | undefined): ExerciseTemplate {
+  const topPriority = candidates[0].priority;
+  const tied = candidates.filter((c) => c.priority === topPriority);
+  if (tied.length === 1 || !inspiration) return tied[0];
+
+  const preferred = INSPIRATION_SHAPE_GOALS[inspiration];
+  const byAffinity = tied.find((c) => c.shapeGoal.some((g) => preferred.includes(g)));
+  return byAffinity ?? tied[0];
+}
+
 function pickFromSlot(
   patternOptions: MovementPattern[][],
   type: WorkoutType,
@@ -256,18 +269,24 @@ function pickFromSlot(
   usedNames: Set<string>,
   inspiration: Inspiration | undefined,
   allowFinisherPool = false,
+  /** Names already used on an *earlier* day this week — a soft preference,
+   * not a filter: a candidate already used elsewhere this week is only
+   * skipped if a fresh one is also eligible, never excluded outright. This
+   * is what keeps, say, Monday's Lower Body and Thursday's Glutes day from
+   * reading as near-duplicates of each other, without blocking a real
+   * anchor lift (see the `undefined` callers below) from legitimately
+   * repeating across the week the way a real program would. */
+  weekUsedNames?: Set<string>,
 ): ExerciseTemplate | null {
   for (const patterns of patternOptions) {
     const candidates = eligibleForSlot(patterns, type, profile, usedNames, allowFinisherPool);
     if (candidates.length === 0) continue;
 
-    const topPriority = candidates[0].priority;
-    const tied = candidates.filter((c) => c.priority === topPriority);
-    if (tied.length === 1 || !inspiration) return tied[0];
-
-    const preferred = INSPIRATION_SHAPE_GOALS[inspiration];
-    const byAffinity = tied.find((c) => c.shapeGoal.some((g) => preferred.includes(g)));
-    return byAffinity ?? tied[0];
+    if (weekUsedNames) {
+      const fresh = candidates.filter((c) => !weekUsedNames.has(c.name));
+      if (fresh.length > 0) return pickBest(fresh, inspiration);
+    }
+    return pickBest(candidates, inspiration);
   }
   return null;
 }
@@ -290,6 +309,10 @@ function buildDayExercises(
   type: WorkoutType,
   profile: OnboardingProfile,
   inspiration: Inspiration | undefined,
+  /** Names used on earlier days this week — see pickFromSlot()'s doc.
+   * Mutated in place: this day's own picks get added so later days in the
+   * same week see them too. */
+  weekUsedNames: Set<string>,
 ): StartingWeekExercise[] {
   const { exerciseCount, mainSets, accessorySets } = volumeForDuration(
     profile.minutesPerSession ?? 45,
@@ -310,6 +333,14 @@ function buildDayExercises(
     const isFinisherSlot = hasCoreFocus && i === exerciseCount - 1;
     const slot = isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist[0] : baseSlots[i % baseSlots.length];
     const slotType = isFinisherSlot ? "core_waist" : type;
+    // Slot 0 is the day's featured/anchor movement (it's what gets
+    // mainSets below) — real programs repeat their main lift across the
+    // week on purpose (e.g. Hip Thrust on both a Lower day and a Glutes
+    // day), so it's exempt from the week-level "prefer fresh" pass.
+    // Everything after slot 0 is a supporting exercise and does get that
+    // preference, so two days that share an exercise pool don't read as
+    // near-duplicates of each other.
+    const preferFreshThisWeek = i === 0 ? undefined : weekUsedNames;
     const found =
       pickFromSlot(
         isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist : [slot],
@@ -318,14 +349,24 @@ function buildDayExercises(
         usedNames,
         inspiration,
         isFinisherSlot,
+        preferFreshThisWeek,
       ) ??
       // Last resort: the slot's own preferred patterns had zero eligible
       // candidates (usually a thin equipment selection) — rather than
       // silently coming up short of the target exerciseCount, pull from
       // *any* pattern this type's pool actually has available.
-      pickFromSlot([ALL_PATTERNS_BY_TYPE[slotType]], slotType, profile, usedNames, inspiration, isFinisherSlot);
+      pickFromSlot(
+        [ALL_PATTERNS_BY_TYPE[slotType]],
+        slotType,
+        profile,
+        usedNames,
+        inspiration,
+        isFinisherSlot,
+        preferFreshThisWeek,
+      );
     if (!found) continue; // the whole type's pool is genuinely exhausted for this equipment/caution/difficulty combo — skip rather than crash
     usedNames.add(found.name);
+    weekUsedNames.add(found.name);
     picked.push(found);
   }
 
@@ -350,6 +391,11 @@ export function generateStartingWeek(profile: OnboardingProfile, inspiration?: I
   // Only the days the user actually selected get a type assigned, in
   // chronological (Mon-Sun) order — matches sequence[] 1:1.
   let scheduledIndex = 0;
+  // Shared across every day this week (mutated in buildDayExercises) so a
+  // later day's supporting-exercise slots can prefer something not already
+  // used earlier in the week — see pickFromSlot()'s doc for why the day's
+  // slot-0 anchor exercise is exempt from this.
+  const weekUsedNames = new Set<string>();
 
   return WEEK_ORDER_EN.map((weekdayEn) => {
     const weekdayKo = WEEKDAY_EN_TO_KO[weekdayEn];
@@ -366,7 +412,7 @@ export function generateStartingWeek(profile: OnboardingProfile, inspiration?: I
       label: WORKOUT_TYPE_LABEL[type],
       minutes: profile.minutesPerSession ?? 45,
       warmup: warmupFor(type),
-      exercises: buildDayExercises(type, profile, inspiration),
+      exercises: buildDayExercises(type, profile, inspiration, weekUsedNames),
     };
   });
 }
