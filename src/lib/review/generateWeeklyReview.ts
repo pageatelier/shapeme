@@ -10,7 +10,7 @@ export type WeeklyReview = {
   nextWeek: StartingWeekDay[];
 };
 
-const EXPERIENCE_LEVELS: ExperienceLevel[] = ["beginner", "some", "consistent"];
+const EXPERIENCE_LEVELS: ExperienceLevel[] = ["new", "occasional", "consistent", "experienced"];
 
 /** One level lighter/heavier for next week's *suggested weight* scaling
  * only — never rewrites the user's own self-reported experience answer. */

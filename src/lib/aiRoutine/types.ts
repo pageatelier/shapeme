@@ -50,15 +50,42 @@ export const FOCUS_AREA_OPTIONS = [
 ] as const;
 export type FocusArea = (typeof FOCUS_AREA_OPTIONS)[number]["value"];
 
+/** Named machines get their own tag instead of a shared generic "machine"
+ * bucket, so equipment filtering in generateStartingWeek() can be specific
+ * (e.g. a user with a leg press but no lat pulldown station shouldn't lose
+ * both). A handful of exercises (Machine Chest Press, Machine Shoulder
+ * Press, Reverse Pec Deck, Assisted Pull-Up, 45° Back Extension) don't map
+ * to any of these named machines and keep the residual "machine" tag. */
 export const EQUIPMENT_OPTIONS = [
+  { value: "bodyweight", label: "맨몸" },
   { value: "dumbbell", label: "덤벨" },
   { value: "barbell", label: "바벨" },
+  { value: "smith_machine", label: "스미스 머신" },
+  { value: "cable", label: "케이블 머신" },
+  { value: "bench", label: "벤치" },
   { value: "resistance_band", label: "저항 밴드" },
   { value: "kettlebell", label: "케틀벨" },
-  { value: "machine", label: "머신 (헬스장)" },
-  { value: "bodyweight_only", label: "맨몸만" },
+  { value: "leg_press", label: "레그 프레스" },
+  { value: "leg_curl", label: "레그 컬" },
+  { value: "leg_extension", label: "레그 익스텐션" },
+  { value: "hip_abductor", label: "힙 어브덕터" },
+  { value: "lat_pulldown", label: "랫 풀다운" },
+  { value: "seated_row", label: "시티드 로우" },
+  { value: "machine", label: "기타 머신" },
 ] as const;
 export type Equipment = (typeof EQUIPMENT_OPTIONS)[number]["value"];
+
+/** Conservative fallback when the user picks "잘 모르겠어요" instead of
+ * listing equipment — common-denominator gear most gyms/homes have, per the
+ * onboarding spec's own guidance for this case. */
+export const UNSURE_EQUIPMENT_PRESET: Equipment[] = [
+  "bodyweight",
+  "dumbbell",
+  "cable",
+  "lat_pulldown",
+  "leg_press",
+  "leg_curl",
+];
 
 /** Everything the generator needs — collected from Guide's form (and, once
  * the onboarding retrofit lands, from onboarding too). */

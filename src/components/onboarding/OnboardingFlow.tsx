@@ -3,12 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/icons";
-import { generateWeeklyRoutineAction } from "@/lib/aiRoutine/actions";
-import { saveWeeklyRoutineToMove } from "@/lib/aiRoutine/saveWeeklyRoutine";
-import type { AIRoutineWeek } from "@/lib/aiRoutine/types";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
+import { generateStartingWeek } from "@/lib/onboarding/generateStartingWeek";
+import type { StartingWeekDay } from "@/lib/onboarding/generateStartingWeek";
 import { saveOnboardingProfile } from "@/lib/onboarding/mutations";
-import { cautionLabel } from "@/lib/onboarding/types";
+import { saveStartingWeekToMove } from "@/lib/onboarding/saveStartingWeek";
 import type { OnboardingProfile } from "@/lib/onboarding/types";
 import { updateSettings } from "@/lib/settings/mutations";
 import { StartingWeekReview } from "./StartingWeekReview";
@@ -40,8 +39,9 @@ function canContinue(step: number, profile: OnboardingProfile): boolean {
 type Phase = "steps" | "review";
 
 /**
- * Steps ②–⑥ collect the profile, then ⑦ calls the real weekday-based AI
- * generator (src/lib/aiRoutine/) — same service Guide uses — and ⑧–⑨ is
+ * Steps ②–⑥ collect the profile, then ⑦ builds the starting week with the
+ * deterministic Routine Generator v1 (src/lib/onboarding/generateStartingWeek.ts)
+ * — no AI call, unlike Guide's separate AI routine feature — and ⑧–⑨ is
  * the review with Start my week. Saves the profile once on step ⑥'s
  * Continue (not per-step, so leaving mid-flow doesn't half-write metadata);
  * onboardingCompleted only flips true once the week is actually saved to
@@ -54,7 +54,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("steps");
-  const [week, setWeek] = useState<AIRoutineWeek | null>(null);
+  const [week, setWeek] = useState<StartingWeekDay[] | null>(null);
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -91,24 +91,9 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
     setError(null);
     try {
       await saveOnboardingProfile(profile);
-      const result = await generateWeeklyRoutineAction({
-        workoutDays: profile.workoutDays,
-        sessionMinutes: profile.minutesPerSession,
-        place: profile.place,
-        goals: profile.bodyGoals,
-        focusAreas: profile.focusAreas,
-        avoidAreas: [
-          ...profile.cautions.map(cautionLabel),
-          ...(profile.avoidedExercisesNote.trim() ? [profile.avoidedExercisesNote.trim()] : []),
-        ],
-        experience: profile.experience,
-        equipment: profile.equipment,
-      });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setWeek(result.week);
+      // Deterministic — no network call, no failure branch needed beyond
+      // the catch below (which now only guards saveOnboardingProfile).
+      setWeek(generateStartingWeek(profile));
       setPhase("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했어요.");
@@ -122,7 +107,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
     setStarting(true);
     setStartError(null);
     try {
-      await saveWeeklyRoutineToMove(week);
+      await saveStartingWeekToMove(week);
       await saveOnboardingProfile({ onboardingCompleted: true });
       await updateSettings({ programStartedAt: new Date().toISOString() });
       router.push("/move");

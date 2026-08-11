@@ -2,7 +2,10 @@ import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import type { CountryCode, LanguageCode } from "@/lib/locale/region";
 
 export type WorkoutPlace = "gym" | "home" | "both";
-export type ExperienceLevel = "beginner" | "some" | "consistent";
+/** 4 tiers per the onboarding spec (New to training / Occasionally /
+ * Consistently / Experienced) — drives both which exercises are eligible
+ * (difficulty filter) and set/rep volume in generateStartingWeek(). */
+export type ExperienceLevel = "new" | "occasional" | "consistent" | "experienced";
 
 export const FOCUS_AREA_OPTIONS = [
   { value: "glutes", label: "Glutes" },
@@ -33,6 +36,9 @@ export const CAUTION_PRESETS = [
   { value: "lower_back", label: "허리" },
   { value: "shoulder", label: "어깨" },
   { value: "wrist", label: "손목" },
+  { value: "hip", label: "고관절" },
+  { value: "neck", label: "목" },
+  { value: "elbow", label: "팔꿈치" },
 ] as const;
 export type CautionArea = (typeof CAUTION_PRESETS)[number]["value"];
 const CAUTION_LABEL_BY_VALUE = Object.fromEntries(CAUTION_PRESETS.map((p) => [p.value, p.label])) as Record<

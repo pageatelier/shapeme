@@ -1,9 +1,27 @@
 "use client";
 
-import { EQUIPMENT_OPTIONS, WEEKDAYS_EN, WEEKDAY_EN_TO_KO } from "@/lib/aiRoutine/types";
+import { EQUIPMENT_OPTIONS, UNSURE_EQUIPMENT_PRESET, WEEKDAYS_EN, WEEKDAY_EN_TO_KO } from "@/lib/aiRoutine/types";
 import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import { SESSION_MINUTES_OPTIONS } from "@/lib/onboarding/types";
 import type { ExperienceLevel, SessionMinutes, WorkoutDaysPerWeek, WorkoutPlace } from "@/lib/onboarding/types";
+
+/** Gym vs. home grouping is purely presentational — both write into the
+ * same flat `equipment: Equipment[]` the generator filters on. Dumbbells
+ * live in the home group even though gyms have them too, to avoid
+ * rendering (and needing to keep in sync) two buttons for one value. */
+const GYM_EQUIPMENT: Equipment[] = [
+  "barbell",
+  "smith_machine",
+  "cable",
+  "leg_press",
+  "leg_curl",
+  "leg_extension",
+  "hip_abductor",
+  "lat_pulldown",
+  "seated_row",
+  "machine",
+];
+const HOME_EQUIPMENT: Equipment[] = ["dumbbell", "bench", "resistance_band", "kettlebell", "bodyweight"];
 
 const PLACE_OPTIONS: { value: WorkoutPlace; label: string }[] = [
   { value: "gym", label: "Gym" },
@@ -12,9 +30,10 @@ const PLACE_OPTIONS: { value: WorkoutPlace; label: string }[] = [
 ];
 
 const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string }[] = [
-  { value: "beginner", label: "처음 시작해요" },
-  { value: "some", label: "조금 해봤어요" },
+  { value: "new", label: "처음 시작해요" },
+  { value: "occasional", label: "가끔 운동해요" },
   { value: "consistent", label: "꾸준히 운동하고 있어요" },
+  { value: "experienced", label: "체계적인 운동이 편해요" },
 ];
 
 function ChoiceRow<T extends string | number>({
@@ -137,21 +156,58 @@ export function WorkoutLogisticsStep({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">사용 가능한 운동기구 (선택)</p>
-        <div className="flex flex-wrap gap-2">
-          {EQUIPMENT_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => toggleEquipment(opt.value)}
-              className={`rounded-full px-4 py-2.5 text-[13px] ${
-                equipment.includes(opt.value) ? "pill-selected" : "pill-unselected"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-text-secondary">사용 가능한 운동기구 (선택)</p>
+          <button
+            type="button"
+            onClick={() => onChange({ equipment: UNSURE_EQUIPMENT_PRESET })}
+            className="text-[12px] font-semibold text-pink-500"
+          >
+            잘 모르겠어요
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[12px] text-text-muted">헬스장</p>
+          <div className="flex flex-wrap gap-2">
+            {GYM_EQUIPMENT.map((value) => {
+              const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => toggleEquipment(value)}
+                  className={`rounded-full px-4 py-2.5 text-[13px] ${
+                    equipment.includes(value) ? "pill-selected" : "pill-unselected"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[12px] text-text-muted">홈트레이닝</p>
+          <div className="flex flex-wrap gap-2">
+            {HOME_EQUIPMENT.map((value) => {
+              const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => toggleEquipment(value)}
+                  className={`rounded-full px-4 py-2.5 text-[13px] ${
+                    equipment.includes(value) ? "pill-selected" : "pill-unselected"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
