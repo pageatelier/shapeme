@@ -305,32 +305,35 @@ const ALL_PATTERNS_BY_TYPE: Record<WorkoutType, MovementPattern[]> = Object.from
   ]),
 ) as Record<WorkoutType, MovementPattern[]>;
 
-function buildDayExercises(
+/**
+ * Fills a day's exercise slots up to `targetCount`, continuing from
+ * `alreadyPicked` (empty for a fresh day, non-empty when Change Duration
+ * needs to extend an already-edited day without discarding its existing
+ * picks — see changeDayDuration() below). Slot index within the *whole*
+ * day (not just the newly-filled range) still determines which pattern
+ * list and which anchor/supporting distinction applies, so extending an
+ * existing day picks up the cycling pattern exactly where it left off.
+ */
+function fillDaySlots(
   type: WorkoutType,
   profile: OnboardingProfile,
   inspiration: Inspiration | undefined,
-  /** Names used on earlier days this week — see pickFromSlot()'s doc.
-   * Mutated in place: this day's own picks get added so later days in the
-   * same week see them too. */
   weekUsedNames: Set<string>,
-): StartingWeekExercise[] {
-  const { exerciseCount, mainSets, accessorySets } = volumeForDuration(
-    profile.minutesPerSession ?? 45,
-    profile.experience ?? "occasional",
-  );
-  const reps = repsForExperience(profile.experience ?? "occasional");
+  targetCount: number,
+  alreadyPicked: ExerciseTemplate[] = [],
+): ExerciseTemplate[] {
   const baseSlots = WORKOUT_TYPE_SLOTS[type];
   const hasCoreFocus = profile.focusAreas.includes("core") && type !== "core_waist";
 
-  const usedNames = new Set<string>();
-  const picked: ExerciseTemplate[] = [];
+  const usedNames = new Set(alreadyPicked.map((e) => e.name));
+  const picked: ExerciseTemplate[] = [...alreadyPicked];
 
-  for (let i = 0; i < exerciseCount; i++) {
+  for (let i = picked.length; i < targetCount; i++) {
     // Core finisher: the LAST slot of a non-core day becomes a Core &
     // Waist pick when "core" is a selected focus area — this is how every
     // "+ Core" / "& Core" suffix in the split spec actually manifests,
     // since core_waist shares no exercises with the other 6 types.
-    const isFinisherSlot = hasCoreFocus && i === exerciseCount - 1;
+    const isFinisherSlot = hasCoreFocus && i === targetCount - 1;
     const slot = isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist[0] : baseSlots[i % baseSlots.length];
     const slotType = isFinisherSlot ? "core_waist" : type;
     // Slot 0 is the day's featured/anchor movement (it's what gets
@@ -369,6 +372,25 @@ function buildDayExercises(
     weekUsedNames.add(found.name);
     picked.push(found);
   }
+
+  return picked;
+}
+
+function buildDayExercises(
+  type: WorkoutType,
+  profile: OnboardingProfile,
+  inspiration: Inspiration | undefined,
+  /** Names used on earlier days this week — see pickFromSlot()'s doc.
+   * Mutated in place: this day's own picks get added so later days in the
+   * same week see them too. */
+  weekUsedNames: Set<string>,
+): StartingWeekExercise[] {
+  const { exerciseCount, mainSets, accessorySets } = volumeForDuration(
+    profile.minutesPerSession ?? 45,
+    profile.experience ?? "occasional",
+  );
+  const reps = repsForExperience(profile.experience ?? "occasional");
+  const picked = fillDaySlots(type, profile, inspiration, weekUsedNames, exerciseCount);
 
   return picked.map((exercise, index) => ({
     name: exercise.name,
@@ -415,4 +437,167 @@ export function generateStartingWeek(profile: OnboardingProfile, inspiration?: I
       exercises: buildDayExercises(type, profile, inspiration, weekUsedNames),
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2 — Starting Week Review edit actions. Each function is a pure
+// transform (input week/day in, new week/day out) so the review UI just
+// calls one of these on every action and replaces its local state with the
+// result — no separate edit-mode data model.
+// ---------------------------------------------------------------------------
+
+const EXERCISE_BY_NAME = new Map(EXERCISE_LIBRARY.map((e) => [e.name, e]));
+
+function toStartingWeekExercise(
+  template: ExerciseTemplate,
+  targetSets: number,
+  reps: { min: number; max: number },
+): StartingWeekExercise {
+  return {
+    name: template.name,
+    targetSets,
+    repsMin: reps.min,
+    repsMax: reps.max,
+    startingWeight: template.startingWeight,
+  };
+}
+
+/**
+ * Replace / "Not available" — both actions swap one exercise for the next
+ * eligible alternative; the only difference is copy ("Replace" vs. "this
+ * isn't available to me"), so the UI can call this for either button.
+ * Tries the exercise's own movement pattern first, then any pattern the
+ * day's workout type has available (same fallback order buildDayExercises
+ * uses). Excludes every exercise already on this day (including the one
+ * being replaced) so it never "replaces" something with itself. Returns
+ * the day unchanged if no alternative exists — the caller should surface
+ * that as "no other option available" rather than a silent no-op.
+ */
+export function replaceExercise(
+  day: StartingWeekDay,
+  exerciseIndex: number,
+  profile: OnboardingProfile,
+  inspiration?: Inspiration,
+): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  const current = day.exercises[exerciseIndex];
+  const currentTemplate = current ? EXERCISE_BY_NAME.get(current.name) : undefined;
+  if (!current || !currentTemplate) return day;
+
+  const excluded = new Set(day.exercises.map((e) => e.name));
+  const replacement =
+    pickFromSlot([[currentTemplate.movementPattern]], day.dayType, profile, excluded, inspiration) ??
+    pickFromSlot([ALL_PATTERNS_BY_TYPE[day.dayType]], day.dayType, profile, excluded, inspiration);
+  if (!replacement) return day;
+
+  // Sets/reps stay whatever this slot already had — only the exercise
+  // identity (and its startingWeight) changes.
+  const nextExercises = day.exercises.map((e, i) =>
+    i === exerciseIndex ? toStartingWeekExercise(replacement, e.targetSets, { min: e.repsMin, max: e.repsMax }) : e,
+  );
+  return { ...day, exercises: nextExercises };
+}
+
+/** Candidate list for "Add an exercise" — every exercise eligible for this
+ * day's workout type (equipment/caution/difficulty already applied) that
+ * isn't already on the day, priority-sorted for a sensible default order
+ * in the picker. */
+export function getAddExerciseCandidates(day: StartingWeekDay, profile: OnboardingProfile): ExerciseTemplate[] {
+  if (day.dayType === "rest") return [];
+  const usedNames = new Set(day.exercises.map((e) => e.name));
+  return eligibleForSlot(ALL_PATTERNS_BY_TYPE[day.dayType], day.dayType, profile, usedNames, false);
+}
+
+/** Appends a user-picked exercise at accessory volume (3 sets) — they can
+ * Edit the sets afterward if they want it treated as a second anchor. */
+export function addExercise(
+  day: StartingWeekDay,
+  template: ExerciseTemplate,
+  profile: OnboardingProfile,
+): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  const reps = repsForExperience(profile.experience ?? "occasional");
+  return { ...day, exercises: [...day.exercises, toStartingWeekExercise(template, 3, reps)] };
+}
+
+export function removeExercise(day: StartingWeekDay, exerciseIndex: number): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  return { ...day, exercises: day.exercises.filter((_, i) => i !== exerciseIndex) };
+}
+
+/** Moves one exercise to a new position — sets/reps stay attached to the
+ * exercise itself rather than being recomputed by position, so reordering
+ * never silently changes a workout's volume. */
+export function reorderExercise(day: StartingWeekDay, fromIndex: number, toIndex: number): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  if (toIndex < 0 || toIndex >= day.exercises.length) return day;
+  const next = [...day.exercises];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return { ...day, exercises: next };
+}
+
+/** Direct edit of one exercise's sets/reps — the "Edit" action. Starting
+ * weight isn't editable here since it's derived from the exercise itself;
+ * swapping weight ranges is what Replace is for. */
+export function editExerciseVolume(
+  day: StartingWeekDay,
+  exerciseIndex: number,
+  patch: { targetSets?: number; repsMin?: number; repsMax?: number },
+): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  const next = day.exercises.map((e, i) => (i === exerciseIndex ? { ...e, ...patch } : e));
+  return { ...day, exercises: next };
+}
+
+/** Swaps two days' entire content (type/label/warmup/exercises) so a
+ * workout moves to a different weekday — the array slot keeps representing
+ * its calendar day, only what's scheduled on it moves. A no-op if either
+ * weekday isn't found or they're the same day. */
+export function changeWorkoutDay(week: StartingWeekDay[], fromWeekday: string, toWeekday: string): StartingWeekDay[] {
+  const fromIndex = week.findIndex((d) => d.weekday === fromWeekday);
+  const toIndex = week.findIndex((d) => d.weekday === toWeekday);
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return week;
+
+  const next = [...week];
+  const fromDay = next[fromIndex];
+  const toDay = next[toIndex];
+  next[fromIndex] = { ...toDay, weekday: fromDay.weekday };
+  next[toIndex] = { ...fromDay, weekday: toDay.weekday };
+  return next;
+}
+
+/**
+ * Changes one day's duration, re-deriving its target exercise count and
+ * sets/reps for the new duration bucket — extending an existing day (via
+ * fillDaySlots' `alreadyPicked`) preserves whatever the user already
+ * customized instead of regenerating from scratch, and shrinking just
+ * trims from the end. Uses a fresh (empty) week-used-names set: this is a
+ * standalone single-day edit, not a re-run of the whole week's generation,
+ * so it doesn't need to know what other days in the week used.
+ */
+export function changeDayDuration(
+  day: StartingWeekDay,
+  newMinutes: number,
+  profile: OnboardingProfile,
+  inspiration?: Inspiration,
+): StartingWeekDay {
+  if (day.dayType === "rest") return day;
+  const { exerciseCount, mainSets, accessorySets } = volumeForDuration(newMinutes, profile.experience ?? "occasional");
+  const reps = repsForExperience(profile.experience ?? "occasional");
+
+  const existingTemplates = day.exercises
+    .slice(0, exerciseCount)
+    .map((e) => EXERCISE_BY_NAME.get(e.name))
+    .filter((t): t is ExerciseTemplate => !!t);
+
+  const filled = fillDaySlots(day.dayType, profile, inspiration, new Set(), exerciseCount, existingTemplates);
+
+  return {
+    ...day,
+    minutes: newMinutes,
+    exercises: filled.map((exercise, index) =>
+      toStartingWeekExercise(exercise, index === 0 ? mainSets : accessorySets, reps),
+    ),
+  };
 }

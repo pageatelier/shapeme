@@ -7,7 +7,17 @@
  */
 import { UNSURE_EQUIPMENT_PRESET } from "../src/lib/aiRoutine/types";
 import type { Equipment, WeekdayEn } from "../src/lib/aiRoutine/types";
-import { generateStartingWeek } from "../src/lib/onboarding/generateStartingWeek";
+import {
+  addExercise,
+  changeDayDuration,
+  changeWorkoutDay,
+  editExerciseVolume,
+  generateStartingWeek,
+  getAddExerciseCandidates,
+  removeExercise,
+  reorderExercise,
+  replaceExercise,
+} from "../src/lib/onboarding/generateStartingWeek";
 import { EXERCISE_LIBRARY } from "../src/lib/onboarding/exercises";
 import { DEFAULT_ONBOARDING_PROFILE } from "../src/lib/onboarding/types";
 import type { ExperienceLevel, FocusArea, OnboardingProfile } from "../src/lib/onboarding/types";
@@ -328,6 +338,134 @@ console.log("\n7) Week-level variety: anchor lift can repeat, supporting exercis
     overlap.length <= 1,
     `overlap: ${overlap.join(", ") || "none"}`,
   );
+}
+
+// =============================================================================
+// Phase 2 — Starting Week Review edit actions
+// =============================================================================
+
+function testWeek(overrides: Partial<OnboardingProfile> = {}) {
+  return generateStartingWeek(
+    profile({
+      workoutDays: ["monday", "wednesday", "friday"],
+      daysPerWeek: 3,
+      place: "gym",
+      minutesPerSession: 60,
+      experience: "occasional",
+      equipment: FULL_GYM_EQUIPMENT,
+      focusAreas: ["glutes"],
+      ...overrides,
+    }),
+  );
+}
+
+console.log("\n8) replaceExercise: swaps to a different eligible exercise, never a duplicate");
+{
+  const week = testWeek();
+  const monday = week.find((d) => d.dayType !== "rest")!;
+  const p = profile({ equipment: FULL_GYM_EQUIPMENT, experience: "occasional" });
+  const originalName = monday.exercises[1].name;
+  const replaced = replaceExercise(monday, 1, p);
+  const newName = replaced.exercises[1].name;
+  check("replaced exercise has a different name", newName !== originalName, `still "${newName}"`);
+  const names = replaced.exercises.map((e) => e.name);
+  check("no duplicate exercises after replace", new Set(names).size === names.length);
+  check("day.dayType/label/weekday untouched by replace", replaced.dayType === monday.dayType && replaced.label === monday.label);
+}
+
+console.log("\n9) replaceExercise: respects equipment (only swaps to something the user actually has)");
+{
+  const week = testWeek({ equipment: ["leg_press", "dumbbell", "bench"] });
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const p = profile({ equipment: ["leg_press", "dumbbell", "bench"], experience: "occasional" });
+  for (let i = 0; i < day.exercises.length; i++) {
+    const replaced = replaceExercise(day, i, p);
+    const newTemplate = EXERCISE_BY_NAME.get(replaced.exercises[i].name)!;
+    const satisfied = newTemplate.equipment.required.every((eq) => eq === "bodyweight" || p.equipment.includes(eq));
+    check(`replacing slot ${i} stays within available equipment`, satisfied, `picked "${newTemplate.name}" needs ${newTemplate.equipment.required.join(", ")}`);
+  }
+}
+
+console.log("\n10) removeExercise: shrinks the day, doesn't touch other exercises");
+{
+  const week = testWeek();
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const beforeCount = day.exercises.length;
+  const removedName = day.exercises[0].name;
+  const next = removeExercise(day, 0);
+  check("exercise count decreased by exactly 1", next.exercises.length === beforeCount - 1);
+  check("the removed exercise is gone", !next.exercises.some((e) => e.name === removedName));
+}
+
+console.log("\n11) addExercise / getAddExerciseCandidates: adds something not already on the day");
+{
+  const week = testWeek();
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const p = profile({ equipment: FULL_GYM_EQUIPMENT, experience: "occasional" });
+  const candidates = getAddExerciseCandidates(day, p);
+  check("candidate list is non-empty", candidates.length > 0);
+  check(
+    "no candidate is already on the day",
+    candidates.every((c) => !day.exercises.some((e) => e.name === c.name)),
+  );
+  if (candidates.length > 0) {
+    const next = addExercise(day, candidates[0], p);
+    check("day grew by exactly 1 exercise", next.exercises.length === day.exercises.length + 1);
+    check("new exercise is the picked candidate", next.exercises[next.exercises.length - 1].name === candidates[0].name);
+  }
+}
+
+console.log("\n12) reorderExercise: moves position, preserves each exercise's own sets/reps");
+{
+  const week = testWeek();
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const firstName = day.exercises[0].name;
+  const firstSets = day.exercises[0].targetSets;
+  const next = reorderExercise(day, 0, 2);
+  check("moved exercise is now at index 2", next.exercises[2].name === firstName);
+  check("moved exercise kept its own sets value (not recomputed by position)", next.exercises[2].targetSets === firstSets);
+  check("day still has the same total exercise count", next.exercises.length === day.exercises.length);
+}
+
+console.log("\n13) changeWorkoutDay: swaps two days' full content");
+{
+  const week = testWeek();
+  const monday = week.find((d) => d.weekday === "월")!;
+  const tuesday = week.find((d) => d.weekday === "화")!;
+  const nextWeek = changeWorkoutDay(week, "월", "화");
+  const newMonday = nextWeek.find((d) => d.weekday === "월")!;
+  const newTuesday = nextWeek.find((d) => d.weekday === "화")!;
+  check("Monday now has Tuesday's old content", newMonday.dayType === tuesday.dayType && newMonday.label === tuesday.label);
+  check("Tuesday now has Monday's old content", newTuesday.dayType === monday.dayType && newTuesday.label === monday.label);
+  check("weekday labels themselves stay put", newMonday.weekday === "월" && newTuesday.weekday === "화");
+}
+
+console.log("\n14) changeDayDuration: re-derives exercise count for the new duration");
+{
+  const week = testWeek({ minutesPerSession: 60, experience: "occasional" });
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const p = profile({ equipment: FULL_GYM_EQUIPMENT, experience: "occasional" });
+  check("starting point is 60min's target (6)", day.exercises.length === 6, `got ${day.exercises.length}`);
+
+  const shrunk = changeDayDuration(day, 30, p);
+  check("shrinking to 30min trims to that duration's target (4)", shrunk.exercises.length === 4, `got ${shrunk.exercises.length}`);
+  check("shrinking preserves the original first exercises, not a fresh regeneration", shrunk.exercises[0].name === day.exercises[0].name);
+
+  const grown = changeDayDuration(shrunk, 90, p);
+  check("growing back to 90min reaches that duration's target (6, occasional)", grown.exercises.length === 6, `got ${grown.exercises.length}`);
+  const grownNames = grown.exercises.map((e) => e.name);
+  check("growing produces no duplicate exercises", new Set(grownNames).size === grownNames.length);
+}
+
+console.log("\n15) editExerciseVolume: direct sets/reps edit, nothing else changes");
+{
+  const week = testWeek();
+  const day = week.find((d) => d.dayType !== "rest")!;
+  const originalName = day.exercises[0].name;
+  const next = editExerciseVolume(day, 0, { targetSets: 5, repsMin: 12, repsMax: 20 });
+  check("targetSets updated", next.exercises[0].targetSets === 5);
+  check("repsMin/repsMax updated", next.exercises[0].repsMin === 12 && next.exercises[0].repsMax === 20);
+  check("exercise identity unchanged", next.exercises[0].name === originalName);
 }
 
 console.log(failures === 0 ? "\nAll scenarios passed.\n" : `\n${failures} assertion(s) failed.\n`);

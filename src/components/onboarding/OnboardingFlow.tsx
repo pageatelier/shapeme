@@ -119,7 +119,16 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
   }
 
   if (phase === "review" && week) {
-    return <StartingWeekReview week={week} onStart={handleStart} starting={starting} error={startError} />;
+    return (
+      <StartingWeekReview
+        week={week}
+        onWeekChange={setWeek}
+        profile={profile}
+        onStart={handleStart}
+        starting={starting}
+        error={startError}
+      />
+    );
   }
 
   return (
