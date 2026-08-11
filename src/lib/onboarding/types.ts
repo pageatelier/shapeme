@@ -1,7 +1,6 @@
 import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import type { CountryCode, LanguageCode } from "@/lib/locale/region";
 
-export type WorkoutPlace = "gym" | "home" | "both";
 /** 4 tiers per the onboarding spec (New to training / Occasionally /
  * Consistently / Experienced) — drives both which exercises are eligible
  * (difficulty filter) and set/rep volume in generateStartingWeek(). */
@@ -87,7 +86,6 @@ export type OnboardingProfile = {
    * still read by the older count-based mock generator (Weekly Review), not
    * by the real generator. */
   daysPerWeek: WorkoutDaysPerWeek | null;
-  place: WorkoutPlace | null;
   minutesPerSession: SessionMinutes | null;
   experience: ExperienceLevel | null;
   /** Preset caution keys plus any freeform entries, same mixed-array
@@ -107,7 +105,6 @@ export const DEFAULT_ONBOARDING_PROFILE: OnboardingProfile = {
   focusAreas: [],
   workoutDays: [],
   daysPerWeek: null,
-  place: null,
   minutesPerSession: null,
   experience: null,
   cautions: [],
@@ -123,7 +120,6 @@ type RawMetadata = {
   focus_areas?: string[];
   workout_days?: string[];
   days_per_week?: number;
-  workout_place?: string;
   minutes_per_session?: number;
   experience_level?: string;
   cautions?: string[];
@@ -144,7 +140,6 @@ export function readOnboardingProfile(metadata: RawMetadata | null | undefined):
     workoutDays: (m.workout_days as WeekdayEn[] | undefined) ?? DEFAULT_ONBOARDING_PROFILE.workoutDays,
     daysPerWeek:
       (m.days_per_week as WorkoutDaysPerWeek | undefined) ?? DEFAULT_ONBOARDING_PROFILE.daysPerWeek,
-    place: (m.workout_place as WorkoutPlace | undefined) ?? DEFAULT_ONBOARDING_PROFILE.place,
     minutesPerSession:
       (m.minutes_per_session as SessionMinutes | undefined) ?? DEFAULT_ONBOARDING_PROFILE.minutesPerSession,
     experience: (m.experience_level as ExperienceLevel | undefined) ?? DEFAULT_ONBOARDING_PROFILE.experience,

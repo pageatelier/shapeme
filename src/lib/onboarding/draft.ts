@@ -7,6 +7,28 @@ import type { OnboardingProfile } from "./types";
 
 export type RoutinePreference = "create_for_me" | "own_routine";
 
+/**
+ * Explicit resume anchor for the post-review tail — routing depends on
+ * this, not on GuestIntroFlow's own transient `phase` useState, so a page
+ * reload, a closed tab, or returning from the email-confirmation link (all
+ * of which remount the component fresh) can resume in the right place
+ * instead of restarting. Only the tail is tracked here: steps 0–6 and
+ * Starting Week review don't need cross-reload resume beyond what the
+ * per-field draft values already give for free (re-rendering the same step
+ * index 0 is a fine "resume" for that part).
+ *
+ * - "routine_ready": Starting Week review is done, generatedWeek is set,
+ *   about to show Account Creation.
+ * - "awaiting_auth": signUp() was called and requires email confirmation
+ *   (no session yet) — draft.generatedWeek is already final at this point.
+ * - "daily_care" / "body_check_in": bulk-persist to Supabase has already
+ *   happened; these two stages are post-auth-only.
+ * - "complete": finalize() succeeded, immediately followed by clear() — in
+ *   practice this value is only ever observed for an instant, since a
+ *   cleared draft has no stage at all (see DEFAULT_ONBOARDING_DRAFT).
+ */
+export type OnboardingStage = "routine_ready" | "awaiting_auth" | "daily_care" | "body_check_in" | "complete";
+
 export type DailyCarePreferences = {
   waterTrackingEnabled: boolean;
   mealTrackingEnabled: boolean;
@@ -44,6 +66,9 @@ export type OnboardingDraft = OnboardingProfile & {
    * either path's result without a second review implementation. */
   importedRoutine: StartingWeekDay[] | null;
   dailyCare: DailyCarePreferences;
+  /** null = still in the pre-review step flow (or nothing started yet) —
+   * see OnboardingStage's doc comment for what each non-null value means. */
+  stage: OnboardingStage | null;
 };
 
 export const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
@@ -53,6 +78,7 @@ export const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
   generatedWeek: null,
   importedRoutine: null,
   dailyCare: DEFAULT_DAILY_CARE,
+  stage: null,
 };
 
 const DRAFT_STORAGE_KEY = "shapeme.onboarding-draft.v1";

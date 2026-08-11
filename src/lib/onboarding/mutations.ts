@@ -22,7 +22,6 @@ export async function saveOnboardingProfile(patch: Partial<OnboardingProfile>) {
   if (patch.focusAreas !== undefined) data.focus_areas = patch.focusAreas;
   if (patch.workoutDays !== undefined) data.workout_days = patch.workoutDays;
   if (patch.daysPerWeek !== undefined) data.days_per_week = patch.daysPerWeek;
-  if (patch.place !== undefined) data.workout_place = patch.place;
   if (patch.minutesPerSession !== undefined) data.minutes_per_session = patch.minutesPerSession;
   if (patch.experience !== undefined) data.experience_level = patch.experience;
   if (patch.cautions !== undefined) data.cautions = patch.cautions;

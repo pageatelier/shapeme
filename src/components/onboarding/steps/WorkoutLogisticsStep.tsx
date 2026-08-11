@@ -3,7 +3,7 @@
 import { EQUIPMENT_OPTIONS, UNSURE_EQUIPMENT_PRESET, WEEKDAYS_EN } from "@/lib/aiRoutine/types";
 import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import { SESSION_MINUTES_OPTIONS } from "@/lib/onboarding/types";
-import type { ExperienceLevel, SessionMinutes, WorkoutDaysPerWeek, WorkoutPlace } from "@/lib/onboarding/types";
+import type { ExperienceLevel, SessionMinutes, WorkoutDaysPerWeek } from "@/lib/onboarding/types";
 
 /** Display-only English abbreviation for the day-picker buttons — the
  * underlying `workoutDays: WeekdayEn[]` state is already English
@@ -35,12 +35,6 @@ const GYM_EQUIPMENT: Equipment[] = [
   "machine",
 ];
 const HOME_EQUIPMENT: Equipment[] = ["dumbbell", "bench", "resistance_band", "kettlebell", "bodyweight"];
-
-const PLACE_OPTIONS: { value: WorkoutPlace; label: string }[] = [
-  { value: "gym", label: "Gym" },
-  { value: "home", label: "Home" },
-  { value: "both", label: "Both" },
-];
 
 const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string; helper: string }[] = [
   { value: "new", label: "New to training", helper: "I'm just getting started." },
@@ -78,21 +72,18 @@ function ChoiceRow<T extends string | number>({
 
 export function WorkoutLogisticsStep({
   workoutDays,
-  place,
   minutesPerSession,
   experience,
   equipment,
   onChange,
 }: {
   workoutDays: WeekdayEn[];
-  place: WorkoutPlace | null;
   minutesPerSession: SessionMinutes | null;
   experience: ExperienceLevel | null;
   equipment: Equipment[];
   onChange: (patch: {
     workoutDays?: WeekdayEn[];
     daysPerWeek?: WorkoutDaysPerWeek;
-    place?: WorkoutPlace;
     minutesPerSession?: SessionMinutes;
     experience?: ExperienceLevel;
     equipment?: Equipment[];
@@ -135,11 +126,6 @@ export function WorkoutLogisticsStep({
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">Where will you move?</p>
-        <ChoiceRow options={PLACE_OPTIONS} value={place} onSelect={(v) => onChange({ place: v })} />
       </div>
 
       <div className="flex flex-col gap-2">

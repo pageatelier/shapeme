@@ -28,7 +28,7 @@ function canContinue(step: number, profile: OnboardingProfile): boolean {
     case 2:
       return profile.focusAreas.length > 0;
     case 3:
-      return profile.workoutDays.length > 0 && profile.place !== null && profile.minutesPerSession !== null && profile.experience !== null;
+      return profile.workoutDays.length > 0 && profile.minutesPerSession !== null && profile.experience !== null;
     case 4:
       return true; // cautions are optional ("None" is a real answer, not a skip)
     default:
@@ -84,7 +84,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
       setStep((s) => s + 1);
       return;
     }
-    if (profile.workoutDays.length === 0 || !profile.place || !profile.minutesPerSession || !profile.experience) {
+    if (profile.workoutDays.length === 0 || !profile.minutesPerSession || !profile.experience) {
       return; // canContinue already guards this; narrows types for the call below
     }
     setSaving(true);
@@ -166,7 +166,6 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
         {step === 3 && (
           <WorkoutLogisticsStep
             workoutDays={profile.workoutDays}
-            place={profile.place}
             minutesPerSession={profile.minutesPerSession}
             experience={profile.experience}
             equipment={profile.equipment}

@@ -23,12 +23,22 @@ import { createClient } from "@/lib/supabase/client";
  * only fires for the email path today, and only when
  * signUp() returns an active session immediately (email confirmation
  * off) — if Supabase requires confirmation, this shows the same
- * check-your-email state the standalone signup page does, and the guest
- * draft simply waits in localStorage until they come back and log in
- * (landing in the legacy OnboardingFlow at that point — a known gap, not
- * yet handled).
+ * check-your-email state the standalone signup page does. `emailRedirectTo`
+ * points the confirmation link back at /onboarding, which is guest-reachable
+ * (see proxy.ts's isOnboardingRoute exception) and — once GuestIntroFlow's
+ * resume logic is in place — recognizes the still-present local draft
+ * (stage "awaiting_auth") and picks up automatically once a session exists,
+ * rather than restarting or landing in the legacy OnboardingFlow.
+ * onAwaitingConfirmation lets the parent mark that resume point in the
+ * draft before this component's own local checkEmail state takes over.
  */
-export function AccountCreationStep({ onCreated }: { onCreated: () => void }) {
+export function AccountCreationStep({
+  onCreated,
+  onAwaitingConfirmation,
+}: {
+  onCreated: () => void;
+  onAwaitingConfirmation: () => void;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +52,11 @@ export function AccountCreationStep({ onCreated }: { onCreated: () => void }) {
     setLoading(true);
 
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+    });
 
     setLoading(false);
     if (error) {
@@ -53,6 +67,7 @@ export function AccountCreationStep({ onCreated }: { onCreated: () => void }) {
     if (data.session) {
       onCreated();
     } else {
+      onAwaitingConfirmation();
       setCheckEmail(true);
     }
   }

@@ -45,7 +45,7 @@ function canContinueForStep(step: number, draft: OnboardingDraft): boolean {
     case 4:
       return draft.focusAreas.length > 0;
     case 5:
-      return draft.workoutDays.length > 0 && draft.place !== null && draft.minutesPerSession !== null && draft.experience !== null;
+      return draft.workoutDays.length > 0 && draft.minutesPerSession !== null && draft.experience !== null;
     case 6:
       return true; // cautions are optional
     default:
@@ -273,7 +273,6 @@ export function GuestIntroFlow() {
         {step === 5 && (
           <WorkoutLogisticsStep
             workoutDays={draft.workoutDays}
-            place={draft.place}
             minutesPerSession={draft.minutesPerSession}
             experience={draft.experience}
             equipment={draft.equipment}

@@ -71,7 +71,6 @@ for (const days of [2, 3, 4, 5] as const) {
     profile({
       workoutDays,
       daysPerWeek: days,
-      place: "gym",
       minutesPerSession: 45,
       experience: "occasional",
       equipment: FULL_GYM_EQUIPMENT,
@@ -111,7 +110,6 @@ console.log("\n2) Protected area doesn't wipe out a whole muscle group");
     profile({
       workoutDays: ["monday", "tuesday", "thursday", "friday"],
       daysPerWeek: 4,
-      place: "gym",
       minutesPerSession: 45,
       experience: "occasional",
       equipment: FULL_GYM_EQUIPMENT,
@@ -135,7 +133,6 @@ console.log('\n3) "I\'m not sure" equipment preset');
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "gym",
       minutesPerSession: 45,
       experience: "new",
       equipment: UNSURE_EQUIPMENT_PRESET,
@@ -169,7 +166,6 @@ for (const tier of TIERS) {
       profile({
         workoutDays: ["monday", "wednesday", "friday"],
         daysPerWeek: 3,
-        place: "gym",
         minutesPerSession: minutes as OnboardingProfile["minutesPerSession"],
         experience: tier,
         equipment: FULL_GYM_EQUIPMENT,
@@ -208,7 +204,6 @@ console.log("\n4b) Thin equipment (bodyweight-only) falls back without duplicati
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "home",
       minutesPerSession: 60,
       experience: "occasional",
       equipment: ["bodyweight"],
@@ -226,7 +221,6 @@ console.log("\n4b) Thin equipment (bodyweight-only) falls back without duplicati
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "home",
       minutesPerSession: 60,
       experience: "occasional",
       equipment: ["bodyweight"],
@@ -252,7 +246,6 @@ console.log("\n5) Multiple Focus Areas (up to 3) don't crash");
     profile({
       workoutDays: ["monday", "tuesday", "thursday", "friday"],
       daysPerWeek: 4,
-      place: "gym",
       minutesPerSession: 60,
       experience: "occasional",
       equipment: FULL_GYM_EQUIPMENT,
@@ -280,7 +273,6 @@ console.log('\n6) "bodyweight" is implicitly available even when not selected');
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "gym",
       minutesPerSession: 30,
       experience: "occasional",
       equipment: ["leg_press", "lat_pulldown", "dumbbell"], // deliberately no "bodyweight"
@@ -309,7 +301,6 @@ console.log("\n7) Week-level variety: anchor lift can repeat, supporting exercis
     profile({
       workoutDays: ["monday", "tuesday", "thursday", "friday"],
       daysPerWeek: 4,
-      place: "gym",
       minutesPerSession: 60,
       experience: "occasional",
       equipment: ["leg_press", "lat_pulldown", "dumbbell", "bench"],
@@ -349,7 +340,6 @@ function testWeek(overrides: Partial<OnboardingProfile> = {}) {
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "gym",
       minutesPerSession: 60,
       experience: "occasional",
       equipment: FULL_GYM_EQUIPMENT,
