@@ -1,17 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BodyCapture } from "@/components/body/BodyCapture";
 import { ChevronLeftIcon } from "@/components/icons";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
 import { useOnboardingDraft } from "@/lib/onboarding/draft";
-import type { OnboardingDraft } from "@/lib/onboarding/draft";
+import type { OnboardingDraft, OnboardingStage } from "@/lib/onboarding/draft";
 import { generateStartingWeek } from "@/lib/onboarding/generateStartingWeek";
 import type { StartingWeekDay } from "@/lib/onboarding/generateStartingWeek";
 import { saveOnboardingProfile } from "@/lib/onboarding/mutations";
 import { saveStartingWeekToMove } from "@/lib/onboarding/saveStartingWeek";
+import type { OnboardingProfile } from "@/lib/onboarding/types";
+import { createClient } from "@/lib/supabase/client";
 import { updateSettings } from "@/lib/settings/mutations";
+import { OnboardingFlow } from "./OnboardingFlow";
 import { StartingWeekReview } from "./StartingWeekReview";
 import { AccountCreationStep } from "./steps/AccountCreationStep";
 import { BodyGoalsStep } from "./steps/BodyGoalsStep";
@@ -31,6 +34,10 @@ const INTRO_STEP_COUNT = 3;
 // Cautions — Path A's own steps, rewired here onto the draft instead of
 // Supabase (Phase 5). Step 4's Continue generates the week and moves to review.
 const PATH_A_STEP_COUNT = 7;
+
+// Draft stages with an unfinished tail worth resuming — see OnboardingStage's
+// doc comment in draft.ts for what each one means.
+const RESUMABLE_STAGES: OnboardingStage[] = ["routine_ready", "awaiting_auth", "daily_care", "body_check_in"];
 
 function canContinueForStep(step: number, draft: OnboardingDraft): boolean {
   switch (step) {
@@ -61,32 +68,53 @@ type Phase = "steps" | "review" | "account" | "dailyCare" | "bodyCheckIn";
  * review writes to the localStorage-backed draft, not Supabase, since
  * there's no account yet.
  *
- * Steps 0–2 (Welcome/Inspiration/Routine Preference, Phase 4) always run.
- * Choosing "I have my own routine" still dead-ends there — Path B's
- * type/paste + photo import is Phase 6, not built yet. Choosing "Create a
- * routine for me" continues into Path A's existing steps (My Week/My
- * Focus/My Movement/Cautions) reused as-is, just pointed at patchDraft()
- * instead of saveOnboardingProfile() per step (Phase 5), through to
+ * Steps 0–2 (Welcome/Inspiration/Routine Preference) always run for a
+ * fresh guest. "I have my own routine" is disabled until Path B (type/paste
+ * + photo import) ships. "Create a routine for me" continues into Path A's
+ * existing steps (My Week/My Focus/My Movement/Cautions), reused as-is but
+ * pointed at patchDraft() instead of saveOnboardingProfile(), through to
  * Starting Week review.
  *
- * From there (Phase 7): Account Creation is the first moment anything
- * touches Supabase — on success the whole draft (profile fields + the
- * generated week) gets bulk-written, same data saveOnboardingProfile/
- * saveStartingWeekToMove already handle, just fed from the draft instead
- * of live component state. Daily Care and Body Check-In run post-auth,
- * writing directly (updateSettings, BodyCapture's own upload path) since a
- * real session exists by then. Finishing Body Check-In finalizes
- * (onboardingCompleted: true + programStartedAt), clears the draft, and
- * routes to Today.
+ * From there, Account Creation is the first moment anything touches
+ * Supabase — on success the whole draft (profile fields + the generated
+ * week) gets bulk-written. Daily Care and Body Check-In run post-auth. Body
+ * photos specifically are never touchable before this point: BodyCapture
+ * only renders in the "bodyCheckIn" phase, which is only reachable after a
+ * session exists. Finishing Body Check-In finalizes (onboardingCompleted:
+ * true + programStartedAt), clears the draft, and routes to Today.
+ *
+ * `draft.stage` — not this component's own `phase` state — is what a
+ * fresh mount actually resumes from, because `phase` doesn't survive a
+ * reload/new-tab/redirect and `stage` does (see OnboardingStage). Three
+ * entry points all funnel through the same resume logic below: a guest
+ * closing the tab mid-Account-Creation and reopening /onboarding, the
+ * Supabase email-confirmation link redirecting back to /onboarding once
+ * confirmed (AccountCreationStep's emailRedirectTo), and a plain login-page
+ * login landing back here because (main)/layout.tsx still sees
+ * onboardingCompleted: false. When there's no resumable draft and a real
+ * session already exists, this renders the legacy, profile-driven
+ * OnboardingFlow unchanged — that path is for accounts that never went
+ * through the guest draft at all (direct /signup, or pre-existing accounts
+ * whose onboarding predates this flow).
  */
-export function GuestIntroFlow() {
+export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?: OnboardingProfile }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<Phase>("steps");
   const [week, setWeek] = useState<StartingWeekDay[] | null>(null);
   const [postSignupSaving, setPostSignupSaving] = useState(false);
   const [postSignupError, setPostSignupError] = useState<string | null>(null);
-  const { draft, patch, patchDailyCare, clear } = useOnboardingDraft();
+  // Whether a session exists is known two ways: authenticatedProfile (this
+  // page's own server-side check, present from first paint) and this —
+  // client-detected, needed because Supabase's email-confirmation redirect
+  // only establishes the session AFTER this component has already mounted
+  // (the confirm link's tokens are exchanged client-side on load), so the
+  // very first server render still sees a guest even though the browser is
+  // about to become authenticated moments later.
+  const [clientSignedIn, setClientSignedIn] = useState(false);
+  const { draft, patch, patchDailyCare, clear, hydrated } = useOnboardingDraft();
+  const persistStartedRef = useRef(false);
+  const refreshedRef = useRef(false);
 
   // Same one-time, effect-based prefill OnboardingFlow's step 0 used to do
   // explicitly via LanguageRegionStep — language/region are no longer asked
@@ -98,6 +126,27 @@ export function GuestIntroFlow() {
     // Only run once on mount — this is a one-time prefill, not a live sync.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Tracks auth state client-side (see clientSignedIn's doc comment above).
+  useEffect(() => {
+    const supabase = createClient();
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled && data.user) setClientSignedIn(true);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") setClientSignedIn(true);
+    });
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const isAuthenticated = !!authenticatedProfile || clientSignedIn;
+  const hasResumableDraft = draft.stage !== null && RESUMABLE_STAGES.includes(draft.stage);
 
   const stepCount = draft.routinePreference === "create_for_me" ? PATH_A_STEP_COUNT : INTRO_STEP_COUNT;
 
@@ -114,16 +163,18 @@ export function GuestIntroFlow() {
 
   function handleReviewDone() {
     if (!week) return;
-    patch({ generatedWeek: week });
+    patch({ generatedWeek: week, stage: "routine_ready" });
     setPhase("account");
   }
 
-  // Fires once signUp() returns an active session — the account now exists,
-  // so this is the first point any of the draft's data can actually be
-  // written. Retriable: a failure here (e.g. saveStartingWeekToMove) leaves
-  // the user on the same screen with an account but nothing saved yet,
-  // rather than silently losing the routine they just built.
-  async function handleAccountCreated() {
+  // Bulk-writes the draft to Supabase and advances to Daily Care — shared
+  // by two callers: AccountCreationStep's onCreated (a fresh signUp() that
+  // returned an active session immediately) and the resume effect below
+  // (an already-authenticated reload/redirect finding stage routine_ready
+  // or awaiting_auth). Retriable: a failure here leaves the user on the
+  // same screen with an account but nothing saved yet, rather than
+  // silently losing the routine they just built.
+  async function persistAndAdvanceToDailyCare() {
     setPostSignupSaving(true);
     setPostSignupError(null);
     try {
@@ -131,6 +182,7 @@ export function GuestIntroFlow() {
       if (draft.generatedWeek) {
         await saveStartingWeekToMove(draft.generatedWeek);
       }
+      patch({ stage: "daily_care" });
       setPhase("dailyCare");
     } catch (err) {
       setPostSignupError(err instanceof Error ? err.message : "Failed to save.");
@@ -144,6 +196,7 @@ export function GuestIntroFlow() {
     setPostSignupError(null);
     try {
       await updateSettings(draft.dailyCare);
+      patch({ stage: "body_check_in" });
       setPhase("bodyCheckIn");
     } catch (err) {
       setPostSignupError(err instanceof Error ? err.message : "Failed to save.");
@@ -158,6 +211,7 @@ export function GuestIntroFlow() {
     try {
       await saveOnboardingProfile({ onboardingCompleted: true });
       await updateSettings({ programStartedAt: new Date().toISOString() });
+      patch({ stage: "complete" });
       clear();
       router.push("/");
       router.refresh();
@@ -165,6 +219,64 @@ export function GuestIntroFlow() {
       setPostSignupError(err instanceof Error ? err.message : "Failed to save.");
       setPostSignupSaving(false);
     }
+  }
+
+  // The resume decision — see this component's doc comment for the three
+  // entry points this covers. Gated on `hydrated` since the draft isn't
+  // readable until the localStorage effect resolves.
+  useEffect(() => {
+    if (!hydrated) return;
+
+    if (!hasResumableDraft) {
+      // Became authenticated client-side (email-confirm redirect) with
+      // nothing to resume — the server-rendered branch above still thinks
+      // it's rendering for a guest and has no profile to hand the legacy
+      // flow, so ask it to redo the check now that a session exists.
+      if (isAuthenticated && !authenticatedProfile && !refreshedRef.current) {
+        refreshedRef.current = true;
+        router.refresh();
+      }
+      return;
+    }
+
+    if (!isAuthenticated) {
+      // Still a guest, reopened mid-Account-Creation — skip straight back
+      // to it instead of re-walking steps 0–6 (the week is already saved
+      // in draft.generatedWeek).
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resuming from a persisted stage on mount, see this effect's doc comment
+      setPhase("account");
+      return;
+    }
+
+    if (draft.stage === "daily_care") {
+      setPhase("dailyCare");
+      return;
+    }
+    if (draft.stage === "body_check_in") {
+      setPhase("bodyCheckIn");
+      return;
+    }
+    // routine_ready or awaiting_auth, now authenticated: the bulk-persist
+    // hasn't happened yet.
+    if (!persistStartedRef.current) {
+      persistStartedRef.current = true;
+      void persistAndAdvanceToDailyCare();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, isAuthenticated, hasResumableDraft, draft.stage]);
+
+  // Briefly gate rendering while hydration resolves, only when there's a
+  // server-known session — otherwise this could flash the legacy
+  // OnboardingFlow and then yank to a resumed draft a moment later once
+  // hydration reveals one. The guest path below has no equivalent gate:
+  // rendering step 0 by default and correcting once hydrated (same as the
+  // browser-locale prefill above) is an acceptable, much smaller flash.
+  if (authenticatedProfile && !hydrated) {
+    return null;
+  }
+
+  if (authenticatedProfile && !hasResumableDraft) {
+    return <OnboardingFlow initialProfile={authenticatedProfile} />;
   }
 
   if (phase === "review" && week) {
@@ -183,7 +295,10 @@ export function GuestIntroFlow() {
   if (phase === "account") {
     return (
       <div className="flex flex-1 flex-col gap-4">
-        <AccountCreationStep onCreated={handleAccountCreated} />
+        <AccountCreationStep
+          onCreated={persistAndAdvanceToDailyCare}
+          onAwaitingConfirmation={() => patch({ stage: "awaiting_auth" })}
+        />
         {postSignupSaving && <p className="text-center text-[12px] text-text-muted">Saving your first week...</p>}
         {postSignupError && <p className="text-center text-[12px] text-error">{postSignupError}</p>}
       </div>
