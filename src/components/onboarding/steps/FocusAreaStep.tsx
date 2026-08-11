@@ -1,5 +1,6 @@
 "use client";
 
+import { OnboardingPhotoHero } from "@/components/onboarding/OnboardingPhotoHero";
 import { FOCUS_AREA_OPTIONS, MAX_FOCUS_AREAS } from "@/lib/onboarding/types";
 import type { FocusArea } from "@/lib/onboarding/types";
 
@@ -22,13 +23,12 @@ export function FocusAreaStep({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-[13px] font-semibold text-text-secondary">Where would you like to focus?</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          Where would you like to feel the most change?
-        </h1>
-        <p className="mt-1.5 text-[12px] text-text-muted">Choose up to {MAX_FOCUS_AREAS}.</p>
-      </div>
+      <OnboardingPhotoHero
+        src="/onboading-images/focus-area.webp"
+        eyebrow="Where would you like to focus?"
+        title="Where would you like to feel the most change?"
+        subtitle={`Choose up to ${MAX_FOCUS_AREAS}.`}
+      />
 
       <div className="flex flex-wrap gap-2">
         {FOCUS_AREA_OPTIONS.map(({ value, label }) => {

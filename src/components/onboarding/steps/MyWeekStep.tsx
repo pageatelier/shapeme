@@ -1,7 +1,8 @@
 "use client";
 
-import { EQUIPMENT_OPTIONS, UNSURE_EQUIPMENT_PRESET, WEEKDAYS_EN } from "@/lib/aiRoutine/types";
-import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
+import { OnboardingPhotoHero } from "@/components/onboarding/OnboardingPhotoHero";
+import { WEEKDAYS_EN } from "@/lib/aiRoutine/types";
+import type { WeekdayEn } from "@/lib/aiRoutine/types";
 import { SESSION_MINUTES_OPTIONS } from "@/lib/onboarding/types";
 import type { ExperienceLevel, SessionMinutes, WorkoutDaysPerWeek } from "@/lib/onboarding/types";
 
@@ -17,24 +18,6 @@ const WEEKDAY_SHORT_LABEL: Record<WeekdayEn, string> = {
   saturday: "Sat",
   sunday: "Sun",
 };
-
-/** Gym vs. home grouping is purely presentational — both write into the
- * same flat `equipment: Equipment[]` the generator filters on. Dumbbells
- * live in the home group even though gyms have them too, to avoid
- * rendering (and needing to keep in sync) two buttons for one value. */
-const GYM_EQUIPMENT: Equipment[] = [
-  "barbell",
-  "smith_machine",
-  "cable",
-  "leg_press",
-  "leg_curl",
-  "leg_extension",
-  "hip_abductor",
-  "lat_pulldown",
-  "seated_row",
-  "machine",
-];
-const HOME_EQUIPMENT: Equipment[] = ["dumbbell", "bench", "resistance_band", "kettlebell", "bodyweight"];
 
 const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string; helper: string }[] = [
   { value: "new", label: "New to training", helper: "I'm just getting started." },
@@ -70,23 +53,22 @@ function ChoiceRow<T extends string | number>({
   );
 }
 
-export function WorkoutLogisticsStep({
+/** Days + duration + experience only — equipment now lives in its own
+ * EquipmentStep, split out so this screen doesn't ask too much at once. */
+export function MyWeekStep({
   workoutDays,
   minutesPerSession,
   experience,
-  equipment,
   onChange,
 }: {
   workoutDays: WeekdayEn[];
   minutesPerSession: SessionMinutes | null;
   experience: ExperienceLevel | null;
-  equipment: Equipment[];
   onChange: (patch: {
     workoutDays?: WeekdayEn[];
     daysPerWeek?: WorkoutDaysPerWeek;
     minutesPerSession?: SessionMinutes;
     experience?: ExperienceLevel;
-    equipment?: Equipment[];
   }) => void;
 }) {
   function toggleDay(day: WeekdayEn) {
@@ -100,15 +82,14 @@ export function WorkoutLogisticsStep({
     onChange({ workoutDays: next, daysPerWeek: clampedCount });
   }
 
-  function toggleEquipment(item: Equipment) {
-    onChange({ equipment: equipment.includes(item) ? equipment.filter((e) => e !== item) : [...equipment, item] });
-  }
-
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">
-        Which days work for you this week?
-      </h1>
+      <OnboardingPhotoHero
+        src="/onboading-images/myweek.webp"
+        eyebrow="Let's build your rhythm"
+        title="Which days work for you this week?"
+        objectPosition="center 22%"
+      />
 
       <div className="flex flex-col gap-2">
         <p className="text-[13px] font-semibold text-text-secondary">Select the days that work for you</p>
@@ -153,61 +134,6 @@ export function WorkoutLogisticsStep({
               <span className="ml-1.5 opacity-75">{opt.helper}</span>
             </button>
           ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-text-secondary">What equipment can you use? (optional)</p>
-          <button
-            type="button"
-            onClick={() => onChange({ equipment: UNSURE_EQUIPMENT_PRESET })}
-            className="text-[12px] font-semibold text-pink-500"
-          >
-            I&apos;m not sure
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <p className="text-[12px] text-text-muted">Gym</p>
-          <div className="flex flex-wrap gap-2">
-            {GYM_EQUIPMENT.map((value) => {
-              const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => toggleEquipment(value)}
-                  className={`rounded-full px-4 py-2.5 text-[13px] ${
-                    equipment.includes(value) ? "pill-selected" : "pill-unselected"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <p className="text-[12px] text-text-muted">Home</p>
-          <div className="flex flex-wrap gap-2">
-            {HOME_EQUIPMENT.map((value) => {
-              const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => toggleEquipment(value)}
-                  className={`rounded-full px-4 py-2.5 text-[13px] ${
-                    equipment.includes(value) ? "pill-selected" : "pill-unselected"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
     </div>

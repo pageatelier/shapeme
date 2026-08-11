@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { ChevronDownIcon, ChevronUpIcon, CloseIcon, PlusIcon } from "@/components/icons";
 import type { ExerciseTemplate, StartingWeight } from "@/lib/onboarding/exercises";
 import {
@@ -463,7 +464,30 @@ export function StartingWeekReview({
 
   return (
     <div className="flex flex-1 flex-col gap-6">
-      <div className="text-center">
+      {/* Full photo, uncropped (natural aspect ratio, not force-cropped into
+          a fixed-height banner) — bleeds edge-to-edge via negative margin,
+          then fades to var(--color-bg) at the bottom so the heading below
+          can pull up into the fade zone (-mt-8) and overlap it naturally
+          instead of meeting it at a hard seam. */}
+      <div className="-mx-5 -mb-2 w-[calc(100%+2.5rem)]">
+        <div className="relative">
+          <Image
+            src="/onboading-images/startweek.webp"
+            alt=""
+            width={650}
+            height={1407}
+            priority
+            sizes="(max-width: 480px) 100vw, 480px"
+            className="h-auto w-full"
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-28"
+            style={{ background: "linear-gradient(180deg, transparent 0%, var(--color-bg) 100%)" }}
+          />
+        </div>
+      </div>
+
+      <div className="relative z-10 -mt-8 text-center">
         <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Your first week is ready.</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-text-secondary">
           You don&apos;t need to start perfectly.

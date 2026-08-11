@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BodyCapture } from "@/components/body/BodyCapture";
 import { ChevronLeftIcon } from "@/components/icons";
+import { OnboardingBannerImage } from "@/components/onboarding/OnboardingBannerImage";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
 import { useOnboardingDraft } from "@/lib/onboarding/draft";
 import type { OnboardingDraft, OnboardingStage } from "@/lib/onboarding/draft";
@@ -18,24 +19,27 @@ import { StartingWeekReview } from "./StartingWeekReview";
 import { AccountCreationStep } from "./steps/AccountCreationStep";
 import { CautionsStep } from "./steps/CautionsStep";
 import { DailyCareStep } from "./steps/DailyCareStep";
+import { EquipmentStep } from "./steps/EquipmentStep";
 import { FocusAreaStep } from "./steps/FocusAreaStep";
 import { InspirationStep } from "./steps/InspirationStep";
+import { MyWeekStep } from "./steps/MyWeekStep";
 import { RoutinePreferenceStep } from "./steps/RoutinePreferenceStep";
 import { WelcomeStep } from "./steps/WelcomeStep";
-import { WorkoutLogisticsStep } from "./steps/WorkoutLogisticsStep";
 
 // Welcome, Inspiration, Routine Preference — Path B ("I have my own
 // routine") has nowhere further to go until Phase 6 exists, so this is the
 // step count until create_for_me is chosen.
 const INTRO_STEP_COUNT = 3;
-// + My Focus (FocusArea), My Movement (WorkoutLogistics), Cautions —
-// Path A's own steps, pointed at patchDraft() instead of
-// saveOnboardingProfile(). There's no "My Week" body-goals step:
-// Inspiration (step 1) already collects an equivalent visual signal, and
+// + My Focus (FocusArea), My Week (days/duration/experience), Equipment,
+// Cautions — Path A's own steps, pointed at patchDraft() instead of
+// saveOnboardingProfile(). Equipment is its own step (split out of what
+// used to be a combined WorkoutLogisticsStep) so My Week doesn't ask too
+// many questions at once. There's no separate body-goals step: Inspiration
+// (step 1) already collects an equivalent visual signal, and
 // generateStartingWeek() never reads bodyGoals anyway (unlike focusAreas,
 // which drives the weekly split). Last step's Continue generates the week
 // and moves to review.
-const PATH_A_STEP_COUNT = 6;
+const PATH_A_STEP_COUNT = 7;
 
 // Draft stages with an unfinished tail worth resuming — see OnboardingStage's
 // doc comment in draft.ts for what each one means.
@@ -54,6 +58,8 @@ function canContinueForStep(step: number, draft: OnboardingDraft): boolean {
     case 4:
       return draft.workoutDays.length > 0 && draft.minutesPerSession !== null && draft.experience !== null;
     case 5:
+      return true; // equipment is optional
+    case 6:
       return true; // cautions are optional
     default:
       return false;
@@ -313,6 +319,7 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
   if (phase === "bodyCheckIn") {
     return (
       <div className="flex flex-1 flex-col gap-6">
+        <OnboardingBannerImage src="/onboading-images/shot.webp" />
         <div>
           <p className="text-[13px] font-semibold text-text-secondary">Optional, but a nice place to start</p>
           <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">Your first Shape Shot</h1>
@@ -370,15 +377,15 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
           <FocusAreaStep focusAreas={draft.focusAreas} onChange={(focusAreas) => patch({ focusAreas })} />
         )}
         {step === 4 && (
-          <WorkoutLogisticsStep
+          <MyWeekStep
             workoutDays={draft.workoutDays}
             minutesPerSession={draft.minutesPerSession}
             experience={draft.experience}
-            equipment={draft.equipment}
             onChange={patch}
           />
         )}
-        {step === 5 && (
+        {step === 5 && <EquipmentStep equipment={draft.equipment} onChange={patch} />}
+        {step === 6 && (
           <CautionsStep cautions={draft.cautions} avoidedExercisesNote={draft.avoidedExercisesNote} onChange={patch} />
         )}
       </div>

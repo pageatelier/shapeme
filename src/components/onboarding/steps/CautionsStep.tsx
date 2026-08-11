@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PlusIcon } from "@/components/icons";
+import { OnboardingPhotoHero } from "@/components/onboarding/OnboardingPhotoHero";
 import { CAUTION_PRESETS } from "@/lib/onboarding/types";
 import type { CautionArea } from "@/lib/onboarding/types";
 
@@ -41,12 +42,12 @@ export function CautionsStep({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-[13px] font-semibold text-text-secondary">Is there anything we should take care of?</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          Any areas we should be gentle with?
-        </h1>
-      </div>
+      <OnboardingPhotoHero
+        src="/onboading-images/comfort.webp"
+        eyebrow="Is there anything we should take care of?"
+        title="Any areas we should be gentle with?"
+        objectPosition="center 25%"
+      />
 
       <div className="flex flex-wrap gap-2">
         {CAUTION_PRESETS.map(({ value, label }) => (

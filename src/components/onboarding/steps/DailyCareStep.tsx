@@ -1,6 +1,7 @@
 "use client";
 
 import { ToggleRow } from "@/components/my/ToggleRow";
+import { OnboardingPhotoHero } from "@/components/onboarding/OnboardingPhotoHero";
 import type { DailyCarePreferences } from "@/lib/onboarding/draft";
 
 const DAILY_CARE_OPTIONS: { key: keyof DailyCarePreferences; label: string; helper: string }[] = [
@@ -21,13 +22,13 @@ export function DailyCareStep({
 }) {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-[13px] font-semibold text-text-secondary">Make it feel like yours</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          What should we help you keep up with?
-        </h1>
-        <p className="mt-1.5 text-[12px] text-text-muted">You can always change these later in Settings.</p>
-      </div>
+      <OnboardingPhotoHero
+        src="/onboading-images/rest.webp"
+        eyebrow="Make it feel like yours"
+        title="What should we help you keep up with?"
+        subtitle="You can always change these later in Settings."
+        objectPosition="center 20%"
+      />
 
       <div className="flex flex-col gap-3">
         {DAILY_CARE_OPTIONS.map((opt) => (
