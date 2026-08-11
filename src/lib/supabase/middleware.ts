@@ -34,8 +34,14 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
+  // The guest-first onboarding flow (steps 0-7) runs before an account
+  // exists, so unauthenticated visitors must reach /onboarding directly —
+  // kept as its own check rather than folded into isAuthRoute, since an
+  // authenticated user hitting /onboarding mid-flow should NOT be bounced
+  // away the way isAuthRoute below bounces a logged-in user off /login.
+  const isOnboardingRoute = request.nextUrl.pathname.startsWith("/onboarding");
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isAuthRoute && !isOnboardingRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);
