@@ -3,12 +3,10 @@
 import { BrandLogo } from "@/components/BrandLogo";
 
 /**
- * Step 0 of the guest-first flow — pure intro, no fields. Replaces the old
- * flow's step 0 (LanguageRegionStep, still used by the legacy login-gated
- * OnboardingFlow until Phase 5/9 retire it): language/region are no longer
- * asked up front here, they're auto-detected into the draft instead (see
- * useOnboardingDraft's consumer in the guest flow wrapper) and stay
- * editable later from /my/settings.
+ * Step 0 of the flow — pure intro, no fields. Language/region aren't asked
+ * up front: they're auto-detected into the draft instead (see
+ * useOnboardingDraft's consumer in GuestIntroFlow) and stay editable later
+ * from /my/settings.
  */
 export function WelcomeStep() {
   return (

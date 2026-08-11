@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "쉐잎미 ShapeMe",
-    short_name: "쉐잎미",
+    name: "SILUA",
+    short_name: "SILUA",
     description: "운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
     start_url: "/",
     display: "standalone",

@@ -104,7 +104,7 @@ function buildPrompt(input: RoutineGenerationInput): string {
 이 사용자는 1회에 ${input.sessionMinutes}분을 쓸 수 있으니, 본운동 개수를 최소 ${minWorkoutItems(input.sessionMinutes)}개 이상으로 구성해서 warmup+workout(세트×휴식 포함)+cardio+cooldown 시간 합이 ${input.sessionMinutes}분에 가깝게 채워줘.`;
 }
 
-const SYSTEM_PROMPT = `너는 ShapeMe 앱의 운동 루틴 코치야. 사용자가 지정한 요일에만 각각 하루치 루틴을 만든다.
+const SYSTEM_PROMPT = `너는 SILUA 앱의 운동 루틴 코치야. 사용자가 지정한 요일에만 각각 하루치 루틴을 만든다.
 
 규칙:
 - 반드시 입력에 주어진 workout_days 요일에 대해서만 하루씩 만들어라. 하나라도 빠지거나 추가되면 안 된다.

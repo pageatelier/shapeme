@@ -49,7 +49,7 @@ export function DataExportButtons() {
         dailyNotes: notes.data ?? [],
       };
       downloadBlob(
-        `shapeme-backup-${new Date().toISOString().slice(0, 10)}.json`,
+        `silua-backup-${new Date().toISOString().slice(0, 10)}.json`,
         JSON.stringify(backup, null, 2),
         "application/json",
       );
@@ -116,7 +116,7 @@ export function DataExportButtons() {
         return `${d},${b.workoutSets},${b.waterMl},${b.meals},${b.body ? "yes" : "no"}`;
       });
       downloadBlob(
-        `shapeme-records-${new Date().toISOString().slice(0, 10)}.csv`,
+        `silua-records-${new Date().toISOString().slice(0, 10)}.csv`,
         header + rows.join("\n"),
         "text/csv",
       );

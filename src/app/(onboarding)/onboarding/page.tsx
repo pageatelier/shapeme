@@ -11,12 +11,12 @@ import { getCurrentUser } from "@/lib/supabase/server";
 // emailRedirectTo). This page itself lives outside (main), so it isn't
 // caught by that same redirect.
 //
-// The guest-vs-resume-vs-legacy-flow decision can't be made here: whether
-// there's an unfinished local draft to resume only exists in localStorage,
-// which this server component can't read. GuestIntroFlow makes that call
-// client-side — given a real user it either resumes the draft's tail
-// (Account Creation onward) or falls through to the legacy OnboardingFlow
-// itself; given no user it's the full guest-first flow from Welcome.
+// Whether there's an unfinished local draft to resume only exists in
+// localStorage, which this server component can't read — GuestIntroFlow
+// makes that call client-side, resuming from draft.stage when there's
+// something to resume and starting fresh at Welcome otherwise (skipping
+// Account Creation if a session already exists, e.g. an authenticated
+// account with incomplete onboarding walking this flow for the first time).
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
   if (!user) return <GuestIntroFlow />;

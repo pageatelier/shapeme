@@ -24,13 +24,13 @@ const cormorantGaramond = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://shapeme-ten.vercel.app"),
-  title: "쉐잎미 ShapeMe",
+  title: "SILUA",
   description:
-    "ShapeMe — A self-care diary. Every moment shapes me. 운동, 식단, 물 섭취와 몸의 변화를 한곳에 기록하는 셀프케어 웹앱",
+    "SILUA — a self-care diary. Track your workouts, meals, water, and body changes in one place.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "쉐잎미",
+    title: "SILUA",
   },
   twitter: {
     card: "summary_large_image",

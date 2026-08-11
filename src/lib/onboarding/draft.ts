@@ -81,7 +81,7 @@ export const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
   stage: null,
 };
 
-const DRAFT_STORAGE_KEY = "shapeme.onboarding-draft.v1";
+const DRAFT_STORAGE_KEY = "silua.onboarding-draft.v1";
 
 function readDraftFromStorage(): OnboardingDraft | null {
   try {

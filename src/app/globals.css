@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * ShapeMe design tokens — editorial/minimal palette (Chalk / Bone / Sage Grey
+ * SILUA design tokens — editorial/minimal palette (Chalk / Bone / Sage Grey
  * / Muted Butter / Espresso), Cormorant Garamond (display) + Pretendard
  * (body/UI). Keep this file the single source of truth; update this file
  * only, not the individual pages, when a token value needs to change.
@@ -209,7 +209,7 @@ body {
   background: var(--color-bg);
 }
 
-/* Mobile app frame — ShapeMe is designed mobile-first, capped at 480px */
+/* Mobile app frame — SILUA is designed mobile-first, capped at 480px */
 .app-shell {
   position: relative;
   width: min(100%, var(--container-sm));

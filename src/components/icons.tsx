@@ -184,7 +184,7 @@ export function NoteIcon({ className }: IconProps) {
  * outline is traced from the source PNG's pixel data (sampled at 41
  * scanlines, mapped into this 24x24 viewBox) rather than hand-drawn, so it
  * reproduces the real mark's curve instead of an approximation. Used next
- * to the "shapeme" wordmark in BrandLogo. currentColor so it follows the
+ * to the "silua" wordmark in BrandLogo. currentColor so it follows the
  * wordmark's own color (white on a photo background, espresso ink
  * elsewhere) instead of needing separate light/dark assets. */
 export function BrandMarkIcon({ className }: IconProps) {

@@ -1,5 +1,5 @@
 /**
- * The "SHAPEME" wordmark — the only place Cormorant Garamond is used in the
+ * The "SILUA" wordmark — the only place Cormorant Garamond is used in the
  * app (see --font-cormorant in globals.css / layout.tsx). Every other piece
  * of English UI text keeps --font-en (Instrument Sans).
  *
@@ -15,7 +15,7 @@ export function BrandLogo({ className = "", light = false }: { className?: strin
     <span className={`inline-flex items-center gap-1.5 ${light ? "text-white" : "text-text-primary"} ${className}`}>
       <BrandMarkIcon className="h-[0.8em] w-[0.8em]" />
       <p className="font-cormorant text-2xl font-semibold tracking-[0.02em] whitespace-nowrap uppercase">
-        shapeme
+        silua
       </p>
     </span>
   );

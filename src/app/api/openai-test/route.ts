@@ -9,7 +9,7 @@ export async function GET() {
 
     const response = await client.responses.create({
       model: "gpt-5-mini",
-      input: "'ShapeMe AI 연결 성공!'이라는 짧은 한국어 문장만 출력해줘.",
+      input: "'SILUA AI 연결 성공!'이라는 짧은 한국어 문장만 출력해줘.",
     });
 
     return Response.json({ ok: true, message: response.output_text });
