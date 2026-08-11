@@ -85,12 +85,24 @@ export type ExerciseTemplate = {
   /** Muscle group(s), display-only — free text, not a strict enum, since
    * the library spans everything from "glutes" to "hip_flexors." */
   target: string[];
-  /** All required simultaneously (e.g. dumbbell AND bench for Dumbbell Hip
-   * Thrust) — never "any of these," which is why some exercises collapse a
-   * source table's "X, Y" equipment cell down to the single most
-   * permissive/representative tag instead (see exercises.ts's inline notes
-   * where that happened). */
-  equipment: Equipment[];
+  equipment: {
+    /** All required simultaneously (e.g. dumbbell AND bench for Dumbbell
+     * Hip Thrust) — never "any of these," which is why some exercises
+     * collapse a source table's "X, Y" equipment cell down to the single
+     * most permissive/representative tag instead (see this file's inline
+     * notes where that happened). A user is eligible for this exercise iff
+     * they have every item here — `optionalLoad` never gates eligibility. */
+    required: Equipment[];
+    /** Equipment that only adds resistance to an already bodyweight-viable
+     * movement (a lunge, squat, or hinge pattern) — not having it doesn't
+     * exclude the exercise, it's just done unweighted. Distinct from
+     * `required`: e.g. Step Up genuinely needs a bench to step onto
+     * (required), but the dumbbell in each hand is optional load on top of
+     * that. Not used for filtering — see equipmentSatisfied() — only kept
+     * for future use (e.g. deciding whether to show a weighted vs.
+     * bodyweight starting suggestion). */
+    optionalLoad?: Equipment[];
+  };
   difficulty: "beginner" | "intermediate";
   cautions: CautionTag[];
   shapeGoal: ShapeGoal[];
@@ -127,7 +139,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Hip Thrust",
     target: ["glutes"],
-    equipment: ["barbell"],
+    equipment: { required: ["barbell"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), exclude("hip")],
     shapeGoal: ["glute_shape"],
@@ -139,7 +151,12 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dumbbell Hip Thrust",
     target: ["glutes"],
-    equipment: ["dumbbell", "bench"],
+    // Audit note: deliberately NOT reclassified with optionalLoad, even
+    // though thrust_bridge is bodyweight-viable in general — Glute Bridge
+    // (below) already covers that exact case. Making the dumbbell optional
+    // here would make this entry redundant with Glute Bridge once
+    // unweighted, so it stays a fully-required dumbbell+bench exercise.
+    equipment: { required: ["dumbbell", "bench"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), review("hip")],
     shapeGoal: ["glute_shape"],
@@ -151,7 +168,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Glute Bridge",
     target: ["glutes"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("lower_back")],
     shapeGoal: ["glute_shape"],
@@ -163,7 +180,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Frog Pump",
     target: ["glutes"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("hip")],
     shapeGoal: ["glute_shape"],
@@ -175,7 +192,10 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Romanian Deadlift",
     target: ["glutes", "hamstrings"],
-    equipment: ["dumbbell"],
+    // Audit note: the hinge pattern itself is bodyweight-viable (a
+    // bodyweight/single-leg RDL); the dumbbell is added load, not a
+    // requirement to do the movement at all.
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "intermediate",
     cautions: [exclude("lower_back")],
     shapeGoal: ["glute_shape", "leg_line"],
@@ -187,7 +207,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "45° Back Extension — Glute Bias",
     target: ["glutes", "hamstrings"],
-    equipment: ["machine"],
+    equipment: { required: ["machine"] },
     difficulty: "intermediate",
     cautions: [exclude("lower_back")],
     shapeGoal: ["glute_shape"],
@@ -199,7 +219,9 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Bulgarian Split Squat",
     target: ["glutes", "quads"],
-    equipment: ["dumbbell"],
+    // Audit: a rear-foot-elevated split squat is a legitimate bodyweight
+    // unilateral movement — dumbbell only adds load.
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "intermediate",
     cautions: [exclude("knee"), review("hip")],
     shapeGoal: ["glute_shape", "leg_line"],
@@ -211,7 +233,9 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Reverse Lunge",
     target: ["glutes", "quads"],
-    equipment: ["dumbbell"],
+    // Audit: lunges are a foundational bodyweight movement — dumbbell only
+    // adds load, never required to perform the pattern.
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("knee"), review("hip")],
     shapeGoal: ["glute_shape", "leg_line"],
@@ -223,7 +247,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Walking Lunge",
     target: ["glutes", "quads"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "intermediate",
     cautions: [review("knee"), review("hip")],
     shapeGoal: ["leg_line", "glute_shape"],
@@ -235,7 +259,9 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Step Up",
     target: ["glutes", "quads"],
-    equipment: ["bench", "dumbbell"],
+    // Audit: the bench (or any step) is genuinely required — you can't step
+    // up without a surface to step onto. The dumbbell is optional load.
+    equipment: { required: ["bench"], optionalLoad: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [exclude("knee")],
     shapeGoal: ["glute_shape", "leg_line"],
@@ -247,7 +273,10 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Goblet Squat",
     target: ["quads", "glutes"],
-    equipment: ["dumbbell"],
+    // Audit: the squat pattern itself is bodyweight-viable (equivalent to a
+    // plain bodyweight squat) — the dumbbell held goblet-style is added
+    // load, not a requirement for the movement.
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("knee"), review("lower_back")],
     shapeGoal: ["leg_line", "glute_shape"],
@@ -259,7 +288,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Leg Press",
     target: ["quads", "glutes"],
-    equipment: ["leg_press"],
+    equipment: { required: ["leg_press"] },
     difficulty: "beginner",
     cautions: [review("knee"), review("lower_back")],
     shapeGoal: ["leg_line", "glute_shape"],
@@ -271,7 +300,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Leg Extension",
     target: ["quads"],
-    equipment: ["leg_extension"],
+    equipment: { required: ["leg_extension"] },
     difficulty: "beginner",
     cautions: [exclude("knee")],
     shapeGoal: ["leg_line"],
@@ -283,7 +312,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Seated Leg Curl",
     target: ["hamstrings"],
-    equipment: ["leg_curl"],
+    equipment: { required: ["leg_curl"] },
     difficulty: "beginner",
     cautions: [review("knee")],
     shapeGoal: ["leg_line"],
@@ -295,7 +324,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Lying Leg Curl",
     target: ["hamstrings"],
-    equipment: ["leg_curl"],
+    equipment: { required: ["leg_curl"] },
     difficulty: "beginner",
     cautions: [review("knee"), review("lower_back")],
     shapeGoal: ["leg_line"],
@@ -307,7 +336,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Hip Abduction",
     target: ["glute_medius"],
-    equipment: ["hip_abductor"],
+    equipment: { required: ["hip_abductor"] },
     difficulty: "beginner",
     cautions: [review("hip")],
     shapeGoal: ["side_glutes"],
@@ -319,7 +348,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Cable Hip Abduction",
     target: ["glute_medius"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("hip")],
     shapeGoal: ["side_glutes"],
@@ -331,7 +360,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Cable Kickback",
     target: ["glutes"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), review("hip")],
     shapeGoal: ["glute_shape"],
@@ -343,7 +372,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Band Side Walk",
     target: ["glute_medius"],
-    equipment: ["resistance_band"],
+    equipment: { required: ["resistance_band"] },
     difficulty: "beginner",
     cautions: [review("knee"), review("hip")],
     shapeGoal: ["side_glutes"],
@@ -355,7 +384,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Curtsy Lunge",
     target: ["glutes", "quads"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"], optionalLoad: ["dumbbell"] },
     difficulty: "intermediate",
     cautions: [exclude("knee"), review("hip")],
     shapeGoal: ["side_glutes", "leg_line"],
@@ -369,7 +398,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Lat Pulldown",
     target: ["lats"],
-    equipment: ["lat_pulldown"],
+    equipment: { required: ["lat_pulldown"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line"],
@@ -381,7 +410,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Assisted Pull-Up",
     target: ["lats", "upper_back"],
-    equipment: ["machine"],
+    equipment: { required: ["machine"] },
     difficulty: "intermediate",
     cautions: [exclude("shoulder"), review("wrist")],
     shapeGoal: ["back_line"],
@@ -393,7 +422,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Single-Arm Lat Pulldown",
     target: ["lats"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "intermediate",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line"],
@@ -405,7 +434,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Straight-Arm Pulldown",
     target: ["lats"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line"],
@@ -417,7 +446,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Seated Cable Row",
     target: ["mid_back", "lats"],
-    equipment: ["seated_row"],
+    equipment: { required: ["seated_row"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), review("shoulder")],
     shapeGoal: ["back_line"],
@@ -429,7 +458,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "One-Arm Dumbbell Row",
     target: ["lats", "mid_back"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), review("shoulder")],
     shapeGoal: ["back_line"],
@@ -441,7 +470,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Chest-Supported Row",
     target: ["mid_back", "upper_back"],
-    equipment: ["dumbbell", "bench"],
+    equipment: { required: ["dumbbell", "bench"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line"],
@@ -453,7 +482,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "High Row",
     target: ["upper_back", "lats"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line"],
@@ -465,7 +494,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Face Pull",
     target: ["rear_delts", "upper_back"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["back_line", "shoulder_line"],
@@ -479,7 +508,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dumbbell Shoulder Press",
     target: ["shoulders"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [exclude("shoulder"), review("neck")],
     shapeGoal: ["shoulder_line"],
@@ -491,7 +520,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Machine Shoulder Press",
     target: ["shoulders"],
-    equipment: ["machine"],
+    equipment: { required: ["machine"] },
     difficulty: "beginner",
     cautions: [exclude("shoulder"), review("neck")],
     shapeGoal: ["shoulder_line"],
@@ -503,7 +532,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dumbbell Lateral Raise",
     target: ["side_delts"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("shoulder"), review("neck")],
     shapeGoal: ["shoulder_line"],
@@ -515,7 +544,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Cable Lateral Raise",
     target: ["side_delts"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "intermediate",
     cautions: [review("shoulder")],
     shapeGoal: ["shoulder_line"],
@@ -527,7 +556,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Rear Delt Fly",
     target: ["rear_delts"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("shoulder"), review("neck")],
     shapeGoal: ["shoulder_line", "back_line"],
@@ -539,7 +568,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Reverse Pec Deck",
     target: ["rear_delts", "upper_back"],
-    equipment: ["machine"],
+    equipment: { required: ["machine"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["shoulder_line", "back_line"],
@@ -553,7 +582,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Machine Chest Press",
     target: ["chest", "triceps"],
-    equipment: ["machine"],
+    equipment: { required: ["machine"] },
     difficulty: "beginner",
     cautions: [review("shoulder"), review("wrist")],
     shapeGoal: ["upper_body_line"],
@@ -565,7 +594,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dumbbell Bench Press",
     target: ["chest", "triceps"],
-    equipment: ["dumbbell", "bench"],
+    equipment: { required: ["dumbbell", "bench"] },
     difficulty: "intermediate",
     cautions: [exclude("shoulder"), review("wrist")],
     shapeGoal: ["upper_body_line"],
@@ -579,7 +608,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dumbbell Biceps Curl",
     target: ["biceps"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("wrist"), review("elbow")],
     shapeGoal: ["arm_line"],
@@ -591,7 +620,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Hammer Curl",
     target: ["biceps"],
-    equipment: ["dumbbell"],
+    equipment: { required: ["dumbbell"] },
     difficulty: "beginner",
     cautions: [review("elbow")],
     shapeGoal: ["arm_line"],
@@ -603,7 +632,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Triceps Pushdown",
     target: ["triceps"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("elbow"), review("wrist")],
     shapeGoal: ["arm_line"],
@@ -617,7 +646,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Plank",
     target: ["core", "deep_core"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("shoulder"), review("lower_back"), review("wrist")],
     shapeGoal: ["waist_line"],
@@ -629,7 +658,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Side Plank",
     target: ["obliques", "core"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("shoulder"), review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -641,7 +670,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Dead Bug",
     target: ["deep_core"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -653,7 +682,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Bird Dog",
     target: ["deep_core", "core"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("wrist"), review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -665,7 +694,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Crunch",
     target: ["abs"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("neck"), review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -677,7 +706,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Side Crunch",
     target: ["obliques"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("neck"), review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -689,7 +718,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Reverse Crunch",
     target: ["abs", "deep_core"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "beginner",
     cautions: [review("lower_back")],
     shapeGoal: ["waist_line"],
@@ -701,7 +730,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Cable Crunch",
     target: ["abs"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("lower_back"), review("neck")],
     shapeGoal: ["waist_line"],
@@ -713,7 +742,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Pallof Press",
     target: ["deep_core", "obliques"],
-    equipment: ["cable"],
+    equipment: { required: ["cable"] },
     difficulty: "beginner",
     cautions: [review("shoulder")],
     shapeGoal: ["waist_line"],
@@ -725,7 +754,7 @@ export const EXERCISE_LIBRARY: ExerciseTemplate[] = [
   {
     name: "Hanging Knee Raise",
     target: ["abs", "hip_flexors"],
-    equipment: ["bodyweight"],
+    equipment: { required: ["bodyweight"] },
     difficulty: "intermediate",
     cautions: [exclude("shoulder"), review("lower_back")],
     shapeGoal: ["waist_line"],

@@ -81,8 +81,12 @@ for (const days of [2, 3, 4, 5] as const) {
         `not found in EXERCISE_LIBRARY`,
       );
       if (!template) continue;
-      const satisfied = template.equipment.every((eq) => FULL_GYM_EQUIPMENT.includes(eq));
-      check(`${days}x — "${ex.name}" equipment is satisfied`, satisfied, `requires ${template.equipment.join(", ")}`);
+      const satisfied = template.equipment.required.every((eq) => FULL_GYM_EQUIPMENT.includes(eq));
+      check(
+        `${days}x — "${ex.name}" required equipment is satisfied`,
+        satisfied,
+        `requires ${template.equipment.required.join(", ")}`,
+      );
     }
   }
 }
@@ -135,39 +139,98 @@ console.log('\n3) "I\'m not sure" equipment preset');
   }
 }
 
-// --- Scenario 4: each experience tier's difficulty/volume rules. ---
-console.log("\n4) Experience tiers: difficulty + volume");
-const tierCases: { tier: ExperienceLevel; minutes: number; expectedCount: number }[] = [
-  { tier: "new", minutes: 30, expectedCount: 4 },
-  { tier: "new", minutes: 60, expectedCount: 5 }, // capped lower than the 6 a non-new tier gets at 60min
-  { tier: "occasional", minutes: 45, expectedCount: 5 },
-  { tier: "consistent", minutes: 60, expectedCount: 6 },
-  { tier: "experienced", minutes: 90, expectedCount: 7 },
-];
-for (const { tier, minutes, expectedCount } of tierCases) {
-  const week = generateStartingWeek(
+// --- Scenario 4: exact main-exercise count table (duration bucket ×
+// experience tier) — the same persona checked across all 4 durations, per
+// the confirmed target table. Warm-up/cool-down never count toward this. ---
+console.log("\n4) Exact main-exercise count table (same persona across 30/45/60/75+)");
+const MAIN_EXERCISE_COUNT: Record<number, Record<ExperienceLevel, number>> = {
+  30: { new: 4, occasional: 4, consistent: 4, experienced: 4 },
+  45: { new: 5, occasional: 5, consistent: 5, experienced: 5 },
+  60: { new: 5, occasional: 6, consistent: 6, experienced: 6 },
+  90: { new: 5, occasional: 6, consistent: 7, experienced: 7 }, // 90 stands in for "75+" — SESSION_MINUTES_OPTIONS has no literal 75
+};
+const TIERS: ExperienceLevel[] = ["new", "occasional", "consistent", "experienced"];
+const DURATIONS = [30, 45, 60, 90] as const;
+
+for (const tier of TIERS) {
+  for (const minutes of DURATIONS) {
+    const expectedCount = MAIN_EXERCISE_COUNT[minutes][tier];
+    const week = generateStartingWeek(
+      profile({
+        workoutDays: ["monday", "wednesday", "friday"],
+        daysPerWeek: 3,
+        place: "gym",
+        minutesPerSession: minutes as OnboardingProfile["minutesPerSession"],
+        experience: tier,
+        equipment: FULL_GYM_EQUIPMENT,
+        focusAreas: ["glutes"],
+      }),
+    );
+    const day = workoutDaysOf(week)[0];
+    check(
+      `${tier} @ ${minutes}min → exactly ${expectedCount} main exercises`,
+      day.exercises.length === expectedCount,
+      `got ${day.exercises.length}`,
+    );
+    if (tier === "new") {
+      for (const ex of day.exercises) {
+        const template = EXERCISE_BY_NAME.get(ex.name);
+        check(`${tier} — "${ex.name}" is beginner-difficulty`, template?.difficulty === "beginner");
+      }
+    }
+  }
+}
+
+// --- Scenario 4b: thin equipment (bodyweight-only) falls back to any
+// compatible exercise for the workout type rather than duplicating a
+// movement or silently coming up short — this was the bug the user found
+// (a 60min bodyweight-only day was coming back with only 2-3 exercises
+// instead of the target). Fixed by two changes together: the fallback
+// logic itself, and re-auditing the library so squat/lunge/hinge exercises
+// (Reverse Lunge, Walking Lunge, Bulgarian Split Squat, Curtsy Lunge,
+// Romanian Deadlift, Goblet Squat, Step Up) require only bodyweight/a bench
+// with their dumbbell as optional added load rather than a hard
+// requirement — Lower Body's bodyweight-eligible pool went from 2 exercises
+// to enough to hit the target exactly, same as Full Body. ---
+console.log("\n4b) Thin equipment (bodyweight-only) falls back without duplicating");
+{
+  const fullBodyWeek = generateStartingWeek(
     profile({
       workoutDays: ["monday", "wednesday", "friday"],
       daysPerWeek: 3,
-      place: "gym",
-      minutesPerSession: minutes as OnboardingProfile["minutesPerSession"],
-      experience: tier,
-      equipment: FULL_GYM_EQUIPMENT,
+      place: "home",
+      minutesPerSession: 60,
+      experience: "occasional",
+      equipment: ["bodyweight"],
+      focusAreas: ["full_body"],
+    }),
+  );
+  const fullBodyDay = workoutDaysOf(fullBodyWeek)[0];
+  check(
+    "bodyweight-only Full Body @ 60min/occasional reaches the exact target (6) via fallback",
+    fullBodyDay.exercises.length === 6,
+    `got ${fullBodyDay.exercises.length}`,
+  );
+
+  const lowerBodyWeek = generateStartingWeek(
+    profile({
+      workoutDays: ["monday", "wednesday", "friday"],
+      daysPerWeek: 3,
+      place: "home",
+      minutesPerSession: 60,
+      experience: "occasional",
+      equipment: ["bodyweight"],
       focusAreas: ["glutes"],
     }),
   );
-  const day = workoutDaysOf(week)[0];
+  const lowerBodyDay = lowerBodyWeek.find((d) => d.dayType === "lower_body")!;
+  const names = lowerBodyDay.exercises.map((e) => e.name);
+  check("bodyweight-only Lower Body has no duplicate exercises", new Set(names).size === names.length);
   check(
-    `${tier} @ ${minutes}min gets ${expectedCount} exercises`,
-    day.exercises.length === expectedCount,
-    `got ${day.exercises.length}`,
+    "bodyweight-only Lower Body @ 60min/occasional reaches the exact target (6) after the required/optional-load audit",
+    lowerBodyDay.exercises.length === 6,
+    `got ${lowerBodyDay.exercises.length}`,
   );
-  if (tier === "new") {
-    for (const ex of day.exercises) {
-      const template = EXERCISE_BY_NAME.get(ex.name);
-      check(`${tier} — "${ex.name}" is beginner-difficulty`, template?.difficulty === "beginner");
-    }
-  }
 }
 
 // --- Scenario 5: multiple selected focus areas (up to 3) still produce a

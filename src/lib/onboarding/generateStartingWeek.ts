@@ -154,17 +154,27 @@ function splitSequenceForWeek(daysPerWeek: WorkoutDaysPerWeek, focusAreas: Focus
   return Array.from({ length: daysPerWeek }, (_, i) => rows[i % rows.length][i]);
 }
 
-/** 30min = 4 exercises @ 3 sets; 45min = 5 @ 3; 60min = 5-6 (first
- * exercise gets 4 sets, rest 3); 75+min = 6-7, capped lower for "new"
- * experience regardless of the duration picked. */
+/** Exact target main-exercise count by duration bucket × experience tier —
+ * deterministic, not a range; warm-up/cool-down are tracked separately
+ * (see warmupFor()) and never count toward this. Sets stay 3 for the
+ * 30/45min buckets and 4 (main) / 3 (rest) for 60min+, per the original
+ * "메인 운동 하나 정도: 4 sets, 나머지: 3 sets" spec — only the exercise
+ * *count* table changed here, not the sets-per-exercise rule. */
+const MAIN_EXERCISE_COUNT: Record<"30" | "45" | "60" | "75", Record<ExperienceLevel, number>> = {
+  "30": { new: 4, occasional: 4, consistent: 4, experienced: 4 },
+  "45": { new: 5, occasional: 5, consistent: 5, experienced: 5 },
+  "60": { new: 5, occasional: 6, consistent: 6, experienced: 6 },
+  "75": { new: 5, occasional: 6, consistent: 7, experienced: 7 },
+};
+
 function volumeForDuration(
   minutes: number,
   experience: ExperienceLevel,
 ): { exerciseCount: number; mainSets: number; accessorySets: number } {
-  if (minutes <= 30) return { exerciseCount: 4, mainSets: 3, accessorySets: 3 };
-  if (minutes <= 45) return { exerciseCount: 5, mainSets: 3, accessorySets: 3 };
-  if (minutes <= 60) return { exerciseCount: experience === "new" ? 5 : 6, mainSets: 4, accessorySets: 3 };
-  return { exerciseCount: experience === "new" ? 6 : 7, mainSets: 4, accessorySets: 3 };
+  const bucket = minutes <= 30 ? "30" : minutes <= 45 ? "45" : minutes <= 60 ? "60" : "75";
+  const exerciseCount = MAIN_EXERCISE_COUNT[bucket][experience];
+  const sets = bucket === "30" || bucket === "45" ? 3 : 4;
+  return { exerciseCount, mainSets: sets, accessorySets: 3 };
 }
 
 /** New = beginner-only, 2-3 sets, 10-15 reps; Occasionally = beginner +
@@ -215,7 +225,7 @@ function eligibleForSlot(
     (e) =>
       patterns.includes(e.movementPattern) &&
       !usedNames.has(e.name) &&
-      equipmentSatisfied(e.equipment, profile.equipment) &&
+      equipmentSatisfied(e.equipment.required, profile.equipment) &&
       difficultyAllowed(profile.experience ?? "occasional", e.difficulty) &&
       cautionOutcome(e, protectedAreas) !== "excluded",
   );
@@ -253,6 +263,20 @@ function pickFromSlot(
   return null;
 }
 
+/** Every movement pattern that actually appears in a given workout type's
+ * exercise pool — the last-resort fallback in buildDayExercises() below,
+ * for when a slot's own preferred patterns come up completely empty (e.g.
+ * a bodyweight-only user has no candidate for Full Body's vertical_pull/
+ * horizontal_pull slot at all). Without this, a thin equipment selection
+ * could silently skip a slot instead of filling it with *something* else
+ * the type's pool still has available. */
+const ALL_PATTERNS_BY_TYPE: Record<WorkoutType, MovementPattern[]> = Object.fromEntries(
+  (Object.keys(WORKOUT_TYPE_SLOTS) as WorkoutType[]).map((type) => [
+    type,
+    [...new Set(EXERCISE_LIBRARY.filter((e) => e.workoutType.includes(type)).map((e) => e.movementPattern))],
+  ]),
+) as Record<WorkoutType, MovementPattern[]>;
+
 function buildDayExercises(
   type: WorkoutType,
   profile: OnboardingProfile,
@@ -276,15 +300,22 @@ function buildDayExercises(
     // since core_waist shares no exercises with the other 6 types.
     const isFinisherSlot = hasCoreFocus && i === exerciseCount - 1;
     const slot = isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist[0] : baseSlots[i % baseSlots.length];
-    const found = pickFromSlot(
-      isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist : [slot],
-      isFinisherSlot ? "core_waist" : type,
-      profile,
-      usedNames,
-      inspiration,
-      isFinisherSlot,
-    );
-    if (!found) continue; // every slot has multiple fallback patterns; an empty result means equipment/cautions genuinely ruled out this whole family for this user — skip rather than crash
+    const slotType = isFinisherSlot ? "core_waist" : type;
+    const found =
+      pickFromSlot(
+        isFinisherSlot ? WORKOUT_TYPE_SLOTS.core_waist : [slot],
+        slotType,
+        profile,
+        usedNames,
+        inspiration,
+        isFinisherSlot,
+      ) ??
+      // Last resort: the slot's own preferred patterns had zero eligible
+      // candidates (usually a thin equipment selection) — rather than
+      // silently coming up short of the target exerciseCount, pull from
+      // *any* pattern this type's pool actually has available.
+      pickFromSlot([ALL_PATTERNS_BY_TYPE[slotType]], slotType, profile, usedNames, inspiration, isFinisherSlot);
+    if (!found) continue; // the whole type's pool is genuinely exhausted for this equipment/caution/difficulty combo — skip rather than crash
     usedNames.add(found.name);
     picked.push(found);
   }
