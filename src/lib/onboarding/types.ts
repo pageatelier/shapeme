@@ -18,27 +18,27 @@ export const FOCUS_AREA_OPTIONS = [
 ] as const;
 export type FocusArea = (typeof FOCUS_AREA_OPTIONS)[number]["value"];
 
-/** UI-enforced cap on step ④'s multi-select — "최대 2~3개 정도". */
+/** UI-enforced cap on step ④'s multi-select — "up to 2-3." */
 export const MAX_FOCUS_AREAS = 3;
 
 /** Step ③'s preset chips — users can also type a custom entry, which lands
  * in the same `bodyGoals` array as these labels (see OnboardingProfile). */
 export const BODY_GOAL_PRESETS = [
-  "탄탄하고 강한 몸",
-  "슬림하고 선명한 라인",
-  "볼륨 있고 탄탄한 라인",
-  "자세와 균형 개선",
-  "체력과 에너지 향상",
+  "Toned and strong",
+  "Slim with defined lines",
+  "Curvier, fuller shape",
+  "Better posture and balance",
+  "More energy and stamina",
 ] as const;
 
 export const CAUTION_PRESETS = [
-  { value: "knee", label: "무릎" },
-  { value: "lower_back", label: "허리" },
-  { value: "shoulder", label: "어깨" },
-  { value: "wrist", label: "손목" },
-  { value: "hip", label: "고관절" },
-  { value: "neck", label: "목" },
-  { value: "elbow", label: "팔꿈치" },
+  { value: "knee", label: "Knees" },
+  { value: "lower_back", label: "Lower back" },
+  { value: "shoulder", label: "Shoulders" },
+  { value: "wrist", label: "Wrists" },
+  { value: "hip", label: "Hips" },
+  { value: "neck", label: "Neck" },
+  { value: "elbow", label: "Elbows" },
 ] as const;
 export type CautionArea = (typeof CAUTION_PRESETS)[number]["value"];
 const CAUTION_LABEL_BY_VALUE = Object.fromEntries(CAUTION_PRESETS.map((p) => [p.value, p.label])) as Record<
@@ -46,9 +46,9 @@ const CAUTION_LABEL_BY_VALUE = Object.fromEntries(CAUTION_PRESETS.map((p) => [p.
   string
 >;
 
-/** Korean label for a caution entry — presets map to their fixed label,
- * custom free-text entries pass through as-is. Used when handing cautions
- * to the AI generator, which expects free-text (avoidAreas: string[]), not
+/** Label for a caution entry — presets map to their fixed label, custom
+ * free-text entries pass through as-is. Used when handing cautions to the
+ * AI generator, which expects free-text (avoidAreas: string[]), not
  * internal preset keys. */
 export function cautionLabel(caution: CautionArea | string): string {
   return CAUTION_LABEL_BY_VALUE[caution as CautionArea] ?? caution;

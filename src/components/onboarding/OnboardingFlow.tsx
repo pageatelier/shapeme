@@ -30,7 +30,7 @@ function canContinue(step: number, profile: OnboardingProfile): boolean {
     case 3:
       return profile.workoutDays.length > 0 && profile.place !== null && profile.minutesPerSession !== null && profile.experience !== null;
     case 4:
-      return true; // cautions are optional ("없음" is a real answer, not a skip)
+      return true; // cautions are optional ("None" is a real answer, not a skip)
     default:
       return false;
   }
@@ -96,7 +96,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
       setWeek(generateStartingWeek(profile));
       setPhase("review");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "저장에 실패했어요.");
+      setError(err instanceof Error ? err.message : "Failed to save.");
     } finally {
       setSaving(false);
     }
@@ -112,7 +112,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
       await updateSettings({ programStartedAt: new Date().toISOString() });
       router.push("/move");
     } catch (err) {
-      setStartError(err instanceof Error ? err.message : "저장에 실패했어요.");
+      setStartError(err instanceof Error ? err.message : "Failed to save.");
     } finally {
       setStarting(false);
     }
@@ -137,7 +137,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
         <button
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
-          aria-label="이전"
+          aria-label="Back"
           className={`flex h-9 w-9 items-center justify-center rounded-full text-text-secondary ${step === 0 ? "invisible" : ""}`}
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
@@ -191,7 +191,7 @@ export function OnboardingFlow({ initialProfile }: { initialProfile: OnboardingP
         className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
         style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
       >
-        {saving ? (step === STEP_COUNT - 1 ? "루틴 만드는 중..." : "저장 중...") : "Continue"}
+        {saving ? (step === STEP_COUNT - 1 ? "Building your routine..." : "Saving...") : "Continue"}
       </button>
     </div>
   );

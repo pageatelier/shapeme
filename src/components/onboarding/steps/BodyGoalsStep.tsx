@@ -32,7 +32,7 @@ export function BodyGoalsStep({
       <div>
         <p className="text-[13px] font-semibold text-text-secondary">How do you want to feel in your body?</p>
         <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          어떤 몸을 만들어가고 싶나요?
+          What kind of body do you want to build?
         </h1>
       </div>
 
@@ -67,7 +67,7 @@ export function BodyGoalsStep({
               addCustom();
             }
           }}
-          placeholder="직접 입력"
+          placeholder="Type your own"
           className="min-h-[44px] flex-1 rounded-full px-4 text-[14px] text-text-primary outline-none"
           style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
         />
@@ -75,7 +75,7 @@ export function BodyGoalsStep({
           type="button"
           onClick={addCustom}
           disabled={!customInput.trim()}
-          aria-label="추가"
+          aria-label="Add"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-secondary disabled:opacity-40"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >

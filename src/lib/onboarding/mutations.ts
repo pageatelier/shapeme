@@ -13,7 +13,7 @@ export async function saveOnboardingProfile(patch: Partial<OnboardingProfile>) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요해요.");
+  if (!user) throw new Error("You need to be logged in.");
 
   const data: Record<string, unknown> = {};
   if (patch.language !== undefined) data.language = patch.language;

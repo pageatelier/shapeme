@@ -52,7 +52,7 @@ function durationLabel(minutes: number): string {
 function PickerSheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(33, 31, 28, 0.6)" }}>
-      <button type="button" aria-label="닫기" className="flex-1 cursor-default" onClick={onClose} />
+      <button type="button" aria-label="Close" className="flex-1 cursor-default" onClick={onClose} />
       <div
         className="flex max-h-[70vh] flex-col gap-3 rounded-t-[var(--radius-xl)] p-5"
         style={{ background: "var(--glass-background-strong)" }}
@@ -62,7 +62,7 @@ function PickerSheet({ title, onClose, children }: { title: string; onClose: () 
           <button
             type="button"
             onClick={onClose}
-            aria-label="닫기"
+            aria-label="Close"
             className="flex h-8 w-8 items-center justify-center rounded-full"
             style={{ background: "var(--surface-card)" }}
           >
@@ -89,9 +89,9 @@ function AddExercisePicker({
 }) {
   const candidates = getAddExerciseCandidates(day, profile);
   return (
-    <PickerSheet title="운동 추가" onClose={onClose}>
+    <PickerSheet title="Add an exercise" onClose={onClose}>
       {candidates.length === 0 && (
-        <p className="py-4 text-center text-[12px] text-text-muted">추가할 수 있는 운동이 없어요.</p>
+        <p className="py-4 text-center text-[12px] text-text-muted">No exercises available to add.</p>
       )}
       {candidates.map((template) => (
         <button
@@ -122,7 +122,7 @@ function ChangeDayPicker({
 }) {
   const otherDays = week.filter((d) => d.weekday !== day.weekday);
   return (
-    <PickerSheet title="요일 변경" onClose={onClose}>
+    <PickerSheet title="Change day" onClose={onClose}>
       {otherDays.map((target) => (
         <button
           key={target.weekday}
@@ -149,7 +149,7 @@ function ChangeDurationPicker({
   onClose: () => void;
 }) {
   return (
-    <PickerSheet title="시간 변경" onClose={onClose}>
+    <PickerSheet title="Change duration" onClose={onClose}>
       {SESSION_MINUTES_OPTIONS.map((minutes) => (
         <button
           key={minutes}
@@ -204,7 +204,7 @@ function ExerciseRow({
             type="button"
             onClick={onMoveUp}
             disabled={!canMoveUp}
-            aria-label="위로 이동"
+            aria-label="Move up"
             className="disabled:opacity-30"
           >
             <ChevronUpIcon className="h-3.5 w-3.5 text-text-muted" />
@@ -213,7 +213,7 @@ function ExerciseRow({
             type="button"
             onClick={onMoveDown}
             disabled={!canMoveDown}
-            aria-label="아래로 이동"
+            aria-label="Move down"
             className="disabled:opacity-30"
           >
             <ChevronDownIcon className="h-3.5 w-3.5 text-text-muted" />
@@ -235,7 +235,7 @@ function ExerciseRow({
           }}
         >
           <label className="flex flex-col gap-0.5 text-[10px] text-text-muted">
-            세트
+            Sets
             <input
               name="sets"
               type="number"
@@ -247,7 +247,7 @@ function ExerciseRow({
             />
           </label>
           <label className="flex flex-col gap-0.5 text-[10px] text-text-muted">
-            최소 반복
+            Min reps
             <input
               name="repsMin"
               type="number"
@@ -259,7 +259,7 @@ function ExerciseRow({
             />
           </label>
           <label className="flex flex-col gap-0.5 text-[10px] text-text-muted">
-            최대 반복
+            Max reps
             <input
               name="repsMax"
               type="number"
@@ -275,25 +275,25 @@ function ExerciseRow({
             className="rounded-full px-3 py-1.5 text-[11px] font-semibold text-text-inverse"
             style={{ background: "var(--color-ink)" }}
           >
-            저장
+            Save
           </button>
           <button type="button" onClick={onEditToggle} className="text-[11px] font-semibold text-text-muted">
-            취소
+            Cancel
           </button>
         </form>
       ) : (
         <div className="mt-2 flex flex-wrap gap-3">
           <button type="button" onClick={onEditToggle} className="text-[11px] font-semibold text-pink-500">
-            수정
+            Edit
           </button>
           <button type="button" onClick={onReplace} className="text-[11px] font-semibold text-pink-500">
-            교체
+            Replace
           </button>
           <button type="button" onClick={onReplace} className="text-[11px] font-semibold text-text-muted">
-            사용 불가
+            Not available
           </button>
           <button type="button" onClick={onRemove} className="text-[11px] font-semibold text-error">
-            삭제
+            Remove
           </button>
         </div>
       )}
@@ -334,22 +334,22 @@ function DayCard({
         <div>
           <p className="text-[13px] font-bold text-text-primary">{day.weekday} · {day.label}</p>
           <p className="mt-0.5 text-[11px] text-text-muted">
-            {day.minutes}분 · 운동 {day.exercises.length}개
+            {day.minutes} min · {day.exercises.length} exercises
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <button type="button" onClick={() => setShowDurationPicker(true)} className="text-[11px] font-semibold text-pink-500">
-            시간 변경
+            Change duration
           </button>
           <button type="button" onClick={() => setShowDayPicker(true)} className="text-[11px] font-semibold text-pink-500">
-            요일 변경
+            Change day
           </button>
         </div>
       </div>
 
       {day.warmup.length > 0 && (
         <div className="mt-3">
-          <p className="mb-1 text-[12px] font-semibold text-text-secondary">워밍업</p>
+          <p className="mb-1 text-[12px] font-semibold text-text-secondary">Warm-up</p>
           {day.warmup.map((w) => (
             <p key={w} className="text-[12px] text-text-secondary">
               {w}
@@ -378,7 +378,7 @@ function DayCard({
           />
         ))}
         {day.exercises.length === 0 && (
-          <p className="py-2 text-center text-[12px] text-text-muted">이 날의 운동이 모두 삭제됐어요.</p>
+          <p className="py-2 text-center text-[12px] text-text-muted">All exercises for this day have been removed.</p>
         )}
       </div>
 
@@ -389,7 +389,7 @@ function DayCard({
         style={{ border: "1px dashed var(--glass-border)" }}
       >
         <PlusIcon className="h-3 w-3" />
-        운동 추가
+        Add an exercise
       </button>
 
       {showAddPicker && (
@@ -466,9 +466,9 @@ export function StartingWeekReview({
       <div className="text-center">
         <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Your first week is ready.</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-text-secondary">
-          완벽하게 시작할 필요는 없어요.
+          You don&apos;t need to start perfectly.
           <br />
-          이번 주에는 당신에게 잘 맞는 움직임을 함께 찾아볼게요.
+          This week, let&apos;s find movement that feels right for you.
         </p>
       </div>
 
@@ -487,12 +487,12 @@ export function StartingWeekReview({
 
       {workoutDays.length === 0 && (
         <p className="text-center text-[12px] text-error">
-          이번 주 운동일이 없어요. 이전 단계로 돌아가 요일을 선택해주세요.
+          You don&apos;t have any workout days this week. Go back and select your days.
         </p>
       )}
 
       <p className="text-center text-[11px] text-text-muted">
-        시작 무게는 가이드예요. 실제 운동하면서 편하게 조절할 수 있어요.
+        Starting weights are a guide — adjust them freely as you go.
       </p>
 
       {error && <p className="text-center text-[12px] text-error">{error}</p>}
@@ -504,7 +504,7 @@ export function StartingWeekReview({
         className="flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
         style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
       >
-        {starting ? "저장 중..." : "Use this starting week"}
+        {starting ? "Saving..." : "Use this starting week"}
       </button>
     </div>
   );

@@ -1,9 +1,22 @@
 "use client";
 
-import { EQUIPMENT_OPTIONS, UNSURE_EQUIPMENT_PRESET, WEEKDAYS_EN, WEEKDAY_EN_TO_KO } from "@/lib/aiRoutine/types";
+import { EQUIPMENT_OPTIONS, UNSURE_EQUIPMENT_PRESET, WEEKDAYS_EN } from "@/lib/aiRoutine/types";
 import type { Equipment, WeekdayEn } from "@/lib/aiRoutine/types";
 import { SESSION_MINUTES_OPTIONS } from "@/lib/onboarding/types";
 import type { ExperienceLevel, SessionMinutes, WorkoutDaysPerWeek, WorkoutPlace } from "@/lib/onboarding/types";
+
+/** Display-only English abbreviation for the day-picker buttons — the
+ * underlying `workoutDays: WeekdayEn[]` state is already English
+ * ("monday", ...), this is purely what's shown on the pill. */
+const WEEKDAY_SHORT_LABEL: Record<WeekdayEn, string> = {
+  monday: "Mon",
+  tuesday: "Tue",
+  wednesday: "Wed",
+  thursday: "Thu",
+  friday: "Fri",
+  saturday: "Sat",
+  sunday: "Sun",
+};
 
 /** Gym vs. home grouping is purely presentational — both write into the
  * same flat `equipment: Equipment[]` the generator filters on. Dumbbells
@@ -29,11 +42,11 @@ const PLACE_OPTIONS: { value: WorkoutPlace; label: string }[] = [
   { value: "both", label: "Both" },
 ];
 
-const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string }[] = [
-  { value: "new", label: "처음 시작해요" },
-  { value: "occasional", label: "가끔 운동해요" },
-  { value: "consistent", label: "꾸준히 운동하고 있어요" },
-  { value: "experienced", label: "체계적인 운동이 편해요" },
+const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string; helper: string }[] = [
+  { value: "new", label: "New to training", helper: "I'm just getting started." },
+  { value: "occasional", label: "Occasionally", helper: "I work out from time to time." },
+  { value: "consistent", label: "Consistently", helper: "Movement is already part of my routine." },
+  { value: "experienced", label: "Experienced", helper: "I'm comfortable with structured training." },
 ];
 
 function ChoiceRow<T extends string | number>({
@@ -103,11 +116,11 @@ export function WorkoutLogisticsStep({
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">
-        운동 요일, 장소, 시간을 알려주세요
+        Which days work for you this week?
       </h1>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">운동 가능한 요일을 선택해주세요</p>
+        <p className="text-[13px] font-semibold text-text-secondary">Select the days that work for you</p>
         <div className="flex flex-wrap gap-2">
           {WEEKDAYS_EN.map((day) => (
             <button
@@ -118,19 +131,19 @@ export function WorkoutLogisticsStep({
                 workoutDays.includes(day) ? "pill-selected" : "pill-unselected"
               }`}
             >
-              {WEEKDAY_EN_TO_KO[day]}
+              {WEEKDAY_SHORT_LABEL[day]}
             </button>
           ))}
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">어디에서 운동하나요?</p>
+        <p className="text-[13px] font-semibold text-text-secondary">Where will you move?</p>
         <ChoiceRow options={PLACE_OPTIONS} value={place} onSelect={(v) => onChange({ place: v })} />
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">한 번에 얼마나 운동할 수 있나요?</p>
+        <p className="text-[13px] font-semibold text-text-secondary">How much time do you have for each workout?</p>
         <ChoiceRow
           options={SESSION_MINUTES_OPTIONS.map((m) => ({ value: m, label: `${m} min` }))}
           value={minutesPerSession}
@@ -139,7 +152,7 @@ export function WorkoutLogisticsStep({
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">현재 운동 경험은 어느 정도인가요?</p>
+        <p className="text-[13px] font-semibold text-text-secondary">How familiar does training feel?</p>
         <div className="flex flex-col gap-2">
           {EXPERIENCE_OPTIONS.map((opt) => (
             <button
@@ -150,7 +163,8 @@ export function WorkoutLogisticsStep({
                 experience === opt.value ? "pill-selected" : "pill-unselected"
               }`}
             >
-              {opt.label}
+              <span className="font-semibold">{opt.label}</span>
+              <span className="ml-1.5 opacity-75">{opt.helper}</span>
             </button>
           ))}
         </div>
@@ -158,18 +172,18 @@ export function WorkoutLogisticsStep({
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-text-secondary">사용 가능한 운동기구 (선택)</p>
+          <p className="text-[13px] font-semibold text-text-secondary">What equipment can you use? (optional)</p>
           <button
             type="button"
             onClick={() => onChange({ equipment: UNSURE_EQUIPMENT_PRESET })}
             className="text-[12px] font-semibold text-pink-500"
           >
-            잘 모르겠어요
+            I&apos;m not sure
           </button>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <p className="text-[12px] text-text-muted">헬스장</p>
+          <p className="text-[12px] text-text-muted">Gym</p>
           <div className="flex flex-wrap gap-2">
             {GYM_EQUIPMENT.map((value) => {
               const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;
@@ -190,7 +204,7 @@ export function WorkoutLogisticsStep({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <p className="text-[12px] text-text-muted">홈트레이닝</p>
+          <p className="text-[12px] text-text-muted">Home</p>
           <div className="flex flex-wrap gap-2">
             {HOME_EQUIPMENT.map((value) => {
               const opt = EQUIPMENT_OPTIONS.find((o) => o.value === value)!;

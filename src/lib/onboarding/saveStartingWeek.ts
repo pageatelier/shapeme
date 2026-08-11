@@ -50,7 +50,7 @@ export async function saveStartingWeekToMove(days: StartingWeekDay[]): Promise<v
   // no-op'ing means a real bug here surfaces as an error on the review
   // screen instead of a "successful" save that created nothing.
   if (workoutDays.length === 0) {
-    throw new Error("생성된 루틴에 운동일이 없어요. 다시 시도해주세요.");
+    throw new Error("The generated routine has no workout days. Please try again.");
   }
 
   const occurrencesByType = new Map<WorkoutType, (StartingWeekDay & { dayType: WorkoutType })[]>();

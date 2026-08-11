@@ -5,7 +5,7 @@ import { PlusIcon } from "@/components/icons";
 import { CAUTION_PRESETS } from "@/lib/onboarding/types";
 import type { CautionArea } from "@/lib/onboarding/types";
 
-const NONE = "없음";
+const NONE = "None";
 const PRESET_VALUES: readonly string[] = CAUTION_PRESETS.map((p) => p.value);
 
 export function CautionsStep({
@@ -44,7 +44,7 @@ export function CautionsStep({
       <div>
         <p className="text-[13px] font-semibold text-text-secondary">Is there anything we should take care of?</p>
         <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          운동할 때 신경 써야 할 부분이 있나요?
+          Any areas we should be gentle with?
         </h1>
       </div>
 
@@ -86,7 +86,7 @@ export function CautionsStep({
               addCustom();
             }
           }}
-          placeholder="기타 직접 입력"
+          placeholder="Other (type your own)"
           className="min-h-[44px] flex-1 rounded-full px-4 text-[14px] text-text-primary outline-none"
           style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
         />
@@ -94,7 +94,7 @@ export function CautionsStep({
           type="button"
           onClick={addCustom}
           disabled={!customInput.trim()}
-          aria-label="추가"
+          aria-label="Add"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-secondary disabled:opacity-40"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
@@ -103,12 +103,12 @@ export function CautionsStep({
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[13px] font-semibold text-text-secondary">피하고 싶은 운동이 있나요? (선택)</p>
+        <p className="text-[13px] font-semibold text-text-secondary">Any exercises you&apos;d rather avoid? (optional)</p>
         <input
           type="text"
           value={avoidedExercisesNote}
           onChange={(e) => onChange({ avoidedExercisesNote: e.target.value })}
-          placeholder="예: 스쿼트"
+          placeholder="e.g. squats"
           className="min-h-[44px] w-full rounded-[var(--radius-md)] px-4 text-[14px] text-text-primary outline-none"
           style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
         />

@@ -57,25 +57,25 @@ export type FocusArea = (typeof FOCUS_AREA_OPTIONS)[number]["value"];
  * Press, Reverse Pec Deck, Assisted Pull-Up, 45° Back Extension) don't map
  * to any of these named machines and keep the residual "machine" tag. */
 export const EQUIPMENT_OPTIONS = [
-  { value: "bodyweight", label: "맨몸" },
-  { value: "dumbbell", label: "덤벨" },
-  { value: "barbell", label: "바벨" },
-  { value: "smith_machine", label: "스미스 머신" },
-  { value: "cable", label: "케이블 머신" },
-  { value: "bench", label: "벤치" },
-  { value: "resistance_band", label: "저항 밴드" },
-  { value: "kettlebell", label: "케틀벨" },
-  { value: "leg_press", label: "레그 프레스" },
-  { value: "leg_curl", label: "레그 컬" },
-  { value: "leg_extension", label: "레그 익스텐션" },
-  { value: "hip_abductor", label: "힙 어브덕터" },
-  { value: "lat_pulldown", label: "랫 풀다운" },
-  { value: "seated_row", label: "시티드 로우" },
-  { value: "machine", label: "기타 머신" },
+  { value: "bodyweight", label: "Bodyweight" },
+  { value: "dumbbell", label: "Dumbbells" },
+  { value: "barbell", label: "Barbell" },
+  { value: "smith_machine", label: "Smith machine" },
+  { value: "cable", label: "Cable station" },
+  { value: "bench", label: "Bench" },
+  { value: "resistance_band", label: "Resistance band" },
+  { value: "kettlebell", label: "Kettlebell" },
+  { value: "leg_press", label: "Leg press" },
+  { value: "leg_curl", label: "Leg curl" },
+  { value: "leg_extension", label: "Leg extension" },
+  { value: "hip_abductor", label: "Hip abductor" },
+  { value: "lat_pulldown", label: "Lat pulldown" },
+  { value: "seated_row", label: "Seated row" },
+  { value: "machine", label: "Other machine" },
 ] as const;
 export type Equipment = (typeof EQUIPMENT_OPTIONS)[number]["value"];
 
-/** Conservative fallback when the user picks "잘 모르겠어요" instead of
+/** Conservative fallback when the user picks "I'm not sure" instead of
  * listing equipment — common-denominator gear most gyms/homes have, per the
  * onboarding spec's own guidance for this case. */
 export const UNSURE_EQUIPMENT_PRESET: Equipment[] = [

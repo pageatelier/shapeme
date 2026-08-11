@@ -25,9 +25,9 @@ export function FocusAreaStep({
       <div>
         <p className="text-[13px] font-semibold text-text-secondary">Where would you like to focus?</p>
         <h1 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-text-primary">
-          어디에 조금 더 집중하고 싶나요?
+          Where would you like to feel the most change?
         </h1>
-        <p className="mt-1.5 text-[12px] text-text-muted">최대 {MAX_FOCUS_AREAS}개까지 선택할 수 있어요.</p>
+        <p className="mt-1.5 text-[12px] text-text-muted">Choose up to {MAX_FOCUS_AREAS}.</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
