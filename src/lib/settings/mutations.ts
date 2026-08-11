@@ -7,7 +7,7 @@ export async function updateSettings(patch: Partial<Settings>) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요해요.");
+  if (!user) throw new Error("You need to be logged in.");
 
   const data: Record<string, unknown> = {};
   if (patch.goalWeightKg !== undefined) data.goal_weight_kg = patch.goalWeightKg;

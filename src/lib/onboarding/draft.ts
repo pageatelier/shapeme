@@ -34,6 +34,11 @@ export const DEFAULT_DAILY_CARE: DailyCarePreferences = {
 export type OnboardingDraft = OnboardingProfile & {
   inspiration: Inspiration | null;
   routinePreference: RoutinePreference | null;
+  /** Path A's generated-then-edited week (see Phase 5's GuestIntroFlow) —
+   * generateStartingWeek()'s output, patched in once the guest finishes
+   * Starting Week review, so it survives through to the Phase 7 bulk write
+   * without needing a session yet. */
+  generatedWeek: StartingWeekDay[] | null;
   /** Path B's parsed/reviewed routine — reuses generateStartingWeek()'s own
    * output shape so the existing editable StartingWeekReview UI can run on
    * either path's result without a second review implementation. */
@@ -45,6 +50,7 @@ export const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
   ...DEFAULT_ONBOARDING_PROFILE,
   inspiration: null,
   routinePreference: null,
+  generatedWeek: null,
   importedRoutine: null,
   dailyCare: DEFAULT_DAILY_CARE,
 };
