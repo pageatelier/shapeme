@@ -46,13 +46,17 @@ export function WelcomeStep() {
 
       <BrandLogo light />
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-[-0.03em] text-white">Let&apos;s shape a plan around you.</h1>
-        <p className="mx-auto max-w-[280px] text-[14px] leading-relaxed text-white/80">
-          A few quick questions about your body, your routine, and how you like to move — then we&apos;ll put
-          together your first week together.
+        <h1 className="font-bodoni text-[43px] text-white/90">
+          Let&apos;s shape a plan around you.</h1>
+        <p className="mx-auto max-w-[280px] text-[14px] leading-relaxed 
+        text-white/80">
+          <br>A few quick questions about your body, </br>
+          <br>your routine, and how you like to move —</br>
+          then we’ll build your first week together.
         </p>
       </div>
-      <p className="text-[12px] text-white/70">Takes about 3 minutes. No account needed yet.</p>
+      <p className="text-[12px] text-white/70">
+      Takes about 3 minutes. No account needed yet.</p>
       {/* For anyone who lands back on /onboarding with an existing
           account — e.g. from a stale link, or just poking around before
           signing in — rather than a dead end with only "Get started"

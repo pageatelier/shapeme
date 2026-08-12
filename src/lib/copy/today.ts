@@ -11,7 +11,7 @@ export const todayCopy = {
     complete: "COMPLETE",
   },
   focus: {
-    label: "TODAY'S FOCUS",
+    label: "FOCUS",
     restTitle: "Rest Day",
     restSubtitle: "Nothing scheduled — enjoy the break.",
     exerciseCount: (n: number) => `${n} exercise${n === 1 ? "" : "s"}`,
@@ -24,7 +24,7 @@ export const todayCopy = {
     water: "WATER",
   },
   nourish: {
-    title: "Today's Nourish",
+    title: "Nourish",
     seeAll: "See all",
     saving: "Saving",
     uploadError: "Upload failed.",
@@ -39,7 +39,7 @@ export const todayCopy = {
     deleteError: "Couldn't remove that.",
   },
   waterGoalEditor: {
-    title: "Today's Water",
+    title: "Water",
     edit: "edit",
     dailyGoal: "Daily goal",
     cupSize: "Cup size",
