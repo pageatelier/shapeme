@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { AuthField } from "@/components/auth/AuthField";
 import { ChevronLeftIcon } from "@/components/icons";
@@ -21,6 +21,22 @@ export function LoginForm() {
   // initial screen is Apple/Google-first and the card stays short — the
   // photo, not the form, is meant to dominate the screen.
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [formHeight, setFormHeight] = useState(0);
+
+  // The form's DOM stays mounted at all times (see the measured-height
+  // wrapper below) so the open/close transition has something to animate
+  // between — that also means AuthField's own `autoFocus` only fires once
+  // on page load, not on every reveal, so focus is driven imperatively here
+  // instead. scrollHeight is measured on every toggle (and whenever `error`
+  // appears/disappears, since that changes the form's natural height) —
+  // this runs in a layout effect so the height is ready before paint,
+  // avoiding a one-frame flash at the wrong size.
+  useLayoutEffect(() => {
+    if (formRef.current) setFormHeight(formRef.current.scrollHeight);
+    if (showEmailForm) emailInputRef.current?.focus();
+  }, [showEmailForm, error]);
 
   // Google is registered in Supabase + Google Cloud now, so this does a
   // real signInWithOAuth() — it redirects the whole page to Google, then
@@ -65,7 +81,7 @@ export function LoginForm() {
     // justify-center puts it (roughly vertical middle), which is what
     // leaves the photo visible both above the wordmark AND below the card,
     // instead of pinning the whole group flush to the bottom.
-    <div className="relative flex flex-col gap-3">
+    <div className="relative flex flex-col gap-6">
       {/* fixed (not absolute) so it covers the full viewport height instead
           of just this form's own content box — .app-content centers its
           child vertically (justify-center), so an absolute layer scoped to
@@ -76,7 +92,17 @@ export function LoginForm() {
           normal-flow content — .app-content is a stacking context (it sets
           its own z-index), so this negative z-index is scoped to that
           context rather than fighting the whole page. */}
-      <div className="pointer-events-none fixed inset-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2">
+      {/* top-0 + explicit height: 100dvh instead of inset-0 — on iOS Safari,
+          a `fixed` box sized via inset-0's implicit top:0/bottom:0 can end
+          up shorter than the visible viewport while the address bar is in
+          its expanded state, leaving a sliver of the page's own cream
+          background showing above/below the photo. 100dvh tracks the
+          actual visible viewport as the toolbar shows/hides, closing that
+          gap. */}
+      <div
+        className="pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
+        style={{ height: "100dvh" }}
+      >
         <Image
           src="/login-bg.webp"
           alt=""
@@ -96,8 +122,11 @@ export function LoginForm() {
       </div>
 
       <div className="text-center">
-        <BrandLogo light hideIcon />
-        <p className="font-bodoni text-[40px] leading-[1.05] text-white/90">
+        <BrandLogo light hideIcon textClassName="text-[22px]" />
+        <p
+          className="font-bodoni text-[40px] text-white/90"
+          style={{ fontWeight: 400, letterSpacing: "-0.045em", lineHeight: 0.88 }}
+        >
           Your body,
           <br />
           <span className="italic">taking shape.</span>
@@ -147,11 +176,30 @@ export function LoginForm() {
           {oauthError && <p className="text-center text-[12px] text-error">{oauthError}</p>}
         </div>
 
-        {/* Email/password collapsed behind this single line by default —
-            tapping it swaps this button out for the form in place, still
-            inside the same card, rather than navigating anywhere. */}
-        {showEmailForm ? (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        {/* Email/password collapsed behind "Continue with email" by
+            default. The form itself stays permanently mounted so the
+            open/close transition has something to animate between —
+            animating a plain conditional render has nothing to transition
+            from, so it would just snap open instead of unfurling. Height
+            is transitioned to a JS-measured pixel value (formHeight, from
+            scrollHeight) rather than grid-template-rows/max-height: those
+            aren't compositor-accelerated the same way and can read as
+            janky on iOS Safari, especially with a large max-height target
+            far past the real content size. */}
+        {!showEmailForm && (
+          <button
+            type="button"
+            onClick={() => setShowEmailForm(true)}
+            className="flex min-h-11 items-center justify-center text-center text-[13px] font-semibold text-text-secondary"
+          >
+            Continue with email
+          </button>
+        )}
+        <div
+          className="overflow-hidden transition-[height,opacity] duration-300 ease-out"
+          style={{ height: showEmailForm ? formHeight : 0, opacity: showEmailForm ? 1 : 0 }}
+        >
+          <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-2">
             <button
               type="button"
               onClick={() => setShowEmailForm(false)}
@@ -161,11 +209,12 @@ export function LoginForm() {
               Back
             </button>
             <AuthField
+              ref={emailInputRef}
               label="Email"
               type="email"
               autoComplete="email"
               required
-              autoFocus
+              tabIndex={showEmailForm ? 0 : -1}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -174,6 +223,7 @@ export function LoginForm() {
               type="password"
               autoComplete="current-password"
               required
+              tabIndex={showEmailForm ? 0 : -1}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -183,21 +233,14 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={loading}
+              tabIndex={showEmailForm ? 0 : -1}
               className="mt-1 flex min-h-11 items-center justify-center rounded-full text-[14px] font-bold text-text-inverse disabled:opacity-60"
               style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
             >
               {loading ? "Signing in..." : "Log in"}
             </button>
           </form>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowEmailForm(true)}
-            className="py-1 text-center text-[13px] font-semibold text-text-secondary"
-          >
-            Continue with email
-          </button>
-        )}
+        </div>
 
         <p className="text-center text-[13px] text-text-secondary">
           Don&apos;t have an account?{" "}

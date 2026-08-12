@@ -15,7 +15,12 @@
   --font-ko: var(--font-body);
   --font-en: var(--font-body);
   --font-cormorant: "Cormorant Garamond", var(--font-body);
-  --font-bodoni: "Bodoni Moda", serif;
+  /* "Bodoni 72" is an Apple system font — can't be loaded via next/font
+     (not on Google Fonts, not licensed for web embedding), but it's
+     already installed on iOS/macOS, so naming it first here picks up the
+     real thing there for free. Bodoni Moda (the next/font/google face
+     loaded in layout.tsx) is the fallback everywhere else. */
+  --font-bodoni: "Bodoni 72", "Bodoni Moda", serif;
 
   /* Background */
   --color-bg: #f3f2ed; /* Chalk */

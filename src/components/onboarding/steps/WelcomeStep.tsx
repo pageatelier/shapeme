@@ -18,7 +18,14 @@ import { BrandLogo } from "@/components/BrandLogo";
 export function WelcomeStep() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-      <div className="pointer-events-none fixed inset-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2">
+      {/* top-0 + explicit height: 100dvh instead of inset-0 — see
+          LoginForm.tsx's identical wrapper for why (iOS Safari's dynamic
+          toolbar can otherwise leave a gap of the page's own background
+          showing above/below the photo). */}
+      <div
+        className="pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
+        style={{ height: "100dvh" }}
+      >
         <Image
           src="/onboading-images/welcome.webp"
           alt=""

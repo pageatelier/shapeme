@@ -14,6 +14,7 @@ export function BrandLogo({
   className = "",
   light = false,
   hideIcon = false,
+  textClassName = "text-2xl",
 }: {
   className?: string;
   light?: boolean;
@@ -21,11 +22,15 @@ export function BrandLogo({
    * screen's photo-first hero) where the mark competes with a bigger
    * display line right below it and reads cleaner on its own. */
   hideIcon?: boolean;
+  /** Overrides the wordmark's size utility (default text-2xl) — per-spot,
+   * since instances sitting above a bigger display line (login's tagline)
+   * want to read a touch smaller than the standalone default. */
+  textClassName?: string;
 }) {
   return (
     <span className={`inline-flex items-center gap-1.5 ${light ? "text-white" : "text-text-primary"} ${className}`}>
       {!hideIcon && <BrandMarkIcon className="h-[0.8em] w-[0.8em]" />}
-      <p className="font-cormorant text-2xl font-semibold tracking-[0.02em] whitespace-nowrap uppercase">
+      <p className={`font-cormorant font-semibold tracking-[0.02em] whitespace-nowrap uppercase ${textClassName}`}>
         silua
       </p>
     </span>
