@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond } from "next/font/google";
+import { Bodoni_Moda, Cormorant_Garamond } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -19,6 +19,18 @@ const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+  display: "swap",
+});
+
+// High-contrast Didone serif, available as --font-bodoni / .font-bodoni —
+// not wired into any component yet, just registered so it's ready to use.
+// Includes italic (opsz axis covers the full optical-size range).
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-bodoni",
+  subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
   display: "swap",
 });
 
@@ -56,7 +68,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${cormorantGaramond.variable} antialiased`}>
+    <html
+      lang="ko"
+      className={`${pretendard.variable} ${cormorantGaramond.variable} ${bodoniModa.variable} antialiased`}
+    >
       <body className="min-h-full">{children}</body>
     </html>
   );

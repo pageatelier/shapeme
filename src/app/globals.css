@@ -15,6 +15,7 @@
   --font-ko: var(--font-body);
   --font-en: var(--font-body);
   --font-cormorant: "Cormorant Garamond", var(--font-body);
+  --font-bodoni: "Bodoni Moda", serif;
 
   /* Background */
   --color-bg: #f3f2ed; /* Chalk */
@@ -182,6 +183,7 @@
   --font-en: var(--font-en);
   --font-body: var(--font-body);
   --font-cormorant: var(--font-cormorant);
+  --font-bodoni: var(--font-bodoni);
 
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);

@@ -73,9 +73,9 @@ export function LoginForm() {
       <div className="text-center">
         <BrandLogo className="mb-2" light />
         <p className="text-[13px] leading-relaxed text-white/80">
-          Shape your body.
+          Your body, 
           <br />
-          On your terms.
+          taking shape.
         </p>
       </div>
 
