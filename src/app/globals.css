@@ -227,6 +227,23 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Full-bleed fixed photo backgrounds (login/signup/onboarding Welcome) —
+   sized via a fallback chain rather than a single unit. 100dvh can still
+   render shorter than the actually-visible area on iOS Safari while the
+   address bar is in its expanded state (fixed-position sizing against
+   dynamic viewport units has known engine inconsistencies), leaving a
+   sliver of the page's own cream background showing above/below the
+   photo. 100lvh (the LARGE viewport — always >= whatever's currently
+   visible, toolbar collapsed or not) is declared last so it wins where
+   supported, guaranteeing the background is never shorter than the
+   screen; any overshoot is invisible anyway since this is a fixed,
+   z-[-1], pointer-events-none decorative layer. */
+.onboarding-fixed-bg {
+  height: 100vh;
+  height: 100dvh;
+  height: 100lvh;
+}
+
 /* Mobile app frame — SILUA is designed mobile-first, capped at 480px */
 .app-shell {
   position: relative;

@@ -64,6 +64,17 @@ export function AccountCreationStep({
       return;
     }
 
+    // Supabase's signUp() deliberately doesn't error on an already-registered
+    // email (avoids leaking which emails have accounts) — it returns a
+    // "successful" response with no session and, distinctively, an empty
+    // identities array. Without this check, a duplicate email silently fell
+    // through to "Check your email" as if a real confirmation had just been
+    // sent, even though nothing was.
+    if (data.user && data.user.identities?.length === 0) {
+      setError("An account with this email already exists. Try logging in instead.");
+      return;
+    }
+
     if (data.session) {
       onCreated();
     } else {

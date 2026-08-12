@@ -81,7 +81,7 @@ export function LoginForm() {
     // justify-center puts it (roughly vertical middle), which is what
     // leaves the photo visible both above the wordmark AND below the card,
     // instead of pinning the whole group flush to the bottom.
-    <div className="relative flex flex-col gap-6">
+    <div className="relative flex flex-col gap-5">
       {/* fixed (not absolute) so it covers the full viewport height instead
           of just this form's own content box — .app-content centers its
           child vertically (justify-center), so an absolute layer scoped to
@@ -92,16 +92,15 @@ export function LoginForm() {
           normal-flow content — .app-content is a stacking context (it sets
           its own z-index), so this negative z-index is scoped to that
           context rather than fighting the whole page. */}
-      {/* top-0 + explicit height: 100dvh instead of inset-0 — on iOS Safari,
-          a `fixed` box sized via inset-0's implicit top:0/bottom:0 can end
-          up shorter than the visible viewport while the address bar is in
-          its expanded state, leaving a sliver of the page's own cream
-          background showing above/below the photo. 100dvh tracks the
-          actual visible viewport as the toolbar shows/hides, closing that
-          gap. */}
+      {/* top-0 + .onboarding-fixed-bg (not inset-0) — on iOS Safari, a
+          `fixed` box sized via inset-0's implicit top:0/bottom:0, or even
+          a single height:100dvh, can end up shorter than the visible
+          viewport while the address bar is in its expanded state, leaving
+          a sliver of the page's own cream background showing above/below
+          the photo. See that class in globals.css for the fallback chain
+          that closes the gap for good. */}
       <div
-        className="pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
-        style={{ height: "100dvh" }}
+        className="onboarding-fixed-bg pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
       >
         <Image
           src="/login-bg.webp"
@@ -124,7 +123,7 @@ export function LoginForm() {
       <div className="text-center">
         <BrandLogo light hideIcon textClassName="text-[22px]" />
         <p
-          className="font-bodoni text-[40px] text-white/90"
+          className="font-bodoni text-[43px] text-white/90"
           style={{ fontWeight: 400, letterSpacing: "-0.045em", lineHeight: 0.88 }}
         >
           Your body,
@@ -190,7 +189,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowEmailForm(true)}
-            className="flex min-h-11 items-center justify-center text-center text-[13px] font-semibold text-text-secondary"
+            className="py-1 text-center text-[13px] font-semibold text-text-secondary"
           >
             Continue with email
           </button>

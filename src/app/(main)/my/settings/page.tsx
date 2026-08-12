@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeftIcon } from "@/components/icons";
 import { ChangePasswordSection } from "@/components/my/ChangePasswordSection";
 import { DeleteAccountSection } from "@/components/my/DeleteAccountSection";
+import { PermanentDeleteAccountSection } from "@/components/my/PermanentDeleteAccountSection";
 import { LanguageRegionSettings } from "@/components/my/LanguageRegionSettings";
 import { LogoutButton } from "@/components/my/LogoutButton";
 import { MealWaterSettings } from "@/components/my/MealWaterSettings";
@@ -64,6 +65,13 @@ export default async function MySettingsPage() {
         style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
       >
         <DeleteAccountSection />
+      </div>
+
+      <div
+        className="rounded-[var(--radius-lg)]"
+        style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
+      >
+        <PermanentDeleteAccountSection />
       </div>
     </div>
   );

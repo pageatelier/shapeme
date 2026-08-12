@@ -30,6 +30,17 @@ export default function SignupPage() {
       return;
     }
 
+    // Supabase's signUp() deliberately doesn't error on an already-registered
+    // email (avoids leaking which emails have accounts) — it returns a
+    // "successful" response with no session and, distinctively, an empty
+    // identities array. Without this check, a duplicate email silently fell
+    // through to "Check your email" as if a real confirmation had just been
+    // sent, even though nothing was.
+    if (data.user && data.user.identities?.length === 0) {
+      setError("An account with this email already exists. Try logging in instead.");
+      return;
+    }
+
     if (data.session) {
       router.push("/onboarding");
       router.refresh();
@@ -44,13 +55,12 @@ export default function SignupPage() {
   // the negative-z-index stacking-context note, the card's 87% alpha).
   return (
     <div className="relative mt-auto flex flex-col gap-4">
-      {/* top-0 + explicit height: 100dvh instead of inset-0 — see
-          LoginForm.tsx's identical wrapper for why (iOS Safari's dynamic
-          toolbar can otherwise leave a gap of the page's own background
-          showing above/below the photo). */}
+      {/* top-0 + .onboarding-fixed-bg — see LoginForm.tsx's identical
+          wrapper for why (iOS Safari's dynamic toolbar can otherwise leave
+          a gap of the page's own background showing above/below the
+          photo, even with a plain height:100dvh). */}
       <div
-        className="pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
-        style={{ height: "100dvh" }}
+        className="onboarding-fixed-bg pointer-events-none fixed top-0 left-1/2 z-[-1] w-full max-w-[var(--container-sm)] -translate-x-1/2"
       >
         <Image
           src="/login-bg.webp"

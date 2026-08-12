@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BodyCapture } from "@/components/body/BodyCapture";
-import { ChevronLeftIcon } from "@/components/icons";
+import { CheckIcon, ChevronLeftIcon } from "@/components/icons";
 import { OnboardingBannerImage } from "@/components/onboarding/OnboardingBannerImage";
 import { detectBrowserLocaleDefaults } from "@/lib/locale/region";
 import { useOnboardingDraft } from "@/lib/onboarding/draft";
@@ -66,7 +66,7 @@ function canContinueForStep(step: number, draft: OnboardingDraft): boolean {
   }
 }
 
-type Phase = "steps" | "review" | "account" | "dailyCare" | "bodyCheckIn";
+type Phase = "steps" | "review" | "account" | "dailyCare" | "bodyCheckIn" | "complete";
 
 /**
  * Hosts the guest-first flow — reachable pre-auth now that the proxy
@@ -88,7 +88,9 @@ type Phase = "steps" | "review" | "account" | "dailyCare" | "bodyCheckIn";
  * photos specifically are never touchable before this point: BodyCapture
  * only renders in the "bodyCheckIn" phase, which is only reachable after a
  * session exists. Finishing Body Check-In finalizes (onboardingCompleted:
- * true + programStartedAt), clears the draft, and routes to Today.
+ * true + programStartedAt), clears the draft, and shows a "complete" screen
+ * before the user chooses to head to Today themselves — landing straight on
+ * Today with no acknowledgment read as an abrupt, unfinished-feeling drop.
  *
  * `draft.stage` — not this component's own `phase` state — is what a
  * fresh mount actually resumes from, because `phase` doesn't survive a
@@ -227,12 +229,14 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
     try {
       await saveOnboardingProfile({ onboardingCompleted: true });
       await updateSettings({ programStartedAt: new Date().toISOString() });
-      patch({ stage: "complete" });
       clear();
-      router.push("/");
-      router.refresh();
+      // stage isn't patched to "complete" here — clear() already wiped the
+      // draft back to DEFAULT_ONBOARDING_DRAFT (stage: null), and there's
+      // nothing left to resume from this point on regardless.
+      setPhase("complete");
     } catch (err) {
       setPostSignupError(err instanceof Error ? err.message : "Failed to save.");
+    } finally {
       setPostSignupSaving(false);
     }
   }
@@ -311,6 +315,36 @@ export function GuestIntroFlow({ authenticatedProfile }: { authenticatedProfile?
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
         >
           {postSignupSaving ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === "complete") {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
+        <div
+          className="flex h-16 w-16 items-center justify-center rounded-full"
+          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+        >
+          <CheckIcon className="h-7 w-7 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">You&apos;re all set.</h1>
+          <p className="mx-auto mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-text-secondary">
+            Your first week is saved and ready whenever you are.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            router.push("/");
+            router.refresh();
+          }}
+          className="mt-2 flex min-h-[52px] w-full items-center justify-center rounded-full text-[15px] font-bold text-text-inverse"
+          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+        >
+          Go to Today
         </button>
       </div>
     );
