@@ -15,6 +15,17 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
+  // Same stub as onboarding's AccountCreationStep — no provider is
+  // registered in Supabase yet, and signInWithOAuth() would otherwise do a
+  // full top-level redirect that can only fail there. Swap to a real
+  // supabase.auth.signInWithOAuth({ provider }) call once Apple/Google
+  // credentials are set up in the Supabase dashboard.
+  function handleOAuth(provider: "apple" | "google") {
+    const label = provider === "apple" ? "Apple" : "Google";
+    setOauthError(`${label} sign-in isn't set up yet — use email for now.`);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -72,10 +83,10 @@ export function LoginForm() {
 
       <div className="text-center">
         <BrandLogo className="mb-2" light />
-        <p className="text-[13px] leading-relaxed text-white/80">
-          Your body, 
+        <p className="font-bodoni text-[13px] leading-relaxed text-white/80">
+          Your body,
           <br />
-          taking shape.
+          <span className="italic">taking shape.</span>
         </p>
       </div>
 
@@ -89,54 +100,83 @@ export function LoginForm() {
           what keeps the lower opacity from making the "Email"/"Password"
           labels noisy against the busy photo; AuthField's own inputs stay
           on their normal near-opaque var(--surface-card), untouched. */}
-      <form
-        onSubmit={handleSubmit}
-        className="glass-card flex flex-col gap-2 p-4"
+      <div
+        className="glass-card flex flex-col gap-3 p-4"
         style={{
           background: "rgba(251, 250, 247, 0.8)",
           backdropFilter: "blur(14px) saturate(1.15)",
           WebkitBackdropFilter: "blur(14px) saturate(1.15)",
         }}
       >
-        <AuthField
-          label="Email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <AuthField
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* Same non-functional stub as onboarding's AccountCreationStep —
+            see handleOAuth's doc comment above for why. */}
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => handleOAuth("apple")}
+            className="flex min-h-[48px] items-center justify-center rounded-full text-[14px] font-semibold text-text-inverse"
+            style={{ background: "var(--color-ink)" }}
+          >
+            Continue with Apple
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOAuth("google")}
+            className="flex min-h-[48px] items-center justify-center rounded-full text-[14px] font-semibold text-text-primary"
+            style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
+          >
+            Continue with Google
+          </button>
+          {oauthError && <p className="text-center text-[12px] text-error">{oauthError}</p>}
+        </div>
 
-        {error && <p className="text-[13px] text-error">{error}</p>}
+        <div className="flex items-center gap-3 text-[11px] text-text-muted">
+          <span className="h-px flex-1" style={{ background: "var(--glass-border)" }} />
+          or with email
+          <span className="h-px flex-1" style={{ background: "var(--glass-border)" }} />
+        </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
-        >
-          {loading ? "Signing in..." : "Log in"}
-        </button>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <AuthField
+            label="Email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <AuthField
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        {/* Inside the card (not floating below it) so a short viewport
-            can't clip it off-screen underneath the now-lower-anchored box.
-            mt-3 on top of the form's own gap-2 — flush against the button
-            read as if it belonged to it rather than being a separate link. */}
-        <p className="mt-3 text-center text-[13px] text-text-secondary">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-pink-500">
-            Sign up
-          </Link>
-        </p>
-      </form>
+          {error && <p className="text-[13px] text-error">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
+            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+          >
+            {loading ? "Signing in..." : "Log in"}
+          </button>
+
+          {/* Inside the card (not floating below it) so a short viewport
+              can't clip it off-screen underneath the now-lower-anchored box.
+              mt-3 on top of the form's own gap-2 — flush against the button
+              read as if it belonged to it rather than being a separate link. */}
+          <p className="mt-3 text-center text-[13px] text-text-secondary">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="font-semibold text-pink-500">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

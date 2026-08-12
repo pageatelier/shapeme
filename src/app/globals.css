@@ -204,11 +204,22 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Kills the rubber-band bounce on pull-past-edge — without this, even a
+     page with zero real overflow still visibly shifts on iOS Safari/Chrome
+     when dragged past the top/bottom, reading as "a website" rather than a
+     fixed app screen. Doesn't affect legitimate scrolling inside any
+     scrollable element (Body timeline, exercise lists, etc.), only the
+     overscroll past an edge. */
+  overscroll-behavior-y: none;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background: var(--color-bg);
+  overscroll-behavior-y: none;
 }
 
 /* Mobile app frame — SILUA is designed mobile-first, capped at 480px */
