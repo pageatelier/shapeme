@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/supabase/server";
 
 /**
@@ -19,13 +19,7 @@ export async function deleteAccountPermanently() {
   const user = await getCurrentUser();
   if (!user) throw new Error("로그인이 필요해요.");
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("서버에 SUPABASE_SERVICE_ROLE_KEY가 설정되어 있지 않아요. 관리자에게 문의하세요.");
-  }
-
-  const admin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  const admin = createAdminClient();
 
   const [bodyRes, mealRes] = await Promise.all([
     admin.from("body_entries").select("front_image, side_image, back_image").eq("user_id", user.id),

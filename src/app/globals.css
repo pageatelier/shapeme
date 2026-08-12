@@ -244,6 +244,29 @@ body {
   height: 100lvh;
 }
 
+/* Subtle content swap for the auth card's step transitions (email entry →
+   password → verify) — applied via a React `key`-per-step remount so it
+   replays on every step change, since a swapped subtree has no prior state
+   to transition from the way a toggled height/opacity value would. */
+@keyframes auth-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.auth-step {
+  animation: auth-step-in 220ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-step {
+    animation: none;
+  }
+}
+
 /* Mobile app frame — SILUA is designed mobile-first, capped at 480px */
 .app-shell {
   position: relative;

@@ -60,6 +60,15 @@ export const viewport: Viewport = {
   // screen edge on notched/home-indicator iPhones, right where iOS's own
   // bottom-edge swipe gesture competes with taps.
   viewportFit: "cover",
+  // Without this, iOS Safari treats the on-screen keyboard as shrinking the
+  // layout viewport itself — every 100dvh-based container (the auth pages'
+  // full-bleed background, .app-content's centering) recomputes against the
+  // smaller height the instant the keyboard opens, which is what made the
+  // login card jump and re-center. "overlays-content" makes the keyboard
+  // float on top instead: dvh-based sizing stays exactly what it was before
+  // the keyboard opened, and the page just scrolls (natively, no JS) if a
+  // focused field would otherwise sit underneath the keyboard.
+  interactiveWidget: "overlays-content",
 };
 
 export default function RootLayout({
