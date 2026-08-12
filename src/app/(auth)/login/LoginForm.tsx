@@ -61,12 +61,11 @@ export function LoginForm() {
   }
 
   return (
-    // mt-auto pulls this whole block — logo, tagline, and the card — down
-    // as one bottom-anchored group (an auto margin claims all free space
-    // above it, overriding the parent's justify-center), so the photo's
-    // full upper portion stays uncovered instead of splitting the gap
-    // between "above the block" and "above just the card".
-    <div className="relative mt-auto flex flex-col gap-4">
+    // No mt-auto here anymore — the group sits wherever .app-content's own
+    // justify-center puts it (roughly vertical middle), which is what
+    // leaves the photo visible both above the wordmark AND below the card,
+    // instead of pinning the whole group flush to the bottom.
+    <div className="relative flex flex-col gap-3">
       {/* fixed (not absolute) so it covers the full viewport height instead
           of just this form's own content box — .app-content centers its
           child vertically (justify-center), so an absolute layer scoped to
@@ -97,8 +96,8 @@ export function LoginForm() {
       </div>
 
       <div className="text-center">
-        <BrandLogo className="mb-2" light />
-        <p className="font-bodoni text-[40px] leading-relaxed text-white/80">
+        <BrandLogo light hideIcon />
+        <p className="font-bodoni text-[40px] leading-[1.05] text-white/90">
           Your body,
           <br />
           <span className="italic">taking shape.</span>
@@ -131,19 +130,19 @@ export function LoginForm() {
         <div className="flex flex-col gap-2">
           <button
             type="button"
-            onClick={() => handleOAuth("apple")}
-            className="flex min-h-11 items-center justify-center rounded-full text-[14px] font-semibold text-text-inverse"
-            style={{ background: "var(--color-ink)" }}
-          >
-            Continue with Apple
-          </button>
-          <button
-            type="button"
             onClick={() => handleOAuth("google")}
             className="flex min-h-11 items-center justify-center rounded-full text-[14px] font-semibold text-text-primary"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
           >
             Continue with Google
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOAuth("apple")}
+            className="flex min-h-11 items-center justify-center rounded-full text-[14px] font-semibold text-text-inverse"
+            style={{ background: "var(--color-ink)" }}
+          >
+            Continue with Apple
           </button>
           {oauthError && <p className="text-center text-[12px] text-error">{oauthError}</p>}
         </div>

@@ -10,10 +10,21 @@
  */
 import { BrandMarkIcon } from "@/components/icons";
 
-export function BrandLogo({ className = "", light = false }: { className?: string; light?: boolean }) {
+export function BrandLogo({
+  className = "",
+  light = false,
+  hideIcon = false,
+}: {
+  className?: string;
+  light?: boolean;
+  /** Text-only wordmark, no BrandMarkIcon — for spots (like the login
+   * screen's photo-first hero) where the mark competes with a bigger
+   * display line right below it and reads cleaner on its own. */
+  hideIcon?: boolean;
+}) {
   return (
     <span className={`inline-flex items-center gap-1.5 ${light ? "text-white" : "text-text-primary"} ${className}`}>
-      <BrandMarkIcon className="h-[0.8em] w-[0.8em]" />
+      {!hideIcon && <BrandMarkIcon className="h-[0.8em] w-[0.8em]" />}
       <p className="font-cormorant text-2xl font-semibold tracking-[0.02em] whitespace-nowrap uppercase">
         silua
       </p>
