@@ -2,11 +2,11 @@ import Link from "next/link";
 import { ChevronLeftIcon } from "@/components/icons";
 import { ChangePasswordSection } from "@/components/my/ChangePasswordSection";
 import { DeleteAccountSection } from "@/components/my/DeleteAccountSection";
-import { PermanentDeleteAccountSection } from "@/components/my/PermanentDeleteAccountSection";
 import { LanguageRegionSettings } from "@/components/my/LanguageRegionSettings";
 import { LogoutButton } from "@/components/my/LogoutButton";
 import { MealWaterSettings } from "@/components/my/MealWaterSettings";
 import { NotificationSettings } from "@/components/my/NotificationSettings";
+import { PermanentDeleteAccountSection } from "@/components/my/PermanentDeleteAccountSection";
 import { SessionManagementSection } from "@/components/my/SessionManagementSection";
 import { SettingsGroup, StaticRow } from "@/components/my/SettingsPrimitives";
 import { readSettings } from "@/lib/settings/types";
@@ -17,11 +17,9 @@ export default async function MySettingsPage() {
 
   const metadata = (user?.user_metadata ?? {}) as {
     language?: string;
-    country?: string;
     timezone?: string;
   };
   const language = metadata.language || "ko";
-  const country = metadata.country || "KR";
   const timezone = metadata.timezone || "Asia/Seoul";
   const settings = readSettings(user?.user_metadata);
 
@@ -35,44 +33,44 @@ export default async function MySettingsPage() {
         >
           <ChevronLeftIcon className="h-4 w-4 text-text-secondary" />
         </Link>
-        <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">설정</h1>
+        <h1 className="text-2xl font-bold tracking-[-0.03em] text-text-primary">Settings</h1>
       </div>
 
-      <SettingsGroup title="사용 옵션">
+      <SettingsGroup title="Preferences">
         <MealWaterSettings settings={settings} />
       </SettingsGroup>
 
-      <LanguageRegionSettings language={language} country={country} timezone={timezone} />
+      <LanguageRegionSettings language={language} timezone={timezone} />
 
-      <SettingsGroup title="알림">
+      <SettingsGroup title="Notifications">
         <NotificationSettings settings={settings} />
       </SettingsGroup>
 
-      <SettingsGroup title="개인정보 및 보안">
-        <StaticRow label="Body 사진 보안 안내" value="비공개 저장" />
+      <SettingsGroup title="Privacy & Security">
+        <div>
+          <StaticRow label="Body photo privacy" value="Private by default" />
+          <p className="px-4 pb-3 text-[11px] text-text-secondary">
+            Your body photos are private and only visible to you.
+          </p>
+        </div>
         <ChangePasswordSection />
         <SessionManagementSection />
       </SettingsGroup>
 
-      <SettingsGroup title="계정">
+      {/* "Reset your Silua data" lives here as a plain row next to Log out —
+          same Account card, no red tint until it's actually expanded (see
+          DeleteAccountSection). "Delete account" stays separate, further
+          below, as the page's one standalone danger action — keeping
+          Settings' first view free of a standing warning box fits SILUA's
+          quieter, editorial tone better than a SaaS-style danger zone. */}
+      <SettingsGroup title="Account">
         <div className="flex justify-center p-4">
           <LogoutButton />
         </div>
+        <DeleteAccountSection />
       </SettingsGroup>
 
-      <div
-        className="rounded-[var(--radius-lg)]"
-        style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
-      >
-        <DeleteAccountSection />
-      </div>
-
-      <div
-        className="rounded-[var(--radius-lg)]"
-        style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
-      >
-        <PermanentDeleteAccountSection />
-      </div>
+      <PermanentDeleteAccountSection />
     </div>
   );
 }

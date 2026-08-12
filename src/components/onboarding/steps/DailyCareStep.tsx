@@ -8,10 +8,12 @@ const DAILY_CARE_OPTIONS: { key: keyof DailyCarePreferences; label: string; help
   { key: "waterTrackingEnabled", label: "Water tracking", helper: "Log how much you drink each day." },
   { key: "mealTrackingEnabled", label: "Meal tracking", helper: "Snap a quick photo of what you eat." },
   { key: "notificationsEnabled", label: "Reminders", helper: "A gentle nudge so movement doesn't slip your mind." },
-  { key: "selfLoveMessageEnabled", label: "Self-love messages", helper: "A kind note waiting for you, some days." },
+  // No self-love-messages toggle here by request — selfLoveMessageEnabled
+  // still exists on DailyCarePreferences/DEFAULT_DAILY_CARE (defaults on)
+  // and stays editable from Settings later; onboarding just doesn't ask.
 ];
 
-/** All 4 default to on (see DEFAULT_DAILY_CARE in draft.ts) — this step is
+/** All 3 default to on (see DEFAULT_DAILY_CARE in draft.ts) — this step is
  * about letting a guest turn off what they don't want, not an empty slate. */
 export function DailyCareStep({
   dailyCare,

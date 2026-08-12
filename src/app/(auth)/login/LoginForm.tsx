@@ -242,9 +242,9 @@ export function LoginForm() {
         </div>
 
         <p className="text-center text-[13px] text-text-secondary">
-          Don&apos;t have an account?{" "}
+          New here? {" "}
           <Link href="/signup" className="font-semibold text-pink-500">
-            Sign up
+            Create your account
           </Link>
         </p>
       </div>

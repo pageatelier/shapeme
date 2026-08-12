@@ -25,5 +25,10 @@ export function NotificationSettings({ settings }: { settings: Settings }) {
     }
   }
 
-  return <ToggleRow label="알림 받기" on={enabled} disabled={pending} onToggle={toggle} />;
+  return (
+    <div>
+      <ToggleRow label="Notifications" on={enabled} disabled={pending} onToggle={toggle} />
+      <p className="px-4 pb-3 text-[11px] text-text-secondary">Gentle reminders from Silua.</p>
+    </div>
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 
 /**
@@ -52,6 +53,16 @@ export function WelcomeStep() {
         </p>
       </div>
       <p className="text-[12px] text-white/70">Takes about 3 minutes. No account needed yet.</p>
+      {/* For anyone who lands back on /onboarding with an existing
+          account — e.g. from a stale link, or just poking around before
+          signing in — rather than a dead end with only "Get started"
+          (which would just walk them through the whole guest flow again). */}
+      <p className="text-[13px] text-white/80">
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-white underline underline-offset-2">
+          Log in
+        </Link>
+      </p>
     </div>
   );
 }

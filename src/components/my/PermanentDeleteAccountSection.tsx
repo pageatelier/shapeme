@@ -5,13 +5,17 @@ import { useState } from "react";
 import { deleteAccountPermanently } from "@/lib/account/actions";
 import { createClient } from "@/lib/supabase/client";
 
-const CONFIRM_WORD = "삭제";
+const CONFIRM_WORD = "DELETE";
 
 /**
- * Same confirm-word/expand pattern as DeleteAccountSection, but this one
- * actually removes the login account too (that section deliberately keeps
- * it) — the destructive work happens server-side in deleteAccountPermanently()
- * since deleting an auth user requires the service_role key.
+ * "Delete account" — the page's one true danger action, kept off to the
+ * side at the very bottom rather than inside any SettingsGroup card, and
+ * collapsed to a small, quiet trigger (not a standing red box) so
+ * Settings doesn't open with a warning-heavy first screen. Same
+ * expand-to-confirm pattern as DeleteAccountSection ("Reset your Silua
+ * data"), but this one removes the login account itself — the actual
+ * destructive work runs server-side in deleteAccountPermanently() since
+ * deleting an auth user needs the service_role key.
  */
 export function PermanentDeleteAccountSection() {
   const router = useRouter();
@@ -30,7 +34,7 @@ export function PermanentDeleteAccountSection() {
       router.push("/login");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
       setDeleting(false);
     }
   }
@@ -40,26 +44,28 @@ export function PermanentDeleteAccountSection() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-between px-4 py-3.5 text-left"
+        className="w-full pb-2 text-center text-[12px] font-medium"
+        style={{ color: "var(--color-error)" }}
       >
-        <span className="text-[13px] font-medium" style={{ color: "var(--color-error)" }}>
-          계정 영구 삭제
-        </span>
+        Delete account
       </button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <p className="text-[13px] font-bold text-text-primary">정말 삭제할까요?</p>
+    <div
+      className="flex flex-col gap-3 rounded-[var(--radius-lg)] p-4"
+      style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
+    >
+      <p className="text-[13px] font-bold text-text-primary">Delete your account?</p>
       <p className="text-[12px] leading-relaxed text-text-secondary">
-        눈바디 사진, 운동 기록, 물·식단 기록, 메모, 프로필 정보뿐 아니라 로그인 계정 자체도 함께 영구 삭제돼요.
-        되돌릴 수 없고, 같은 이메일로 다시 가입해야 해요.
+        This permanently deletes your Silua account and all of your data, including body photos, workouts, meals,
+        water logs, notes, and profile information. This can&apos;t be undone.
       </p>
       <input
         value={confirmText}
         onChange={(e) => setConfirmText(e.target.value)}
-        placeholder={`확인하려면 "${CONFIRM_WORD}"를 입력하세요`}
+        placeholder={`Type "${CONFIRM_WORD}" to confirm`}
         className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
         style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
       />
@@ -72,7 +78,7 @@ export function PermanentDeleteAccountSection() {
           className="min-h-[40px] flex-1 rounded-full text-[13px] font-bold text-text-inverse disabled:opacity-40"
           style={{ background: "var(--color-error)" }}
         >
-          {deleting ? "삭제 중..." : "영구 삭제"}
+          {deleting ? "Deleting..." : "Delete account"}
         </button>
         <button
           type="button"
@@ -85,7 +91,7 @@ export function PermanentDeleteAccountSection() {
           className="min-h-[40px] rounded-full px-4 text-[13px] font-semibold text-text-secondary"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
-          취소
+          Cancel
         </button>
       </div>
     </div>

@@ -4,8 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const CONFIRM_WORD = "삭제";
+const CONFIRM_WORD = "DELETE";
 
+/**
+ * "Reset your Silua data" — wipes data/storage but deliberately keeps the
+ * login account usable (contrast with PermanentDeleteAccountSection, which
+ * removes the account too). Collapsed state renders as a plain settings
+ * row (just red label text, no tinted box) so it sits quietly inside the
+ * normal Account card; the red/error-tinted confirmation panel only
+ * appears once actually expanded — SILUA's Settings shouldn't greet you
+ * with a big warning box on first load.
+ */
 export function DeleteAccountSection() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -21,7 +30,7 @@ export function DeleteAccountSection() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("로그인이 필요해요.");
+      if (!user) throw new Error("Please log in first.");
 
       const [bodyRes, mealRes] = await Promise.all([
         supabase.from("body_entries").select("front_image, side_image, back_image").eq("user_id", user.id),
@@ -73,11 +82,10 @@ export function DeleteAccountSection() {
         },
       });
 
-      await supabase.auth.signOut();
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "삭제에 실패했어요.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
       setDeleting(false);
     }
   }
@@ -90,23 +98,26 @@ export function DeleteAccountSection() {
         className="flex w-full items-center justify-between px-4 py-3.5 text-left"
       >
         <span className="text-[13px] font-medium" style={{ color: "var(--color-error)" }}>
-          계정 데이터 삭제
+          Reset your Silua data
         </span>
       </button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <p className="text-[13px] font-bold text-text-primary">정말 삭제할까요?</p>
+    <div
+      className="flex flex-col gap-3 rounded-[var(--radius-lg)] p-4"
+      style={{ background: "var(--color-error-soft)", border: "1px solid rgba(203, 116, 128, 0.25)" }}
+    >
+      <p className="text-[13px] font-bold text-text-primary">Start fresh?</p>
       <p className="text-[12px] leading-relaxed text-text-secondary">
-        눈바디 사진, 운동 기록, 물·식단 기록, 메모, 프로필 정보가 모두 영구 삭제돼요. 되돌릴 수 없어요.
-        (로그인 계정 자체는 유지돼요 — 다시 로그인하면 빈 상태로 시작해요.)
+        This permanently deletes your body photos, workouts, meals, water logs, notes, and profile data. Your
+        account will stay active, so you can start fresh anytime.
       </p>
       <input
         value={confirmText}
         onChange={(e) => setConfirmText(e.target.value)}
-        placeholder={`확인하려면 "${CONFIRM_WORD}"를 입력하세요`}
+        placeholder={`Type "${CONFIRM_WORD}" to confirm`}
         className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
         style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
       />
@@ -119,7 +130,7 @@ export function DeleteAccountSection() {
           className="min-h-[40px] flex-1 rounded-full text-[13px] font-bold text-text-inverse disabled:opacity-40"
           style={{ background: "var(--color-error)" }}
         >
-          {deleting ? "삭제 중..." : "영구 삭제"}
+          {deleting ? "Deleting..." : "Delete my data"}
         </button>
         <button
           type="button"
@@ -132,7 +143,7 @@ export function DeleteAccountSection() {
           className="min-h-[40px] rounded-full px-4 text-[13px] font-semibold text-text-secondary"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
-          취소
+          Cancel
         </button>
       </div>
     </div>

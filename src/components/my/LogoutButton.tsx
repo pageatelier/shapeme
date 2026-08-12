@@ -23,7 +23,7 @@ export function LogoutButton() {
       disabled={signingOut}
       className="text-text-secondary underline underline-offset-2 disabled:opacity-60"
     >
-      {signingOut ? "로그아웃 중..." : "로그아웃"}
+      {signingOut ? "Logging out..." : "Log out"}
     </button>
   );
 }

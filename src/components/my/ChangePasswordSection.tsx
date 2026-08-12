@@ -21,11 +21,11 @@ export function ChangePasswordSection() {
 
   async function handleSave() {
     if (password.length < 6) {
-      setError("6자 이상 입력해주세요.");
+      setError("Use at least 6 characters.");
       return;
     }
     if (password !== confirm) {
-      setError("비밀번호가 일치하지 않아요.");
+      setError("Passwords don't match.");
       return;
     }
     setSaving(true);
@@ -38,7 +38,7 @@ export function ChangePasswordSection() {
       setPassword("");
       setConfirm("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "변경에 실패했어요.");
+      setError(err instanceof Error ? err.message : "Failed to change password.");
     } finally {
       setSaving(false);
     }
@@ -51,7 +51,7 @@ export function ChangePasswordSection() {
         onClick={() => setOpen(true)}
         className="flex w-full items-center justify-between px-4 py-3.5 text-left"
       >
-        <span className="text-[13px] font-medium text-text-primary">비밀번호 변경</span>
+        <span className="text-[13px] font-medium text-text-primary">Change password</span>
       </button>
     );
   }
@@ -62,7 +62,7 @@ export function ChangePasswordSection() {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="새 비밀번호 (6자 이상)"
+        placeholder="New password (6+ characters)"
         autoComplete="new-password"
         className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
         style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
@@ -71,13 +71,13 @@ export function ChangePasswordSection() {
         type="password"
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
-        placeholder="새 비밀번호 확인"
+        placeholder="Confirm new password"
         autoComplete="new-password"
         className="min-h-[44px] rounded-[var(--radius-md)] px-4 text-[15px] text-text-primary outline-none"
         style={{ background: "var(--surface-solid)", border: "var(--border-soft)" }}
       />
       {error && <p className="text-[12px] text-error">{error}</p>}
-      {done && <p className="text-[12px]" style={{ color: "var(--color-success)" }}>비밀번호를 변경했어요.</p>}
+      {done && <p className="text-[12px]" style={{ color: "var(--color-success)" }}>Password changed.</p>}
       <div className="flex gap-2">
         <button
           type="button"
@@ -86,7 +86,7 @@ export function ChangePasswordSection() {
           className="min-h-[40px] flex-1 rounded-full text-[13px] font-bold text-text-inverse disabled:opacity-60"
           style={{ background: "var(--gradient-primary)" }}
         >
-          {saving ? "변경 중..." : "변경"}
+          {saving ? "Changing..." : "Change"}
         </button>
         <button
           type="button"
@@ -95,7 +95,7 @@ export function ChangePasswordSection() {
           className="min-h-[40px] rounded-full px-4 text-[13px] font-semibold text-text-secondary"
           style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
         >
-          취소
+          Cancel
         </button>
       </div>
     </div>
