@@ -40,8 +40,13 @@ export async function updateSession(request: NextRequest) {
   // authenticated user hitting /onboarding mid-flow should NOT be bounced
   // away the way isAuthRoute below bounces a logged-in user off /login.
   const isOnboardingRoute = request.nextUrl.pathname.startsWith("/onboarding");
+  // /auth/callback is where signInWithOAuth() lands mid-flow, before a
+  // session exists yet — exchangeCodeForSession() in that route is what
+  // actually creates one. Without this exception, this same check would
+  // redirect that request to /login before the route handler ever runs.
+  const isAuthCallbackRoute = request.nextUrl.pathname.startsWith("/auth/callback");
 
-  if (!user && !isAuthRoute && !isOnboardingRoute) {
+  if (!user && !isAuthRoute && !isOnboardingRoute && !isAuthCallbackRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);

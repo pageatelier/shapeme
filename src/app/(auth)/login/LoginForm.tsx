@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { AuthField } from "@/components/auth/AuthField";
+import { ChevronLeftIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
@@ -16,15 +17,29 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthError, setOauthError] = useState<string | null>(null);
+  // Email/password stays collapsed behind "Continue with email" so the
+  // initial screen is Apple/Google-first and the card stays short — the
+  // photo, not the form, is meant to dominate the screen.
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
-  // Same stub as onboarding's AccountCreationStep — no provider is
-  // registered in Supabase yet, and signInWithOAuth() would otherwise do a
-  // full top-level redirect that can only fail there. Swap to a real
-  // supabase.auth.signInWithOAuth({ provider }) call once Apple/Google
-  // credentials are set up in the Supabase dashboard.
-  function handleOAuth(provider: "apple" | "google") {
-    const label = provider === "apple" ? "Apple" : "Google";
-    setOauthError(`${label} sign-in isn't set up yet — use email for now.`);
+  // Google is registered in Supabase + Google Cloud now, so this does a
+  // real signInWithOAuth() — it redirects the whole page to Google, then
+  // Google/Supabase redirect back to /auth/callback (see that route) to
+  // exchange the code for a session before landing on `next`. Apple stays
+  // the AccountCreationStep-style stub until its own credentials exist.
+  async function handleOAuth(provider: "apple" | "google") {
+    if (provider === "apple") {
+      setOauthError("Apple sign-in isn't set up yet — use email for now.");
+      return;
+    }
+    setOauthError(null);
+    const supabase = createClient();
+    const next = searchParams.get("next") ?? "/";
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+    });
+    if (error) setOauthError(error.message);
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -83,7 +98,7 @@ export function LoginForm() {
 
       <div className="text-center">
         <BrandLogo className="mb-2" light />
-        <p className="font-bodoni text-[13px] leading-relaxed text-white/80">
+        <p className="font-bodoni text-[40px] leading-relaxed text-white/80">
           Your body,
           <br />
           <span className="italic">taking shape.</span>
@@ -93,15 +108,18 @@ export function LoginForm() {
       {/* No extra margin here anymore — the outer gap-4 (plus mt-auto on
           the whole group above) does all the positioning now that logo,
           tagline, and card move together as one bottom-anchored unit.
-          Padding/gap trimmed from p-6/gap-4 to p-4/gap-2 keeps the card
-          itself compact. Background dropped to 80% alpha + a backdrop blur
-          for an actual frosted-glass look (a solid ~87%-opaque card reads
-          as a generic login panel dropped onto the photo) — the blur is
-          what keeps the lower opacity from making the "Email"/"Password"
-          labels noisy against the busy photo; AuthField's own inputs stay
-          on their normal near-opaque var(--surface-card), untouched. */}
+          Padding/gap trimmed down (p-3/gap-2) and social buttons dropped to
+          a 44px min-height (still meets the 44pt tap-target minimum) so the
+          card stays short on the initial, email-collapsed screen — the
+          photo, not the form, is meant to dominate. Background dropped to
+          80% alpha + a backdrop blur for an actual frosted-glass look (a
+          solid ~87%-opaque card reads as a generic login panel dropped onto
+          the photo) — the blur is what keeps the lower opacity from making
+          the "Email"/"Password" labels noisy against the busy photo;
+          AuthField's own inputs stay on their normal near-opaque
+          var(--surface-card), untouched. */}
       <div
-        className="glass-card flex flex-col gap-3 p-4"
+        className="glass-card flex flex-col gap-2 p-3"
         style={{
           background: "rgba(251, 250, 247, 0.8)",
           backdropFilter: "blur(14px) saturate(1.15)",
@@ -114,7 +132,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => handleOAuth("apple")}
-            className="flex min-h-[48px] items-center justify-center rounded-full text-[14px] font-semibold text-text-inverse"
+            className="flex min-h-11 items-center justify-center rounded-full text-[14px] font-semibold text-text-inverse"
             style={{ background: "var(--color-ink)" }}
           >
             Continue with Apple
@@ -122,7 +140,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => handleOAuth("google")}
-            className="flex min-h-[48px] items-center justify-center rounded-full text-[14px] font-semibold text-text-primary"
+            className="flex min-h-11 items-center justify-center rounded-full text-[14px] font-semibold text-text-primary"
             style={{ background: "var(--surface-card)", border: "var(--border-soft)" }}
           >
             Continue with Google
@@ -130,52 +148,64 @@ export function LoginForm() {
           {oauthError && <p className="text-center text-[12px] text-error">{oauthError}</p>}
         </div>
 
-        <div className="flex items-center gap-3 text-[11px] text-text-muted">
-          <span className="h-px flex-1" style={{ background: "var(--glass-border)" }} />
-          or with email
-          <span className="h-px flex-1" style={{ background: "var(--glass-border)" }} />
-        </div>
+        {/* Email/password collapsed behind this single line by default —
+            tapping it swaps this button out for the form in place, still
+            inside the same card, rather than navigating anywhere. */}
+        {showEmailForm ? (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setShowEmailForm(false)}
+              className="flex items-center gap-0.5 self-start py-1 text-[12px] font-semibold text-text-muted"
+            >
+              <ChevronLeftIcon className="h-3 w-3" />
+              Back
+            </button>
+            <AuthField
+              label="Email"
+              type="email"
+              autoComplete="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <AuthField
+              label="Password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <AuthField
-            label="Email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <AuthField
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            {error && <p className="text-[13px] text-error">{error}</p>}
 
-          {error && <p className="text-[13px] text-error">{error}</p>}
-
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-1 flex min-h-11 items-center justify-center rounded-full text-[14px] font-bold text-text-inverse disabled:opacity-60"
+              style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+            >
+              {loading ? "Signing in..." : "Log in"}
+            </button>
+          </form>
+        ) : (
           <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 flex min-h-[52px] items-center justify-center rounded-full text-[15px] font-bold text-text-inverse disabled:opacity-60"
-            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-pink)" }}
+            type="button"
+            onClick={() => setShowEmailForm(true)}
+            className="py-1 text-center text-[13px] font-semibold text-text-secondary"
           >
-            {loading ? "Signing in..." : "Log in"}
+            Continue with email
           </button>
+        )}
 
-          {/* Inside the card (not floating below it) so a short viewport
-              can't clip it off-screen underneath the now-lower-anchored box.
-              mt-3 on top of the form's own gap-2 — flush against the button
-              read as if it belonged to it rather than being a separate link. */}
-          <p className="mt-3 text-center text-[13px] text-text-secondary">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-semibold text-pink-500">
-              Sign up
-            </Link>
-          </p>
-        </form>
+        <p className="text-center text-[13px] text-text-secondary">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-semibold text-pink-500">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

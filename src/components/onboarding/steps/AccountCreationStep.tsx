@@ -11,15 +11,15 @@ import { createClient } from "@/lib/supabase/client";
  * handleSubmit exactly, just without that page's full-bleed photo
  * treatment (this renders mid-flow, inside the onboarding shell).
  *
- * Apple/Google intentionally do NOT call signInWithOAuth() yet: that call
- * doesn't fail in-place the way signUp() does — it immediately does a full
- * top-level redirect to Supabase's /authorize endpoint, and only THERE
- * (after leaving this app entirely) does "provider not enabled" come back,
- * as a raw unstyled JSON error page. With no provider registered yet, that
- * redirect can only ever fail, so showing a plain in-app "not set up yet"
- * message instead is strictly better than sending a guest to that page.
- * Swap handleOAuth back to a real signInWithOAuth() call once the user
- * registers Apple/Google credentials in Supabase's dashboard. onCreated
+ * Google is registered in Supabase + Google Cloud, so it calls a real
+ * signInWithOAuth() — full top-level redirect to Google, then back through
+ * /auth/callback (exchanges the code for a session) to /onboarding, where
+ * the guest-draft resume logic (draft.stage) picks up from "routine_ready"
+ * the same way it does for email confirmation's emailRedirectTo. Apple
+ * stays a stub (setOauthError only) until its own credentials exist — that
+ * call would otherwise do a full top-level redirect to Supabase's
+ * /authorize endpoint that can only fail there, as a raw unstyled JSON
+ * error page, since nothing's registered for it yet. onCreated
  * only fires for the email path today, and only when
  * signUp() returns an active session immediately (email confirmation
  * off) — if Supabase requires confirmation, this shows the same
@@ -72,9 +72,18 @@ export function AccountCreationStep({
     }
   }
 
-  function handleOAuth(provider: "apple" | "google") {
-    const label = provider === "apple" ? "Apple" : "Google";
-    setOauthError(`${label} sign-in isn't set up yet — use email for now.`);
+  async function handleOAuth(provider: "apple" | "google") {
+    if (provider === "apple") {
+      setOauthError("Apple sign-in isn't set up yet — use email for now.");
+      return;
+    }
+    setOauthError(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/onboarding` },
+    });
+    if (error) setOauthError(error.message);
   }
 
   if (checkEmail) {
