@@ -71,3 +71,22 @@ Large sections and primary feature cards remain solid black / white / Butter Lig
 - Splash is now a single centered `SILUA` word on a light background, inspired by the clean Subscrr intro.
 - The letters use a moving grayscale liquid-gradient / sheen animation rather than moving the whole word.
 - Butter remains only as a very small progress-line accent.
+
+## v12 splash cleanup
+- White background only.
+- One centered `SILUA` word in DM Sans 600.
+- No scale-in, no sheen, no progress line, no subtitle.
+- Only the color inside the letters moves once: black → Butter `#E8D56A` → black.
+- Splash fades out quickly instead of sliding away.
+- Total intro time is about one second.
+
+## v13 splash refinement
+- Color sweep slowed to ~1.85s.
+- Butter band made much wider and softer, with warm transition tones on both sides.
+- No sheen, scaling, or extra motion added.
+- Splash fade timing was extended so the full sweep can complete calmly.
+
+## v14 splash bug fix
+- Fixed the splash gradient rendering as a rectangle.
+- The previous `background:` shorthand reset `background-clip:text`.
+- The gradient now uses `background-image` and explicitly reapplies `-webkit-background-clip:text`, `background-clip:text`, and transparent text fill.

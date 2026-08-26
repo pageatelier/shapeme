@@ -8,8 +8,8 @@ if (reducedMotion) {
   document.body.classList.add('splash-done', 'page-ready');
 } else {
   window.addEventListener('load', () => {
-    setTimeout(() => document.body.classList.add('splash-done'), 920);
-    setTimeout(() => document.body.classList.add('page-ready'), 1220);
+    setTimeout(() => document.body.classList.add('splash-done'), 1780);
+    setTimeout(() => document.body.classList.add('page-ready'), 2020);
   }, { once: true });
 }
 

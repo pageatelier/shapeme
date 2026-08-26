@@ -577,3 +577,133 @@
   }
   .splash-word::after{display:none}
 }
+
+
+/* v12 — ultra-clean SILUA splash */
+.splash{
+  background:#fff !important;
+  color:var(--black);
+  display:grid;
+  place-items:center;
+  opacity:1;
+  transform:none !important;
+  transition:opacity .24s ease !important;
+}
+
+.splash-done .splash{
+  opacity:0;
+  pointer-events:none;
+  transform:none !important;
+}
+
+.splash-word{
+  position:relative;
+  display:inline-block;
+  font-family:var(--font-body);
+  font-style:normal;
+  font-weight:600;
+  font-size:clamp(92px,10.8vw,176px);
+  line-height:.82;
+  letter-spacing:-.055em;
+
+  /* one restrained black → butter → black sweep */
+  color:transparent;
+  background:
+    linear-gradient(
+      105deg,
+      #111111 0%,
+      #111111 34%,
+      #E8D56A 48%,
+      #111111 62%,
+      #111111 100%
+    );
+  background-size:220% 100%;
+  background-position:120% 50%;
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  opacity:1 !important;
+  transform:none !important;
+  filter:none !important;
+  animation:siluaColorSweep .95s cubic-bezier(.45,0,.2,1) both !important;
+}
+
+/* remove every previous sheen / secondary animation */
+.splash-word::after{
+  display:none !important;
+  content:none !important;
+}
+
+.splash-line{
+  display:none !important;
+}
+
+@keyframes siluaColorSweep{
+  0%{background-position:125% 50%}
+  100%{background-position:-20% 50%}
+}
+
+@media(max-width:620px){
+  .splash-word{
+    font-size:clamp(68px,21vw,96px);
+    letter-spacing:-.05em;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .splash{
+    display:none !important;
+  }
+}
+
+
+/* v13 — slower, broader, softer SILUA color sweep */
+.splash-word{
+  background:
+    linear-gradient(
+      105deg,
+      #111111 0%,
+      #111111 22%,
+      #3b392f 32%,
+      #c6b85d 42%,
+      #E8D56A 50%,
+      #c6b85d 58%,
+      #3b392f 68%,
+      #111111 78%,
+      #111111 100%
+    ) !important;
+  background-size:180% 100% !important;
+  background-position:115% 50%;
+  animation:siluaSoftSweep 1.85s cubic-bezier(.42,0,.22,1) both !important;
+}
+
+@keyframes siluaSoftSweep{
+  0%{background-position:118% 50%}
+  100%{background-position:-18% 50%}
+}
+
+
+/* v14 — fix: keep the gradient clipped inside the SILUA letters */
+.splash-word{
+  background-image:
+    linear-gradient(
+      105deg,
+      #111111 0%,
+      #111111 22%,
+      #3b392f 32%,
+      #c6b85d 42%,
+      #E8D56A 50%,
+      #c6b85d 58%,
+      #3b392f 68%,
+      #111111 78%,
+      #111111 100%
+    ) !important;
+  background-repeat:no-repeat !important;
+  background-size:180% 100% !important;
+  background-position:115% 50%;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+  color:transparent !important;
+  animation:siluaSoftSweep 1.85s cubic-bezier(.42,0,.22,1) both !important;
+}
