@@ -19,3 +19,10 @@ Recommended public paths:
 - `/privacy` → `privacy.html`
 
 Before launch, replace the final “Get SILUA” CTA with the live App Store URL once available and do a final legal review of Terms/Privacy against the production data, account, analytics and subscription implementation.
+
+
+## Clean URLs
+- Homepage: `/`
+- Privacy: `/privacy`
+- Terms: `/terms`
+- `vercel.json` enables `cleanUrls` and disables trailing slashes.
