@@ -1,17 +1,9 @@
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const splash = document.querySelector('[data-splash]');
 const header = document.querySelector('[data-header]');
 const menuButton = document.querySelector('[data-menu-button]');
 const mobileMenu = document.querySelector('[data-mobile-menu]');
 
-if (reducedMotion) {
-  document.body.classList.add('splash-done', 'page-ready');
-} else {
-  window.addEventListener('load', () => {
-    setTimeout(() => document.body.classList.add('splash-done'), 1780);
-    setTimeout(() => document.body.classList.add('page-ready'), 2020);
-  }, { once: true });
-}
+document.body.classList.add('page-ready');
 
 const setHeader = () => header?.classList.toggle('scrolled', window.scrollY > 20);
 setHeader();

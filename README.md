@@ -90,3 +90,10 @@ Large sections and primary feature cards remain solid black / white / Butter Lig
 - Fixed the splash gradient rendering as a rectangle.
 - The previous `background:` shorthand reset `background-clip:text`.
 - The gradient now uses `background-image` and explicitly reapplies `-webkit-background-clip:text`, `background-clip:text`, and transparent text fill.
+
+## v15 footer + splash cleanup
+- Removed the intro splash completely. The page renders immediately.
+- Rebuilt the footer as a full-width near-black editorial footer inspired by the clean structure of modern consumer-app sites.
+- Added a SILUA lockup, contact email, Privacy / Terms / Contact links, copyright, launch badge, top divider and circular back-to-top control.
+- Desktop uses a wide horizontal footer layout; mobile stacks cleanly with a two-column legal-link grid.
+- Footer uses SILUA's black / white / Butter palette rather than copying Subscrr's orange branding.
