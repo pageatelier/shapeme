@@ -3,53 +3,55 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f4f0e8" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="description" content="SILUA plans strength workouts around the shape you want to build." />
   <title>SILUA — Workouts for the shape you want</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <script defer src="/script.js"></script>
 </head>
 <body>
   <div class="splash" data-splash aria-hidden="true">
-    <div class="splash-mark"><span>S</span><span>I</span><span>L</span><span>U</span><span>A</span></div>
+    <div class="splash-word" aria-hidden="true">SILUA</div>
     <div class="splash-line"><i></i></div>
   </div>
 
   <header class="site-header" data-header>
-    <a class="wordmark" href="#top" aria-label="SILUA home">SILUA</a>
+    <a class="brand-logo" href="#top" aria-label="SILUA home">SILUA</a>
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="#overview">Overview</a>
+      <a href="#plan">Plan</a>
       <a href="#training">Training</a>
       <a href="#progress">Progress</a>
-      <a href="#nutrition">Nutrition</a>
+      <a href="#body">Body</a>
       <a href="#faq">FAQ</a>
     </nav>
-    <a class="nav-cta pill pill-dark" href="#download"><span>Get SILUA</span><b aria-hidden="true">↗</b></a>
+    <a class="nav-cta button button-dark" href="#download"><span class="desktop-label">Get SILUA</span><span class="mobile-label">Get the app</span><b aria-hidden="true">↗</b></a>
     <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" data-menu-button><span></span><span></span></button>
   </header>
 
   <div class="mobile-menu" data-mobile-menu>
-    <a href="#overview">Overview</a><a href="#training">Training</a><a href="#progress">Progress</a><a href="#nutrition">Nutrition</a><a href="#faq">FAQ</a>
-    <a class="pill pill-dark" href="#download"><span>Get SILUA</span><b>↗</b></a>
+    <a href="#plan">Plan</a><a href="#training">Training</a><a href="#progress">Progress</a><a href="#body">Body</a><a href="#faq">FAQ</a>
+    <a class="button button-dark" href="#download"><span>Get SILUA</span><b>↗</b></a>
   </div>
 
   <main id="top">
     <section class="hero shell">
       <div class="hero-copy reveal">
-        <p class="kicker">WOMEN'S STRENGTH · BODY RECOMPOSITION</p>
-        <h1>Workouts for the<br>shape you want.</h1>
-        <p class="hero-text">Tell SILUA how you train. Your week is planned around your schedule, experience and equipment, with extra focus on glutes, shoulders and back.</p>
+        <p class="eyebrow"><span></span> WOMEN'S STRENGTH · BODY RECOMPOSITION</p>
+        <h1>Workouts for the<br><em>shape you want.</em></h1>
+        <p class="hero-text">SILUA plans your gym workouts around your schedule, experience and equipment — with more focus on glutes, shoulders and back.</p>
         <div class="hero-actions">
-          <a class="pill pill-dark pill-lg" href="#overview"><span>See how it works</span><b aria-hidden="true">↓</b></a>
-          <a class="pill pill-ghost pill-lg" href="#training"><span>See the training</span><b aria-hidden="true">↗</b></a>
+          <a class="button button-dark" href="#plan"><span>See how it works</span><b aria-hidden="true">↓</b></a>
+          <a class="text-action" href="#training">See the training <span>↗</span></a>
         </div>
-        <p class="hero-meta">2–5 days a week · 30–90 min · Gym based</p>
+        <p class="hero-meta">2–5 days · 30–90 min · Gym based</p>
       </div>
 
-      <div class="hero-stage reveal" data-depth="10">
-        <img class="hero-photo" src="/assets/upper.webp" alt="Woman training shoulders with dumbbells" fetchpriority="high" />
-        <div class="hero-shade"></div>
-        <div class="hero-stage-caption"><span>01</span><p>More focus where it changes your proportions.</p></div>
+      <div class="hero-stage reveal" data-depth="7">
+        <img class="hero-stage-photo" src="/assets/upper.webp" alt="Woman training shoulders with dumbbells" fetchpriority="high" />
+        <div class="hero-butter-tag">SHAPE FOCUS</div>
         <div class="device device-hero" aria-label="SILUA Today screen preview">
           <div class="device-top"><span>9:41</span><i></i><span>•••</span></div>
           <div class="device-screen">
@@ -66,135 +68,146 @@
       </div>
     </section>
 
-    <section class="overview shell section-space" id="overview">
-      <div class="section-intro centered reveal">
-        <p class="kicker">OVERVIEW</p>
-        <h2>Know what you're<br>training today.</h2>
+    <section class="campaign-break shell-wide reveal">
+      <figure data-depth="7"><img src="/assets/plank.webp" alt="Woman holding a plank during a strength workout" loading="lazy" /></figure>
+      <div class="campaign-caption"><span class="butter-dot"></span><p>Strength training, planned around the shape you want to build.</p></div>
+    </section>
+
+    <section class="problem shell section-space" id="for-you">
+      <div class="problem-card reveal">
+        <p class="eyebrow"><span></span> WHY SILUA</p>
+        <h2>The scale isn't the point.</h2>
+        <p>You want to change your shape — not just make your body smaller.</p>
       </div>
-      <div class="overview-grid">
-        <div class="overview-copy reveal">
-          <p>Open SILUA and your next workout is already there. Start it, log your sets, and come back to the same plan next time.</p>
-          <ul class="feature-list">
-            <li><span>01</span> Your weekly plan is already built</li>
-            <li><span>02</span> Exercises match your equipment</li>
-            <li><span>03</span> Sets and reps carry over</li>
-          </ul>
-        </div>
-        <div class="overview-phone-wrap reveal">
-          <div class="orb orb-a"></div><div class="orb orb-b"></div>
-          <div class="device device-overview">
-            <div class="device-top"><span>9:41</span><i></i><span>•••</span></div>
-            <div class="device-screen compact-screen">
-              <p class="screen-label">THIS WEEK</p>
-              <h3>4 workouts.<br>One clear plan.</h3>
-              <div class="day-list"><div><span>MON</span><strong>Glutes + Hamstrings</strong></div><div><span>TUE</span><strong>Back + Shoulders</strong></div><div><span>THU</span><strong>Legs + Glutes</strong></div><div><span>SAT</span><strong>Upper Shape + Core</strong></div></div>
-              <div class="screen-note">Built around 4 days · 60 min</div>
-            </div>
+      <div class="problem-card problem-card-butter reveal">
+        <p class="eyebrow"><span></span> YOUR GOAL</p>
+        <h2>You know the look you're going for.</h2>
+        <p>You want more of an hourglass shape, but you're not sure what to train.</p>
+      </div>
+      <div class="problem-notes reveal">
+        <span>Progressive overload feels hard to manage alone.</span>
+        <span>You want to compare your progress photos over time.</span>
+      </div>
+    </section>
+
+    <section class="plan shell section-space" id="plan">
+      <div class="section-copy reveal">
+        <p class="eyebrow"><span></span> YOUR WEEK</p>
+        <h2>Know what you're<br>training today.</h2>
+        <p>Open SILUA and your next workout is already there. Your weekly plan stays consistent, while exercises adapt to the equipment you have.</p>
+        <ul class="clean-list">
+          <li><span>01</span> Your week is planned for you</li>
+          <li><span>02</span> Exercises fit your gym</li>
+          <li><span>03</span> Sets and reps carry over</li>
+        </ul>
+      </div>
+      <div class="plan-stage reveal">
+        <div class="plan-label">4 DAYS · 60 MIN</div>
+        <div class="device device-plan">
+          <div class="device-top"><span>9:41</span><i></i><span>•••</span></div>
+          <div class="device-screen compact-screen">
+            <p class="screen-label">THIS WEEK</p>
+            <h3>4 workouts.<br>One clear plan.</h3>
+            <div class="day-list"><div><span>MON</span><strong>Glutes + Hamstrings</strong></div><div><span>TUE</span><strong>Back + Shoulders</strong></div><div><span>THU</span><strong>Legs + Glutes</strong></div><div><span>SAT</span><strong>Upper Shape + Core</strong></div></div>
+            <div class="screen-note">Built around 4 days · 60 min</div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="breakdown" id="training">
-      <div class="breakdown-copy shell reveal">
-        <p class="kicker light">TRAINING FOCUS</p>
-        <h2><span>GLUTES.</span><span>SHOULDERS.</span><span>BACK.</span></h2>
-        <p>These areas get more attention across the week, with legs and core built in for strength and balance.</p>
+    <section class="training" id="training">
+      <div class="training-head shell reveal">
+        <p class="eyebrow eyebrow-light"><span></span> TRAINING FOCUS</p>
+        <h2>Glutes. Shoulders. Back.</h2>
+        <p>SILUA gives these areas more attention across the week, with legs and core built in for strength and balance.</p>
       </div>
-      <figure class="breakdown-photo reveal" data-depth="8"><img src="/assets/glutes.webp" alt="Woman training glutes with a resistance band" loading="lazy" /></figure>
-      <div class="breakdown-strip shell">
-        <div><b>GLUTES</b><span>Lower-body shape</span></div>
-        <div><b>SHOULDERS + BACK</b><span>Upper-body proportion</span></div>
-        <div><b>LEGS + CORE</b><span>Strength and stability</span></div>
+      <div class="training-gallery shell-wide">
+        <figure class="training-card training-card-large reveal"><img src="/assets/upper.webp" alt="Shoulder training" loading="lazy" /><figcaption><b>Shoulders + back</b><span>Upper-body proportion</span></figcaption></figure>
+        <figure class="training-card reveal"><img src="/assets/glutes.webp" alt="Glute training" loading="lazy" /><figcaption><b>Glutes</b><span>Lower-body shape</span></figcaption></figure>
+        <figure class="training-card training-card-dark reveal"><img src="/assets/lat.webp" alt="Back training" loading="lazy" /><figcaption><b>Back</b><span>Shape through the upper body</span></figcaption></figure>
       </div>
     </section>
 
-    <section class="progress-feature shell section-space" id="progress">
-      <div class="progress-copy reveal">
-        <p class="kicker">PROGRESS</p>
-        <h2>Your numbers<br>stay with you.</h2>
-        <p>What you lifted last time helps guide what you do next. No rebuilding your routine every week.</p>
-      </div>
-      <figure class="progress-media reveal" data-depth="6">
+    <section class="progress shell section-space" id="progress">
+      <div class="progress-visual reveal" data-depth="5">
         <img src="/assets/hinge.webp" alt="Woman performing a dumbbell hip hinge" loading="lazy" />
-        <div class="progress-toast toast-one"><span>LAST TIME</span><strong>10 kg × 10</strong><small>Romanian Deadlift</small></div>
-        <div class="progress-toast toast-two"><span>NEXT TARGET</span><strong>10 kg × 11</strong><small>Keep the weight. Add a rep.</small></div>
-      </figure>
+        <div class="progress-chip chip-last"><small>LAST TIME</small><strong>10 kg × 10</strong><span>Romanian Deadlift</span></div>
+        <div class="progress-chip chip-next"><small>NEXT TARGET</small><strong>10 kg × 11</strong><span>Keep the weight. Add a rep.</span></div>
+      </div>
+      <div class="section-copy progress-copy reveal">
+        <p class="eyebrow"><span></span> PROGRESSION</p>
+        <h2>Your sets and reps are saved for next time.</h2>
+        <p>SILUA uses what you logged last time to help set the next target, so progressive overload is easier to keep up with.</p>
+      </div>
     </section>
 
-    <section class="setup shell section-space">
-      <div class="setup-top reveal">
-        <p class="kicker">SETUP · ABOUT A MINUTE</p>
-        <h2>Tell us how you train.<br>We'll plan the week.</h2>
-      </div>
-      <div class="setup-grid">
-        <div class="setup-steps reveal">
-          <article><span>1</span><div><strong>Pick your schedule</strong><p>2–5 training days and 30–90 minute sessions.</p></div></article>
-          <article><span>2</span><div><strong>Tell us your equipment</strong><p>Dumbbells, machines, bands and the basics your gym has.</p></div></article>
-          <article><span>3</span><div><strong>Start your first workout</strong><p>Your plan is ready as soon as onboarding is done.</p></div></article>
+    <section class="setup shell-wide section-space">
+      <div class="setup-card reveal">
+        <div class="setup-copy">
+          <p class="eyebrow"><span></span> SETUP · ABOUT A MINUTE</p>
+          <h2>Tell us how you train.<br>We'll plan the week.</h2>
+          <div class="setup-pills">
+            <span><b>01</b> Pick 2–5 days</span>
+            <span><b>02</b> Choose your session length</span>
+            <span><b>03</b> Tell us your equipment</span>
+          </div>
         </div>
-        <figure class="setup-photo reveal"><img src="/assets/legpress.webp" alt="Woman using a leg press in the gym" loading="lazy" /></figure>
+        <figure><img src="/assets/legpress.webp" alt="Woman using a leg press" loading="lazy" /></figure>
       </div>
     </section>
 
-    <section class="motion-section">
-      <div class="motion-copy reveal">
-        <p class="kicker light">IN THE WORKOUT</p>
-        <h2>Watch the move.<br>Log the set.</h2>
-        <p>Exercise guidance stays close while you train, so you can move through the session without stopping to search.</p>
+    <section class="motion shell section-space">
+      <div class="motion-head reveal">
+        <p class="eyebrow"><span></span> IN THE WORKOUT</p>
+        <h2>Watch the move. Log the set.</h2>
+        <p>Exercise guidance stays close while you train, so you don't have to stop and search between sets.</p>
       </div>
-      <div class="motion-media reveal">
-        <video autoplay muted loop playsinline preload="metadata" poster="/assets/hinge.webp">
-          <source src="/assets/workout.mp4" type="video/mp4" />
-        </video>
-        <div class="motion-chip"><span>HIP THRUST</span><b>3 × 8–12</b></div>
+      <div class="motion-stage reveal">
+        <video autoplay muted loop playsinline preload="metadata" poster="/assets/hinge.webp"><source src="/assets/workout.mp4" type="video/mp4" /></video>
+        <div class="motion-ui"><span>HIP THRUST</span><b>3 × 8–12</b></div>
       </div>
     </section>
 
-    <section class="feature-duo shell section-space" id="nutrition">
-      <article class="feature-card reveal">
+    <section class="feature-grid shell section-space" id="body">
+      <article class="feature-card reveal" id="nutrition">
         <figure><img src="/assets/nutrition.webp" alt="Balanced meal with eggs, avocado, fruit and greens" loading="lazy" /></figure>
-        <div class="feature-card-copy"><p class="kicker">NUTRITION</p><h3>A simple protein guide.</h3><p>Set a daily target based on your weight and goal, then see what that looks like in everyday foods.</p><span class="text-link">Protein without a food diary <b>↗</b></span></div>
+        <div class="feature-copy"><p class="eyebrow"><span></span> NUTRITION</p><h3>A simple protein guide.</h3><p>Set a daily target based on your weight and goal, then see what that looks like in everyday foods.</p></div>
       </article>
-      <article class="feature-card reveal">
+      <article class="feature-card feature-card-butter reveal">
+        <div class="feature-copy"><p class="eyebrow"><span></span> BODY</p><h3>See what's changing.</h3><p>Keep progress photos and measurements together so you can compare your body over time.</p></div>
         <figure><img src="/assets/rest.webp" alt="Woman relaxing at home after training" loading="lazy" /></figure>
-        <div class="feature-card-copy"><p class="kicker">BODY</p><h3>See the change over time.</h3><p>Photo check-ins and measurements keep progress in one place, without making the scale the whole story.</p><span class="text-link">More than one number <b>↗</b></span></div>
       </article>
     </section>
 
-    <section class="point-of-view">
-      <div class="pov-image"><img src="/assets/grocery.webp" alt="Woman shopping for fresh vegetables" loading="lazy" /></div>
-      <div class="pov-copy reveal">
-        <p class="kicker light">OUR POINT OF VIEW</p>
-        <h2>You can like your body<br>and still have goals.</h2>
-        <p>Wanting more shape, muscle or strength doesn't mean you have to hate where you're starting.</p>
-        <strong>We build ourselves, our way.</strong>
-      </div>
+    <section class="belief shell-wide reveal">
+      <img src="/assets/grocery.webp" alt="Woman shopping for fresh food" loading="lazy" />
+      <div class="belief-shade"></div>
+      <div class="belief-copy"><p class="eyebrow eyebrow-light"><span></span> OUR POINT OF VIEW</p><h2>You can love your body<br><em>and still want to change it.</em></h2><p>Wanting more shape, muscle or strength doesn't mean you have to hate where you're starting.</p></div>
     </section>
 
     <section class="faq shell section-space" id="faq">
-      <div class="faq-heading reveal"><p class="kicker">FAQ</p><h2>Good questions.</h2></div>
+      <div class="faq-heading reveal"><p class="eyebrow"><span></span> FAQ</p><h2>Good questions.</h2></div>
       <div class="faq-list" data-accordion>
         <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span>Is SILUA for beginners?</span><i>+</i></button><div class="faq-answer"><div><p>Yes. SILUA is designed for gym beginners through intermediate lifters who want a clear plan without having to learn workout programming first.</p></div></div></div>
         <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span>Do I need a full gym?</span><i>+</i></button><div class="faq-answer"><div><p>No. SILUA uses the equipment you tell us you have and switches to close alternatives when something isn't available.</p></div></div></div>
         <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span>Is this a weight-loss app?</span><i>+</i></button><div class="faq-answer"><div><p>No. The main focus is strength, muscle and body recomposition. Weight can be one part of progress, but it isn't the whole plan.</p></div></div></div>
-        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span>Can training change my body shape?</span><i>+</i></button><div class="faq-answer"><div><p>Bone structure and genetics don't change, but building muscle can change how your proportions look. SILUA focuses on the muscle groups that can make a visible difference over time.</p></div></div></div>
+        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span>Can training change my body shape?</span><i>+</i></button><div class="faq-answer"><div><p>Bone structure and genetics don't change, but building muscle can change how your proportions look. SILUA focuses on muscle groups that can make a visible difference over time.</p></div></div></div>
       </div>
     </section>
 
-    <section class="download shell" id="download">
+    <section class="download shell-wide" id="download">
       <div class="download-card reveal">
-        <p class="kicker light">SILUA</p>
+        <p class="eyebrow eyebrow-light"><span></span> SILUA</p>
         <h2>Your workout<br>is ready.</h2>
-        <p>Open the app and know what you're doing today.</p>
-        <span class="pill pill-light pill-lg disabled"><span>Coming soon on the App Store</span><b>↗</b></span>
+        <p>Open SILUA and see what's next.</p>
+        <span class="button button-butter disabled"><span>Coming soon on the App Store</span><b>↗</b></span>
         <small>iPhone · English · Launching soon</small>
       </div>
     </section>
   </main>
 
   <footer class="footer shell">
-    <div><a class="wordmark" href="#top">SILUA</a><p>Women's strength &amp; body recomposition.</p></div>
+    <div><a class="brand-logo" href="#top" aria-label="SILUA home">SILUA</a><p>Women's strength &amp; body recomposition.</p></div>
     <div class="footer-links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="mailto:hello@silua.app">Contact</a></div>
     <p class="copyright">© <span data-year></span> SILUA</p>
   </footer>

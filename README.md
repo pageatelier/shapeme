@@ -11,3 +11,63 @@ Static HTML/CSS/JS site for Vercel.
 Clean URLs are enabled in `vercel.json`:
 - `/privacy`
 - `/terms`
+
+
+## v5 update
+- Added an early audience-fit section based on SILUA's core use cases.
+- Unified site typography with the app: DM Sans for body/UI and DM Serif Display for titles/headlines.
+
+## v6 visual system
+- Black + white base.
+- Butter `#E8D56A` for CTA / notice accents.
+- Butter Light `#F5EFA8` for selected feature backgrounds.
+- DM Sans is used for UI and most feature headlines.
+- DM Serif Display is reserved for the hero and brand-belief statement.
+- Desktop and mobile layouts were reworked separately for stronger rhythm and lower copy density.
+- Splash, button micro-interactions, reveal motion, subtle image movement, FAQ easing and responsive navigation are included.
+- Vercel clean URLs remain enabled for `/privacy` and `/terms`.
+
+## v7 refinement
+- Header changed to a lighter translucent glass treatment with blur, saturation, a subtle highlight and soft shadow.
+- Desktop shell margins increased to 48px; wide visual sections to 32px.
+- Tablet shell margins increased to 24px; wide sections to 18px.
+- Mobile shell margins increased to 20px; wide visual sections to 16px.
+- Mobile header now sits 16px from the viewport edges.
+
+## v8 glass system
+Glass is now used selectively rather than across every card:
+- translucent header
+- hero shape-focus tag
+- campaign photo caption
+- weekly-plan label
+- training photo captions
+- progression stat cards
+- setup pills
+- workout video logging control
+
+Large sections and primary feature cards remain solid black / white / Butter Light so the glass effect stays premium instead of turning into full-page glassmorphism.
+
+## v9 header + logo
+- Desktop floating header enlarged to a Subscrr-like scale: up to 1320px wide and 72px high.
+- More internal left/right padding so the glass capsule wraps the logo, navigation and CTA more generously.
+- Added the SILUA / “shape me” lockup based on the supplied logo reference.
+- The logo is rendered as live typography using the site's DM Serif Display Italic + DM Sans, keeping it crisp on retina screens and transparent over glass.
+- Applied the lockup to header, footer, legal pages and intro splash.
+
+## v10 mobile header
+- Replaced the mobile hamburger/menu pattern with a direct `Get the app` CTA in the floating header.
+- Kept the large desktop Subscrr-scale header from v9.
+- On tablet/mobile, the header now uses:
+  - logo on the left
+  - compact black pill CTA on the right
+  - no hamburger
+  - no full-screen mobile menu
+- Desktop keeps the `Get SILUA ↗` CTA, while mobile switches to `Get the app`.
+
+## v11 splash + logo cleanup
+- Removed every `shape me` tagline from header, footer, legal pages and splash.
+- Removed italic styling from the SILUA wordmark.
+- Header/footer logo is now a clean DM Sans semibold `SILUA`.
+- Splash is now a single centered `SILUA` word on a light background, inspired by the clean Subscrr intro.
+- The letters use a moving grayscale liquid-gradient / sheen animation rather than moving the whole word.
+- Butter remains only as a very small progress-line accent.
