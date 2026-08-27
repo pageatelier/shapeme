@@ -97,3 +97,9 @@ Large sections and primary feature cards remain solid black / white / Butter Lig
 - Added a SILUA lockup, contact email, Privacy / Terms / Contact links, copyright, launch badge, top divider and circular back-to-top control.
 - Desktop uses a wide horizontal footer layout; mobile stacks cleanly with a two-column legal-link grid.
 - Footer uses SILUA's black / white / Butter palette rather than copying Subscrr's orange branding.
+
+## v16 visual cleanup
+- Glass is now used only for the floating header.
+- All other translucent panels were converted to solid white or solid Butter Light.
+- Progression cards, setup pills, image captions, motion controls and feature labels now use clean solid surfaces with thin borders.
+- This keeps the site more editorial and less glassmorphism-heavy.

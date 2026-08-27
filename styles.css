@@ -803,7 +803,6 @@
   align-items:center;
   gap:8px;
   padding:6px 11px;
-  border:1px solid rgba(255,255,255,.14);
   border-radius:7px;
   background:#09090c;
   color:#b1b1ba;
@@ -891,4 +890,58 @@
     height:48px;
     font-size:22px;
   }
+}
+
+
+/* v16 — glass only in the header */
+.campaign-caption,
+.plan-label,
+.training-card figcaption,
+.progress-chip,
+.motion-ui,
+.setup-pills span,
+.hero-butter-tag,
+.chip-next,
+.training-card-dark figcaption{
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+  box-shadow:none !important;
+}
+
+/* Solid white UI cards */
+.campaign-caption,
+.plan-label,
+.training-card figcaption,
+.progress-chip,
+.motion-ui,
+.setup-pills span{
+  background:#fff !important;
+  border:1px solid rgba(17,17,17,.10) !important;
+}
+
+/* Butter accents stay solid, not translucent */
+.hero-butter-tag,
+.chip-next,
+.training-card-dark figcaption{
+  background:var(--butter-light) !important;
+  border:1px solid rgba(17,17,17,.08) !important;
+}
+
+/* Keep tiny accent dot on the hero tag */
+.hero-butter-tag::before{
+  background:var(--butter) !important;
+  box-shadow:none !important;
+}
+
+/* Slightly soften the solid cards so they still feel premium */
+.campaign-caption,
+.plan-label,
+.progress-chip,
+.motion-ui,
+.setup-pills span,
+.training-card figcaption,
+.training-card-dark figcaption,
+.hero-butter-tag,
+.chip-next{
+  border-radius:18px;
 }
