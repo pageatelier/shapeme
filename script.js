@@ -3,6 +3,13 @@ const header = document.querySelector('[data-header]');
 const menuButton = document.querySelector('[data-menu-button]');
 const mobileMenu = document.querySelector('[data-mobile-menu]');
 
+if (document.body.classList.contains('legal-page')) {
+  const legalStyles = document.createElement('link');
+  legalStyles.rel = 'stylesheet';
+  legalStyles.href = '/legal.css';
+  document.head.appendChild(legalStyles);
+}
+
 document.body.classList.add('page-ready');
 
 const setHeader = () => header?.classList.toggle('scrolled', window.scrollY > 20);
