@@ -298,9 +298,7 @@ button{
       #050505 100%
     );
   padding:8px;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.18) inset,
-    0 28px 60px rgba(0,0,0,.16);
+  box-shadow:0 0 0 1px rgba(255,255,255,.18) inset;
 }
 
 .hero-phone-wrap-video-only{
@@ -927,9 +925,9 @@ button{
 
 .belief-copy h2{
   font-family:"DM Serif Display",serif;
-  font-size:clamp(54px,6.2vw,94px);
+  font-size:clamp(47px,5.5vw,83px);
   font-weight:400;
-  line-height:.9;
+  line-height:1.02;
   letter-spacing:-.052em;
   margin:0;
 }
@@ -1559,7 +1557,8 @@ button{
   }
 
   .editorial-feature figure{
-    height:420px;
+    height:auto;
+    aspect-ratio:1 / 1;
   }
 
   .editorial-feature-copy{
