@@ -1,5 +1,4 @@
 .legal-page{background:#fcfaf6;color:#111}
-.legal-page .site-header{background:rgba(252,250,246,.94);border-color:rgba(17,17,17,.08);box-shadow:0 10px 38px rgba(28,24,19,.06)}
 .legal-page .legal-main{width:min(1180px,calc(100% - 64px));margin:0 auto;padding:150px 0 120px}
 .legal-page .legal-hero{padding:46px 0 78px;border-bottom:1px solid rgba(17,17,17,.14)}
 .legal-page .kicker{margin:0 0 20px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#746d64}
