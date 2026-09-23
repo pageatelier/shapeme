@@ -2,569 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f7f3ec" />
-  <meta
-    name="description"
-    content="Already slim and want more shape? SILUA helps women build muscle and definition with structured gym workouts, clear progression and visual progress tracking."
-  />
-  <title>SILUA — Already slim. Ready for more shape.</title>
-
+  <meta name="theme-color" content="#f6f1ea" />
+  <title>SILUA — Personal Strength Coaching for Women</title>
+  <meta name="description" content="Train independently. Get coached personally. Personalized strength coaching for women with real coaches, programs, video feedback and progress tracking." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap"
-    rel="stylesheet"
-  />
-
-  <link rel="stylesheet" href="/styles.css" />
-  <style>
-    @media(max-width:860px){
-      .menu-button,
-      .mobile-menu{
-        display:none!important;
-      }
-    }
-  </style>
-
-  <script defer src="/script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
 </head>
-
-<body>
+<body id="top">
   <header class="site-header" data-header>
     <a class="brand-logo" href="#top" aria-label="SILUA home">SILUA</a>
-
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="#today">Today</a>
-      <a href="#training">Training</a>
-      <a href="#progress">Progress</a>
-      <a href="#body">Body</a>
-      <a href="#faq">FAQ</a>
+      <a href="#how" data-i18n="navHow">How it works</a>
+      <a href="#coaches" data-i18n="navCoaches">Coaches</a>
+      <a href="#coaching" data-i18n="navCoaching">Coaching</a>
+      <a href="#progress" data-i18n="navProgress">Progress</a>
     </nav>
-
-    <a class="nav-cta button button-butter" href="#download">
-      <span class="desktop-label">Get the app</span>
-      <span class="mobile-label">Get the app</span>
-    </a>
-
-    <button
-      class="menu-button"
-      type="button"
-      aria-label="Open menu"
-      aria-expanded="false"
-      data-menu-button
-    >
-      <span></span>
-      <span></span>
-    </button>
+    <div class="nav-actions">
+      <button class="lang-toggle" type="button" data-lang-toggle aria-label="Switch language">KR</button>
+      <a class="button button-burgundy nav-cta" href="#download" data-i18n="downloadApp">Download the app</a>
+      <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" data-menu-button><span></span><span></span></button>
+    </div>
   </header>
 
   <div class="mobile-menu" data-mobile-menu>
-    <a href="#today">Today</a>
-    <a href="#training">Training</a>
-    <a href="#progress">Progress</a>
-    <a href="#body">Body</a>
-    <a href="#faq">FAQ</a>
-
-    <a class="button button-dark" href="#download">
-      <span>Get SILUA</span>
-      <b>↗</b>
-    </a>
+    <a href="#how" data-i18n="navHow">How it works</a>
+    <a href="#coaches" data-i18n="navCoaches">Coaches</a>
+    <a href="#coaching" data-i18n="navCoaching">Coaching</a>
+    <a href="#progress" data-i18n="navProgress">Progress</a>
+    <a class="button button-burgundy" href="#download" data-i18n="downloadApp">Download the app</a>
   </div>
 
-  <main id="top">
-    <!-- HERO -->
+  <main>
     <section class="hero shell">
       <div class="hero-copy reveal">
-        <h1>
-          Already slim.<br>
-          <em>Ready for more shape.</em>
-        </h1>
-
-        <p class="hero-text">
-          Build muscle and definition with a gym plan made for you.
-          Focus on glutes, shoulders and back, with a clear next step
-          every workout.
-        </p>
-
+        <p class="kicker" data-i18n="heroKicker">PERSONAL STRENGTH COACHING FOR WOMEN</p>
+        <h1 class="display" data-i18n="heroTitle">Train independently.<br><em>Get coached personally.</em></h1>
+        <p class="hero-text" data-i18n="heroBody">Get a program from a real coach, train on your own, send a set, and keep progressing — wherever you train.</p>
         <div class="hero-actions">
-          <a class="button button-dark" href="#download">
-            <span>Download on the App Store</span>
-          </a>
+          <a class="button button-burgundy" href="#download" data-i18n="downloadApp">Download the app</a>
+          <a class="text-link" href="#how" data-i18n="seeHow">See how SILUA works ↓</a>
         </div>
       </div>
+      <figure class="hero-visual reveal">
+        <img src="assets/hero.webp" alt="Woman strength training with SILUA coach feedback on a phone" />
+      </figure>
+    </section>
 
-      <div
-        class="hero-artboard hero-artboard-phone-only reveal"
-        aria-label="SILUA app preview"
-      >
-        <div class="hero-phone-wrap hero-phone-wrap-video-only">
-          <div class="hero-phone-screen hero-phone-screen-video-only">
-            <video
-              class="hero-phone-video"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              aria-label="SILUA app screen recording"
-            >
-              <source
-                src="/assets/video/hero-screen-recording.mp4"
-                type="video/mp4"
-              />
-            </video>
-          </div>
+    <section class="intro shell section-space" id="how">
+      <div class="intro-head reveal">
+        <p class="kicker burgundy" data-i18n="howKicker">HOW SILUA WORKS</p>
+        <h2 class="display" data-i18n="howTitle">Your workout.<br><em>A real coach behind it.</em></h2>
+      </div>
+      <div class="flow reveal">
+        <article><span>01</span><h3 data-i18n="step1Title">Choose a coach</h3><p data-i18n="step1Body">Find a coach by specialty, coaching style and price.</p></article>
+        <article><span>02</span><h3 data-i18n="step2Title">Get your program</h3><p data-i18n="step2Body">Your coach builds a program around your goals, experience and training environment.</p></article>
+        <article><span>03</span><h3 data-i18n="step3Title">Train & log</h3><p data-i18n="step3Body">Follow your plan and record sets, reps and weight as you train.</p></article>
+        <article><span>04</span><h3 data-i18n="step4Title">Send a set</h3><p data-i18n="step4Body">Upload a training video when you want your coach to look closer.</p></article>
+        <article><span>05</span><h3 data-i18n="step5Title">Improve</h3><p data-i18n="step5Body">Use feedback and program updates to make the next session better.</p></article>
+      </div>
+    </section>
 
-          <div class="iphone-frame-css" aria-hidden="true"></div>
+    <section class="feature feature-dark" id="send-set">
+      <div class="shell feature-grid">
+        <div class="feature-copy reveal">
+          <p class="kicker soft" data-i18n="sendKicker">SEND A SET</p>
+          <h2 class="display" data-i18n="sendTitle">A tutorial can show the movement.<br><em>Your coach can see your set.</em></h2>
+          <p data-i18n="sendBody">Ask about form, range of motion, muscle activation, weight selection or discomfort. Your coach sees what you actually did and tells you what to change next time.</p>
+          <div class="micro-list" aria-label="Feedback topics"><span>Form</span><span>ROM</span><span>Activation</span><span>Load</span></div>
+        </div>
+        <figure class="feature-media reveal"><img src="assets/feedback.webp" alt="SILUA client reviewing coach feedback after a workout" loading="lazy"></figure>
+      </div>
+    </section>
+
+    <section class="feature section-space" id="program">
+      <div class="shell feature-grid feature-grid-reverse">
+        <figure class="feature-media feature-media-light reveal"><img src="assets/program.webp" alt="Personalized workout program in the SILUA app" loading="lazy"></figure>
+        <div class="feature-copy reveal">
+          <p class="kicker burgundy" data-i18n="programKicker">PERSONALIZED PROGRAM</p>
+          <h2 class="display" data-i18n="programTitle">Built around the way<br><em>you actually train.</em></h2>
+          <p data-i18n="programBody">Your coach uses your goals, experience, schedule and equipment to choose the exercises, sets, reps, rest and cues that make sense for you.</p>
+          <div class="program-facts"><span data-i18n="factGoal">Goals</span><span data-i18n="factExp">Experience</span><span data-i18n="factSchedule">Schedule</span><span data-i18n="factEquipment">Equipment</span></div>
+          <p class="coach-note" data-i18n="coachNote">Built for you. Finalized by your coach.</p>
         </div>
       </div>
     </section>
 
-    <!-- PROBLEM → SOLUTION -->
-    <section class="problem shell section-space" id="for-you">
-      <div class="problem-statement reveal">
-        <h2>
-          Slim, <br>but missing<br>
-          the definition <br>you want?
-        </h2>
-
-        <p>Give your training a direction.</p>
-      </div>
-
-      <div class="problem-support reveal">
-        <p>
-          If you go to the gym but keep choosing workouts at random,
-          SILUA gives you a structured plan to build muscle,
-          progress with purpose and work toward more shape.
-        </p>
-
-        <span>Build muscle · Create shape · See your progress</span>
+    <section class="coaches section-space" id="coaches">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div><p class="kicker burgundy" data-i18n="coachKicker">MEET THE COACHES</p><h2 class="display" data-i18n="coachTitle">Different goals.<br><em>Different coaching styles.</em></h2></div>
+          <p data-i18n="coachBody">Choose by specialty, coaching style and price. Your coaching starts in the SILUA app.</p>
+        </div>
+        <div class="coach-grid">
+          <article class="coach-card reveal"><img src="assets/coach-mina.webp" alt="Coach Mina"><div><p>GLUTES & LOWER BODY</p><h3>Mina</h3><span data-i18n="minaMsg">Build stronger glutes with better technique.</span><small data-i18n="minaProducts">Form Check · Monthly Coaching</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-sophie.webp" alt="Coach Sophie"><div><p>BEGINNER STRENGTH</p><h3>Sophie</h3><span data-i18n="sophieMsg">Feel confident training on your own.</span><small data-i18n="sophieProducts">Personalized Program · Form Check</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-jiwon.webp" alt="Coach Jiwon"><div><p>BODY RECOMPOSITION</p><h3>Jiwon</h3><span data-i18n="jiwonMsg">Build muscle. Lose fat. Change your shape.</span><small data-i18n="jiwonProducts">Personalized Program · Monthly Coaching</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-emma.webp" alt="Coach Emma"><div><p>UPPER BODY & POSTURE</p><h3>Emma</h3><span data-i18n="emmaMsg">Build a strong, balanced upper body.</span><small data-i18n="emmaProducts">Form Check · Personalized Program</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-daniel.webp" alt="Coach Daniel"><div><p>STRENGTH & PERFORMANCE</p><h3>Daniel</h3><span data-i18n="danielMsg">Get stronger with structured progression.</span><small data-i18n="danielProducts">Personalized Program · Monthly Coaching</small></div></article>
+        </div>
+        <div class="center-cta reveal"><a class="text-link strong" href="#download" data-i18n="browseCoaches">Browse coaches in the app →</a></div>
       </div>
     </section>
 
-    <!-- TODAY -->
-    <section class="today section-space" id="today">
-      <div class="shell today-grid">
-        <div class="today-copy reveal">
-          <h2>
-            Know what you're<br>
-            <em>training today.</em>
-          </h2>
-
-          <p>
-            Open SILUA to a workout built around your experience, training
-            days, session length and gym equipment. Know what to do,
-            so you can focus on doing it.
-          </p>
-
-          <ul class="today-list">
-            <li>
-              <span>01</span>
-              <p>
-                <b>Your week is planned</b>
-                <small>2–5 training days that fit real life.</small>
-              </p>
-            </li>
-
-            <li>
-              <span>02</span>
-              <p>
-                <b>Your gym is accounted for</b>
-                <small>Your plan uses the equipment available to you.</small>
-              </p>
-            </li>
-
-            <li>
-              <span>03</span>
-              <p>
-                <b>Your last session carries forward</b>
-                <small>See your previous weights and reps as you train.</small>
-              </p>
-            </li>
-          </ul>
+    <section class="coaching section-space" id="coaching">
+      <div class="shell">
+        <div class="section-head products-head reveal">
+          <div><p class="kicker burgundy" data-i18n="productsKicker">COACHING</p><h2 class="display" data-i18n="productsTitle">Start with the support<br><em>you need now.</em></h2></div>
+          <p data-i18n="productsBody">One set, one complete program, or ongoing coaching. Choose the level that fits your training right now.</p>
         </div>
-      </div>
-
-      <div class="today-screens shell-wide">
-        <figure class="today-screen reveal">
-          <img
-            src="/assets/screenshot/today.png"
-            alt="Today screen in the SILUA app showing the day's workout"
-            loading="lazy"
-          />
-        </figure>
-
-        <figure class="today-screen today-screen-mid reveal">
-          <img
-            src="/assets/screenshot/train.png"
-            alt="Weekly training plan in the SILUA app"
-            loading="lazy"
-          />
-        </figure>
-
-        <figure class="today-screen reveal">
-          <img
-            src="/assets/screenshot/lat-pulldown.png"
-            alt="Logging a set on the Lat Pulldown exercise in the SILUA app"
-            loading="lazy"
-          />
-        </figure>
+        <div class="product-lines reveal">
+          <article><span class="product-no">01</span><div><h3>Form Check</h3><p data-i18n="formBody">Send one workout video and get specific feedback from a real coach.</p></div><strong>$9.99–$19.99</strong></article>
+          <article><span class="product-no">02</span><div><h3>Personalized Program</h3><p data-i18n="personalBody">A complete strength program built around your Training Profile.</p></div><strong>$29.99–$69.99</strong></article>
+          <article class="highlight"><span class="product-no">03</span><div><h3>Monthly Coaching</h3><p data-i18n="monthlyBody">Program, video feedback, messaging, adjustments and progress review — ongoing.</p></div><strong>$69.99–$149.99<span>/mo</span></strong></article>
+        </div>
+        <p class="price-note reveal" data-i18n="priceNote">Prices are shown in your local currency in the app.</p>
       </div>
     </section>
 
-    <!-- TRAINING FOCUS -->
-    <section class="training section-space" id="training">
-      <div class="shell training-head reveal">
-        <h2>Glutes. Shoulders. Back.</h2>
-
-        <p>
-          Focused training to build glute shape, shoulder definition and
-          a stronger back — with legs and core completing your routine.
-        </p>
-      </div>
-
-      <div class="training-gallery shell-wide">
-        <figure class="training-card training-card-tall reveal">
-          <img src="/assets/glutes.webp" alt="Glute training" loading="lazy" />
-          <figcaption>
-            <b>Glutes</b>
-            <span>Glute shape &amp; fullness</span>
-          </figcaption>
-        </figure>
-
-        <figure class="training-card reveal">
-          <img src="/assets/upper.webp" alt="Shoulder training" loading="lazy" />
-          <figcaption>
-            <b>Shoulders</b>
-            <span>Shoulder shape &amp; balance</span>
-          </figcaption>
-        </figure>
-
-        <figure class="training-card training-card-wide reveal">
-          <img src="/assets/lat.webp" alt="Back training" loading="lazy" />
-          <figcaption>
-            <b>Back</b>
-            <span>Back strength &amp; definition</span>
-          </figcaption>
-        </figure>
-      </div>
-
-      <div class="training-line shell reveal">
-        <span>
-          Build the muscle that shapes your silhouette.
-        </span>
-        <i></i>
+    <section class="progress-section" id="progress">
+      <div class="shell progress-grid">
+        <div class="progress-copy reveal">
+          <p class="kicker soft" data-i18n="progressKicker">PROGRESS</p>
+          <h2 class="display" data-i18n="progressTitle">See what your training<br><em>is becoming.</em></h2>
+          <p data-i18n="progressBody">See how your strength, consistency and body change over time — without reducing progress to a single number.</p>
+          <div class="progress-points"><span data-i18n="trainingProgress">Training: workouts · history · PRs · strength trends</span><span data-i18n="bodyProgress">Body: photos · weight · measurements · check-ins</span></div>
+        </div>
+        <figure class="progress-media reveal"><img src="assets/progress.webp" alt="SILUA training and body progress dashboard" loading="lazy"></figure>
       </div>
     </section>
 
-    <!-- PROGRESSION -->
-    <section class="progress shell section-space" id="progress">
-      <div class="progress-visual reveal" data-depth="5">
-        <img
-          src="/assets/hinge.webp"
-          alt="Woman performing a dumbbell hip hinge"
-          loading="lazy"
-        />
-
-        <div class="progress-chip chip-last">
-          <small>LAST TIME</small>
-          <strong>10 kg × 10</strong>
-          <span>Romanian Deadlift</span>
-        </div>
-
-        <div class="progress-chip chip-next">
-          <small>NEXT</small>
-          <strong>10 kg × 12</strong>
-          <span>Keep the weight. Add a rep.</span>
-        </div>
-      </div>
-
-      <div class="progress-copy reveal">
-        <h2>
-          Progress,<br>
-          <em>set by set.</em>
-        </h2>
-
-        <p>
-          Keep building on the same core movements. SILUA uses your logged
-          weights and reps to guide your next target, helping you gradually
-          do more as you get stronger.
-        </p>
-
-        <div class="progress-example">
-          <span>Last time</span>
-          <b>10 kg × 10</b>
-          <i>→</i>
-          <span>Next</span>
-          <b>10 kg × 12</b>
-        </div>
-      </div>
-
-      <div class="movement-band reveal">
-        <div class="movement-copy">
-          <h3>
-            See the move.<br>
-            Log the set.
-          </h3>
-
-          <p>
-            Movement guidance stays close while you train — no stopping to
-            search between sets.
-          </p>
-        </div>
-
-        <div class="movement-video">
-          <video
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            poster="/assets/hinge.webp"
-            aria-label="SILUA exercise movement guide"
-          >
-            <source
-              src="/assets/video/silua_main_seated-row.mp4"
-              type="video/mp4"
-            />
-          </video>
-
-          <div class="movement-video-label">
-            <span>SEATED ROW</span>
-            <b>3 × 8–12</b>
-          </div>
-        </div>
-      </div>
+    <section class="brand-section section-space">
+      <div class="shell-wide brand-image-wrap reveal"><img src="assets/community.webp" alt="Women in strength training together" loading="lazy"><div class="brand-shade"></div><div class="brand-overlay"><p class="kicker soft">WOMEN IN STRENGTH</p><h2 class="display" data-i18n="brandTitle">Strength changes more<br><em>than your body.</em></h2><p data-i18n="brandBody">SILUA is built for women becoming stronger on their own terms — with coaching that supports independence, consistency and long-term progress.</p></div></div>
+      <div class="shell values-line reveal"><span>Strength</span><span>Identity</span><span>Longevity</span><span>Uniqueness</span><span>Ability</span></div>
     </section>
 
-    <!-- BODY + NUTRITION -->
-    <section class="body-nutrition shell section-space" id="body">
-      <article class="editorial-feature reveal">
-        <figure>
-          <img
-            src="/assets/compare.png"
-            alt="Woman resting after training"
-            loading="lazy"
-          />
-        </figure>
-
-        <div class="editorial-feature-copy">
-          <h3>See your shape evolve.</h3>
-          <p>
-            Compare progress photos and body measurements over time.
-            Notice changes in your silhouette beyond the number
-            on the scale.
-          </p>
-        </div>
-      </article>
-
-      <article
-        class="editorial-feature editorial-feature-warm reveal"
-        id="nutrition"
-      >
-        <figure>
-          <img
-            src="/assets/nutrition.webp"
-            alt="Balanced high-protein meal"
-            loading="lazy"
-          />
-        </figure>
-
-        <div class="editorial-feature-copy">
-          <h3>Fuel your training.</h3>
-          <p>
-            Get a daily protein target and simple food ideas
-            to support muscle building and recovery.
-          </p>
-        </div>
-      </article>
-    </section>
-
-    <!-- PHILOSOPHY -->
-    <section class="belief shell-wide reveal">
-      <img
-        src="/assets/cta-footer.png"
-        alt="Woman shopping for fresh food"
-        loading="lazy"
-      />
-
-      <div class="belief-shade"></div>
-
-      <div class="belief-copy">
-        <h2>
-          Stop trying to<br>get smaller.<br>
-          <em>Start building<br>shape.</em>
-        </h2>
-
-        <p>
- 
-        </p>
-
-        <a class="button button-light" href="#download">
-          <span>Download on the App Store</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- FAQ -->
     <section class="faq shell section-space" id="faq">
-      <div class="faq-heading reveal">
-        <h2>Good questions.</h2>
-      </div>
-
+      <div class="faq-heading reveal"><p class="kicker burgundy">FAQ</p><h2 class="display" data-i18n="faqTitle">Good questions.</h2></div>
       <div class="faq-list" data-accordion>
-        <div class="faq-item reveal">
-          <button
-            class="faq-question"
-            type="button"
-            aria-expanded="false"
-          >
-            <span>Is SILUA for beginners?</span>
-            <i>+</i>
-          </button>
-
-          <div class="faq-answer">
-            <div>
-              <p>
-                Yes. SILUA is designed for beginners and intermediate gym-goers
-                who want more shape and definition. Your plan reflects your
-                experience, with sets, rep ranges and movement guidance
-                to help you follow each workout.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button
-            class="faq-question"
-            type="button"
-            aria-expanded="false"
-          >
-            <span>Do I need a full gym?</span>
-            <i>+</i>
-          </button>
-
-          <div class="faq-answer">
-            <div>
-              <p>
-                You don't need every machine. Tell SILUA which gym equipment
-                you have access to, and your plan is built around it.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button
-            class="faq-question"
-            type="button"
-            aria-expanded="false"
-          >
-            <span>Is SILUA for me if I'm already slim?</span>
-            <i>+</i>
-          </button>
-
-          <div class="faq-answer">
-            <div>
-              <p>
-                Yes. SILUA is made for women who are already slim but want
-                more shape and definition. The focus is building muscle
-                through structured strength training and tracking changes
-                in your silhouette.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button
-            class="faq-question"
-            type="button"
-            aria-expanded="false"
-          >
-            <span>Can training change my body shape?</span>
-            <i>+</i>
-          </button>
-
-          <div class="faq-answer">
-            <div>
-              <p>
-                Building muscle can change how your silhouette looks, within
-                your natural frame. SILUA focuses on glutes, shoulders and
-                back, alongside legs and core. Changes take time and vary
-                from person to person.
-              </p>
-            </div>
-          </div>
-        </div>
+        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q1">Can I train on my own and still use SILUA?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a1">Yes. SILUA is designed around independent training. Your coach gives you a program and feedback, while you choose when and where you train.</p></div></div></div>
+        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q2">Do I need Monthly Coaching to send a video?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a2">No. You can start with a one-off Form Check. Monthly Coaching includes ongoing video feedback according to your coaching plan.</p></div></div></div>
+        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q3">Who creates my program?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a3">A real coach makes the final program using your Training Profile, including your goals, experience, schedule, equipment and areas of focus.</p></div></div></div>
+        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q4">Can I change my coach?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a4">Coach availability and service status are managed in the app. Monthly Coaching is designed around one active coach at a time.</p></div></div></div>
       </div>
     </section>
 
-    <!-- DOWNLOAD -->
     <section class="download shell-wide" id="download">
       <div class="download-card reveal">
-        <h2>
-          Your next chapter.<br>
-          <em>More shape.</em>
-        </h2>
-
-        <p>
-          A clear gym plan. A next step every session. Start building with SILUA.
-        </p>
-
-        <span class="button button-butter disabled">
-          <span>Download on the App Store</span>
-        </span>
+        <p class="kicker soft" data-i18n="downloadKicker">SILUA</p>
+        <h2 class="display" data-i18n="downloadTitle">Your next set<br><em>doesn’t have to be a guess.</em></h2>
+        <p data-i18n="downloadBody">Download SILUA, choose your coach, and start with the support you need.</p>
+        <a class="button button-light" href="#" aria-label="Download SILUA on the App Store" data-i18n="downloadStore">Download on the App Store</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="site-footer-inner">
-      <div class="site-footer-main">
-        <div class="site-footer-brand">
-          <a
-            class="site-footer-lockup"
-            href="/"
-            aria-label="SILUA home"
-          >
-            <span class="site-footer-name">SILUA</span>
-          </a>
-
-          <a
-            class="site-footer-email"
-            href="mailto:hello@silua.app"
-          >
-            hello@silua.app
-          </a>
-        </div>
-
-        <nav
-          class="site-footer-links"
-          aria-label="Footer navigation"
-        >
-          <a href="mailto:hello@silua.app">Contact us</a>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Use</a>
-          <span>© <span data-year></span> SILUA. All rights reserved.</span>
-        </nav>
-      </div>
-
-      <div class="site-footer-bottom">
-
-        <a
-          class="site-footer-top"
-          href="#top"
-          aria-label="Back to top"
-        >
-          ↑
-        </a>
-      </div>
+      <div class="site-footer-main"><div class="site-footer-brand"><a class="site-footer-name" href="#top">SILUA</a><a class="site-footer-email" href="mailto:hello@silua.app">hello@silua.app</a></div><nav class="site-footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="mailto:hello@silua.app">Contact</a><span>© <span data-year></span> SILUA</span></nav></div>
+      <div class="site-footer-bottom"><span data-i18n="footerLine">Personal strength coaching for women.</span><a class="site-footer-top" href="#top">↑</a></div>
     </div>
   </footer>
 </body>
