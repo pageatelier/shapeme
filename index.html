@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="styles.css" />
   <script defer src="script.js"></script>
 </head>
-<body id="top">
+<body id="top" class="home-image-led">
   <header class="site-header" data-header>
     <a class="brand-logo" href="#top" aria-label="SILUA home">SILUA</a>
     <nav class="desktop-nav" aria-label="Primary navigation">
@@ -20,6 +20,7 @@
       <a href="#how" data-i18n="navHow">How it works</a>
       <a href="#pricing" data-i18n="navPricing">Pricing</a>
       <a href="#coaches" data-i18n="navCoaches">Coaches</a>
+      <a href="for-coaches.html" data-i18n="navForCoaches">For Coaches</a>
     </nav>
     <div class="nav-actions">
       <button class="lang-toggle" type="button" data-lang-toggle aria-label="Switch language">KR</button>
@@ -33,24 +34,24 @@
     <a href="#how" data-i18n="navHow">How it works</a>
     <a href="#pricing" data-i18n="navPricing">Pricing</a>
     <a href="#coaches" data-i18n="navCoaches">Coaches</a>
+    <a href="for-coaches.html" data-i18n="navForCoaches">For Coaches</a>
     <a class="button button-burgundy" href="#download" data-i18n="startFree">Start Free</a>
   </div>
 
   <main>
     <!-- 01 HERO -->
-    <section class="hero shell">
+    <section class="hero hero-image-led">
+      <div class="hero-image-shade" aria-hidden="true"></div>
       <div class="hero-copy reveal">
-        <p class="kicker" data-i18n="heroKicker">ONLINE STRENGTH COACHING FOR WOMEN</p>
+        <p class="kicker soft" data-i18n="heroKicker">ONLINE STRENGTH COACHING FOR WOMEN</p>
         <h1 class="display" data-i18n="heroTitle">Train independently.<br><em>Get coached personally.</em></h1>
         <p class="hero-text" data-i18n="heroBody">Train on your time, wherever you are. Get a personalized program and real feedback from a coach when you need it.</p>
         <div class="hero-actions">
-          <a class="button button-burgundy" href="#download" data-i18n="startFree">Start Free</a>
+          <a class="button button-light" href="#download" data-i18n="startFree">Start Free</a>
           <span class="hero-note" data-i18n="heroNote">Create your free Training Profile.</span>
         </div>
       </div>
-      <figure class="hero-visual reveal">
-        <img src="assets/hero.webp" alt="Woman strength training with SILUA coaching on a phone" />
-      </figure>
+      <div class="hero-image-caption" aria-hidden="true">SILUA · WOMEN IN STRENGTH</div>
     </section>
 
     <!-- 02 RECOMMENDED FOR -->
@@ -72,7 +73,7 @@
 
     <!-- 03 SERVICES -->
     <section class="services section-space" id="services">
-      <div class="shell">
+      <div class="shell services-head-shell">
         <div class="section-head reveal">
           <div>
             <p class="kicker burgundy" data-i18n="servicesKicker">COACHING, WHEN YOU NEED IT</p>
@@ -80,8 +81,9 @@
           </div>
           <p data-i18n="servicesBody">From one form check to a complete program or ongoing monthly coaching. Start with the support that fits your training now.</p>
         </div>
+      </div>
 
-        <div class="service-editorial service-dark reveal">
+      <div class="service-editorial service-dark reveal">
           <div class="service-copy">
             <div><span class="service-no">01</span><p class="kicker soft">FORM CHECK</p></div>
             <h3 class="display" data-i18n="formTitle">When you only need help<br><em>with one movement.</em></h3>
@@ -110,7 +112,6 @@
           </div>
           <figure><img src="assets/community.webp" alt="Women strength training with SILUA" loading="lazy"></figure>
         </div>
-      </div>
     </section>
 
     <!-- 04 HOW IT WORKS -->
@@ -128,6 +129,8 @@
           <article><span>05</span><h3 data-i18n="how5Title">Train</h3><p data-i18n="how5Body">Follow your program when and where it works for you.</p></article>
           <article><span>06</span><h3 data-i18n="how6Title">Log & send</h3><p data-i18n="how6Body">Record sets, reps and weight. Send a set when you want feedback.</p></article>
           <article><span>07</span><h3 data-i18n="how7Title">Improve</h3><p data-i18n="how7Body">Use your training history and coach feedback to make the next session better.</p></article>
+          <article><span>08</span><h3 data-i18n="how8Title">Track Progress</h3><p data-i18n="how8Body">Monitor your improvements and adjust your training accordingly.</p></article>
+
         </div>
         <div class="set-by-set reveal"><span data-i18n="setBySet">Set by set.</span><strong data-i18n="getStronger">You get stronger.</strong></div>
       </div>
@@ -150,8 +153,8 @@
     </section>
 
     <!-- 06 BRAND MESSAGE -->
-    <section class="freedom-message shell-wide reveal">
-      <img src="assets/hero.webp" alt="Independent strength training" loading="lazy">
+    <section class="freedom-message reveal">
+      <img src="assets/woman3.png" alt="Independent strength training" loading="lazy">
       <div class="freedom-shade"></div>
       <div class="freedom-copy">
         <p class="kicker soft" data-i18n="freedomKicker">TRAIN INDEPENDENTLY</p>
@@ -210,7 +213,27 @@
       </div>
     </section>
 
-    <!-- 10 PROGRESS -->
+
+
+    <!-- 10 COACH RECRUITMENT -->
+    <section class="coach-recruit reveal" id="for-coaches">
+      <div class="coach-recruit-copy">
+        <p class="kicker soft" data-i18n="coachRecruitKicker">COACH ON SILUA</p>
+        <h2 class="display" data-i18n="coachRecruitTitle">Coach beyond the gym.<br><em>Reach women anywhere.</em></h2>
+        <p data-i18n="coachRecruitBody">Build programs, review real training sets and coach women asynchronously through SILUA.</p>
+        <div class="coach-recruit-actions">
+          <a class="button button-light" href="for-coaches.html" data-i18n="coachRecruitCta">Become a SILUA Coach</a>
+          <a class="coach-signin-link" href="https://coach.silua.app" target="_blank" rel="noopener" data-i18n="coachSignIn">Coach Sign In →</a>
+        </div>
+      </div>
+      <div class="coach-recruit-meta">
+        <span data-i18n="coachRecruitMeta1">Work from anywhere</span>
+        <span data-i18n="coachRecruitMeta2">Coach in your language</span>
+        <span data-i18n="coachRecruitMeta3">SILUA Verified coaches</span>
+      </div>
+    </section>
+
+    <!-- 11 PROGRESS -->
     <section class="progress-section" id="progress">
       <div class="shell progress-grid">
         <div class="progress-copy reveal">
@@ -223,8 +246,8 @@
       </div>
     </section>
 
-    <!-- 11 FINAL CTA -->
-    <section class="download shell-wide" id="download">
+    <!-- 12 FINAL CTA -->
+    <section class="download" id="download">
       <div class="download-card reveal">
         <p class="kicker soft">SILUA</p>
         <h2 class="display" data-i18n="downloadTitle">Your next set<br><em>can feel more certain.</em></h2>
@@ -239,7 +262,7 @@
     <div class="site-footer-inner">
       <div class="site-footer-main">
         <div class="site-footer-brand"><a class="site-footer-name" href="#top">SILUA</a><a class="site-footer-email" href="mailto:hello@silua.app">hello@silua.app</a></div>
-        <nav class="site-footer-links"><a href="privacy.html" data-i18n="privacyLink">Privacy Policy</a><a href="terms.html" data-i18n="termsLink">Terms of Use</a><a href="mailto:hello@silua.app" data-i18n="contactLink">Contact</a><span>© <span data-year></span> SILUA</span></nav>
+        <nav class="site-footer-links"><a href="for-coaches.html" data-i18n="navForCoaches">For Coaches</a><a href="https://coach.silua.app" target="_blank" rel="noopener" data-i18n="coachSignInShort">Coach Sign In</a><a href="privacy.html" data-i18n="privacyLink">Privacy Policy</a><a href="terms.html" data-i18n="termsLink">Terms of Use</a><a href="mailto:hello@silua.app" data-i18n="contactLink">Contact</a><span>© <span data-year></span> SILUA</span></nav>
       </div>
       <div class="site-footer-bottom"><span data-i18n="footerLine">Online strength coaching for women.</span><a class="site-footer-top" href="#top">↑</a></div>
     </div>

@@ -1,0 +1,66 @@
+/* SILUA Coach App — dark workspace palette
+   Apply these tokens to coach.silua.app. Burgundy stays as an accent, not a page background. */
+:root {
+  --coach-bg: #111111;
+  --coach-surface: #191919;
+  --coach-surface-raised: #202020;
+  --coach-surface-hover: #262626;
+  --coach-text: #f5f2ee;
+  --coach-text-muted: #aaa39c;
+  --coach-text-faint: #77716c;
+  --coach-line: rgba(255,255,255,.09);
+  --coach-line-strong: rgba(255,255,255,.14);
+  --coach-accent: #7e354d;
+  --coach-accent-hover: #6f2e43;
+  --coach-accent-soft: #d8b0bd;
+  --coach-success: #6f8e76;
+  --coach-danger: #b45b62;
+}
+
+body.coach-app {
+  background: var(--coach-bg);
+  color: var(--coach-text);
+}
+
+.coach-app .sidebar,
+.coach-app .topbar {
+  background: #141414;
+  border-color: var(--coach-line);
+}
+
+.coach-app .card,
+.coach-app .panel,
+.coach-app .modal {
+  background: var(--coach-surface);
+  border: 1px solid var(--coach-line);
+}
+
+.coach-app .card:hover {
+  background: var(--coach-surface-raised);
+}
+
+.coach-app .muted {
+  color: var(--coach-text-muted);
+}
+
+.coach-app .accent,
+.coach-app .active-icon {
+  color: var(--coach-accent-soft);
+}
+
+.coach-app .button-primary {
+  background: var(--coach-accent);
+  color: #fff;
+}
+
+.coach-app .button-primary:hover {
+  background: var(--coach-accent-hover);
+}
+
+.coach-app input,
+.coach-app textarea,
+.coach-app select {
+  background: var(--coach-surface-raised);
+  color: var(--coach-text);
+  border: 1px solid var(--coach-line-strong);
+}

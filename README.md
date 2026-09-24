@@ -28,3 +28,28 @@ Homepage rebuilt around the approved service narrative:
 - Increased horizontal gutters and reduced content max-width for more breathing room.
 - Loosened Korean display typography with lighter weight, less negative tracking, and taller line-height.
 - Slightly reduced KR display sizes on small screens to prevent cramped wrapping.
+
+
+## Coach acquisition page
+- Added `for-coaches.html` as the public coach recruitment landing page.
+- Added `For Coaches` to desktop/mobile navigation.
+- Added a coach recruitment banner to the main homepage.
+- Added `Coach Sign In` and `For Coaches` to the homepage footer.
+- EN/KR switching uses the existing `data-i18n` system.
+- Coach application/sign-in CTAs currently point to `https://coach.silua.app`. Replace with a dedicated application route later if one is added.
+- `admin.silua.app` is intentionally not linked publicly.
+
+## v7 Coach visual refresh
+- `for-coaches.html` hero now uses `assets/community.webp` as a full-bleed image with a dark overlay instead of a large light/burgundy field.
+- Coach Workspace section changed from full burgundy to charcoal/black; burgundy is now an accent.
+- Final coach CTA uses `assets/feedback.webp` with a dark overlay rather than a full burgundy block.
+- Added `coach-app-theme.css` with a dark workspace palette for `coach.silua.app`.
+
+
+## Homepage visual refresh
+- Main `index.html` now follows the same visual direction as the coach landing page.
+- Large burgundy surfaces were replaced with charcoal/black or photography + dark overlays.
+- Burgundy remains as an accent for buttons, labels, dividers and highlighted text.
+- Monthly Coaching and featured pricing use charcoal rather than solid burgundy.
+- Coach recruitment uses `assets/community.webp` with a dark overlay.
+- Final CTA uses `assets/feedback.webp` with a dark overlay.
