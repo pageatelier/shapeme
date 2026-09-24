@@ -22,24 +22,39 @@ if (menuButton && mobileMenu) {
   mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
 }
 
-document.querySelectorAll('.faq-item').forEach(item => { const button=item.querySelector('.faq-question'); button?.addEventListener('click',()=>{ const open=item.classList.toggle('open'); button.setAttribute('aria-expanded',String(open)); }); });
-
 const reveals=[...document.querySelectorAll('.reveal')];
 if(reducedMotion){reveals.forEach(el=>el.classList.add('visible'));}else{const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}});},{threshold:.08,rootMargin:'0px 0px -5% 0px'});reveals.forEach(el=>observer.observe(el));}
 
 const ko={
-  navHow:'이용 방법',navCoaches:'코치',navCoaching:'코칭',navProgress:'Progress',downloadApp:'앱 다운로드',
-  heroKicker:'여성을 위한 퍼스널 근력 코칭',heroTitle:'혼자 운동해도,<br><em>코칭은 개인적으로.</em>',heroBody:'실제 코치에게 프로그램을 받고, 내 방식대로 운동하고, 한 세트를 보내 피드백을 받으며 계속 발전하세요.',seeHow:'SILUA 이용 방법 보기 ↓',
-  howKicker:'SILUA 이용 방법',howTitle:'내 운동 뒤에,<br><em>실제 코치가 있습니다.</em>',step1Title:'코치 선택',step1Body:'전문 분야, 코칭 스타일, 가격을 보고 나에게 맞는 코치를 선택하세요.',step2Title:'프로그램 받기',step2Body:'목표, 운동 경험과 환경을 바탕으로 코치가 프로그램을 만듭니다.',step3Title:'운동하고 기록하기',step3Body:'계획대로 운동하며 세트, 횟수, 중량을 기록하세요.',step4Title:'세트 보내기',step4Body:'코치가 자세히 봐줬으면 하는 운동 영상을 보내세요.',step5Title:'개선하기',step5Body:'피드백과 프로그램 조정을 다음 운동에 적용하세요.',
-  sendKicker:'SEND A SET',sendTitle:'운동법은 영상이 보여줘도,<br><em>내 세트는 코치가 봐줍니다.</em>',sendBody:'자세, 가동범위, 자극, 중량 선택, 불편한 점을 물어보세요. 코치는 실제 수행 영상을 보고 다음 운동에서 바꿀 점을 알려줍니다.',
-  programKicker:'개인 맞춤 프로그램',programTitle:'실제로 내가 운동하는 방식에<br><em>맞춘 프로그램.</em>',programBody:'코치는 목표, 운동 경험, 일정과 장비를 바탕으로 운동 선택, 세트, 횟수, 휴식, 중량 가이드와 큐를 정합니다.',factGoal:'목표',factExp:'운동 경험',factSchedule:'일정',factEquipment:'장비',coachNote:'나를 위해 만들고, 코치가 최종 완성합니다.',
-  coachKicker:'코치 만나기',coachTitle:'목표도 다르고,<br><em>맞는 코칭도 다릅니다.</em>',coachBody:'전문 분야, 코칭 스타일과 가격을 보고 선택하세요. 코칭은 SILUA 앱에서 시작됩니다.',minaMsg:'더 좋은 테크닉으로 강하고 탄탄한 둔근과 하체를 만드세요.',minaProducts:'Form Check · 월간 코칭',sophieMsg:'혼자서도 자신 있게 운동할 수 있도록.',sophieProducts:'Personalized Program · Form Check',jiwonMsg:'근육을 키우고 체지방을 줄여 몸의 라인을 바꿔보세요.',jiwonProducts:'Personalized Program · 월간 코칭',emmaMsg:'강하고 균형 잡힌 상체를 만드세요.',emmaProducts:'Form Check · Personalized Program',danielMsg:'체계적인 점진적 과부하로 더 강해지세요.',danielProducts:'Personalized Program · 월간 코칭',browseCoaches:'앱에서 코치 둘러보기 →',
-  productsKicker:'코칭',productsTitle:'지금 내 운동에 필요한 만큼<br><em>시작하세요.</em>',productsBody:'한 세트 피드백부터 전체 프로그램, 지속적인 코칭까지. 지금 필요한 지원 수준을 선택하세요.',formBody:'운동 영상 한 개를 보내고 실제 코치에게 구체적인 피드백을 받습니다.',personalBody:'Training Profile을 바탕으로 코치가 완성하는 개인 근력운동 프로그램.',monthlyBody:'프로그램, 영상 피드백, 메시지, 프로그램 수정과 Progress Review까지 지속적으로.',priceNote:'앱에서는 각 지역의 현지화 가격으로 표시됩니다.',
-  progressKicker:'PROGRESS',progressTitle:'운동이 쌓이면,<br><em>변화가 보입니다.</em>',progressBody:'근력, 꾸준함, 몸의 변화를 시간의 흐름으로 확인하세요. 하나의 숫자로만 Progress를 판단하지 않습니다.',trainingProgress:'Training: 운동 횟수 · 기록 · PR · 근력 추세',bodyProgress:'Body: 사진 · 체중 · 측정값 · 체크인',
-  brandTitle:'강해진다는 건<br><em>몸 이상의 변화입니다.</em>',brandBody:'SILUA는 자신의 방식으로 강해지는 여성을 위한 서비스입니다. 독립적으로 운동하면서도 꾸준히 발전할 수 있는 코칭을 지향합니다.',
-  faqTitle:'궁금한 점.',q1:'혼자 운동해도 SILUA를 사용할 수 있나요?',a1:'네. SILUA는 혼자 운동하는 경험을 중심으로 설계되어 있습니다. 코치는 프로그램과 피드백을 제공하고, 사용자는 원하는 시간과 장소에서 운동합니다.',q2:'영상을 보내려면 월간 코칭이 필요한가요?',a2:'아니요. 한 번의 Form Check로 시작할 수 있습니다. 월간 코칭에서는 코칭 플랜에 따라 지속적인 영상 피드백을 받을 수 있습니다.',q3:'내 프로그램은 누가 만드나요?',a3:'실제 코치가 Training Profile을 바탕으로 최종 프로그램을 만듭니다. 목표, 운동 경험, 일정, 장비와 집중 부위를 확인합니다.',q4:'코치를 바꿀 수 있나요?',a4:'코치 availability와 서비스 상태는 앱에서 관리됩니다. 월간 코칭은 한 번에 한 명의 active coach와 진행하는 구조입니다.',
-  downloadKicker:'SILUA',downloadTitle:'다음 세트를<br><em>더 이상 추측하지 마세요.</em>',downloadBody:'SILUA를 다운로드하고, 내 코치를 선택해 지금 필요한 코칭부터 시작하세요.',downloadStore:'App Store에서 다운로드',footerLine:'여성을 위한 퍼스널 근력 코칭.'
+  navServices:'서비스',navHow:'이용 방법',navPricing:'가격',navCoaches:'코치',startFree:'무료로 시작하기',
+  heroKicker:'여성을 위한 온라인 근력 코칭',heroTitle:'운동은 내 방식대로.<br><em>코칭은 나에게 맞게.</em>',heroBody:'원하는 시간과 장소에서 운동하고, 필요할 때 실제 코치의 맞춤 프로그램과 피드백을 받아보세요.',heroNote:'무료 Training Profile 만들기',
+  forYouKicker:'이런 분께 추천드려요',forYouTitle:'혼자 운동해도,<br><em>모든 걸 혼자 알아낼 필요는 없으니까.</em>',need1:'근력운동을 꾸준히 하고 있지만 전문가의 가이드가 필요해요.',need2:'내 운동 자세가 정확한지 확인받고 싶어요.',need3:'정해진 PT 시간 대신 내가 원하는 시간과 장소에서 운동하고 싶어요.',need4:'오프라인 PT의 가격이나 일정이 부담스러워요.',need5:'여성의 몸과 근력운동을 이해하는 코치에게 도움받고 싶어요.',
+  servicesKicker:'필요할 때 받는 코칭',servicesTitle:'필요한 만큼<br><em>코칭받아보세요.</em>',servicesBody:'한 번의 자세 피드백부터 개인 프로그램, 지속적인 월간 코칭까지. 지금 내 운동에 필요한 만큼 시작하세요.',
+  formTitle:'딱 한 동작만<br><em>도움받고 싶을 때.</em>',formBody:'운동 영상 한 세트를 보내고 실제 코치에게 자세, 가동범위, 자극, 중량 선택 등에 대한 구체적인 피드백을 받으세요.',formCta:'Form Check 시작하기 →',
+  programTitle:'나에게 맞는 운동 루틴이<br><em>필요할 때.</em>',programBody:'운동 목표, 경험, 집중 부위, 주당 운동 횟수, 운동 시간과 장비를 바탕으로 전문 코치가 나를 위한 근력운동 프로그램을 구성합니다.',programCta:'내 프로그램 받기 →',
+  monthlyTitle:'혼자 운동하면서도<br><em>꾸준히 관리받고 싶을 때.</em>',monthlyBody:'개인 맞춤 프로그램, 영상 피드백, 메시지, 프로그램 수정과 Progress Review까지. 한 명의 코치와 지속적으로 운동을 발전시킵니다.',monthlyCta:'월간 코칭 시작하기 →',
+  howKicker:'SILUA 이용 방법',howTitle:'운동은 자유롭게.<br><em>코칭은 연결되게.</em>',how1Title:'SILUA 시작하기',how1Body:'SILUA를 설치하고 나의 Training Profile을 만듭니다.',how2Title:'운동 정보 입력하기',how2Body:'운동 목표, 경험, 집중 부위, 운동 횟수, 시간과 장비를 입력합니다.',how3Title:'나에게 맞는 코치 찾기',how3Body:'전문 분야와 코칭 스타일을 확인하고 나에게 맞는 코치를 선택합니다.',how4Title:'필요한 코칭 선택하기',how4Body:'Form Check, Personalized Program 또는 Monthly Coaching 중 필요한 서비스를 선택합니다.',how5Title:'운동 시작하기',how5Body:'원하는 시간과 장소에서 프로그램을 따라 운동합니다.',how6Title:'기록하고 보내기',how6Body:'세트, 횟수와 중량을 기록하고 필요하면 운동 영상을 코치에게 보냅니다.',how7Title:'더 나아지기',how7Body:'운동 기록과 코치 피드백을 다음 운동에 적용합니다.',setBySet:'한 세트씩,',getStronger:'더 강해집니다.',
+  pricingKicker:'필요에 맞는 코칭',pricingTitle:'필요한 코칭부터<br><em>가볍게 시작하세요.</em>',pricingBody:'나에게 맞는 코치와 지금 필요한 지원 수준을 선택하세요. 코치는 SILUA 가격 Tier 중에서 상품 가격을 선택합니다.',priceNote:'실제 결제 가격은 앱에서 사용자의 지역에 맞는 현지화 가격으로 표시됩니다.',
+  freedomKicker:'혼자 운동하더라도',freedomTitle:'운동은 혼자 하더라도,<br><em>모든 걸 혼자 알아낼 필요는 없습니다.</em>',freedomBody:'필요한 만큼 자유롭게 코칭받고, 내 방식대로 더 강해지세요.',
+  whyKicker:'여성에게 근력이 중요한 이유',whyTitle:'여성에게 근력은<br><em>몸매 이상의 의미가 있습니다.</em>',whyBody1:'근력운동은 단순히 체중을 줄이거나 몸의 라인을 만드는 운동이 아닙니다.',whyBody2:'근육과 근력을 쌓는 것은 더 많이 움직이고, 오랫동안 운동을 이어가고, 자신의 몸이 할 수 있는 것을 늘려가는 과정입니다.',whyStatement:'SILUA는 더 많은 여성이 평생 근력을 쌓을 수 있기를 바랍니다.',
+  valuesTitle:'강해진다는 건<br><em>몸 이상의 변화입니다.</em>',valueStrength:'더 강한 몸을 만듭니다.',valueIdentity:'근력이 나의 정체성의 일부가 됩니다.',valueLongevity:'오래 지속할 수 있는 강함을 만듭니다.',valueUnderstanding:'여성의 몸과 근력운동을 이해합니다.',valueAbility:'몸이 할 수 있는 것을 늘려갑니다.',
+  coachKicker:'SILUA 코치',coachTitle:'목표도 다르고,<br><em>필요한 코칭도 다르니까.</em>',coachBody:'전문 분야, 코칭 스타일과 가격을 확인하고 나에게 맞는 코치를 찾아보세요.',minaMsg:'더 좋은 테크닉으로 강하고 탄탄한 둔근과 하체를 만드세요.',sophieMsg:'혼자서도 자신 있게 운동할 수 있도록.',jiwonMsg:'근육을 키우고 체지방을 줄여 몸의 라인을 바꿔보세요.',emmaMsg:'강하고 균형 잡힌 상체를 만드세요.',danielMsg:'체계적인 점진적 과부하로 더 강해지세요.',minaFrom:'$9.99부터',sophieFrom:'$9.99부터',jiwonFrom:'$9.99부터',emmaFrom:'$9.99부터',danielFrom:'$29.99부터',coachCta:'SILUA에서 코치 둘러보기 →',
+  progressKicker:'나의 변화',progressTitle:'한 번의 운동이 기록이 되고,<br><em>기록이 변화를 만듭니다.</em>',progressBody:'운동 횟수, 꾸준함, 운동별 기록, 중량과 반복 횟수의 변화, PR, 사진, 측정값과 바디 체크인을 시간의 흐름으로 확인하세요.',trainingProgress:'Training · 운동 횟수 · 기록 · PR · 근력 추세',bodyProgress:'Body · 사진 · 체중 · 측정값 · 체크인',
+  downloadTitle:'다음 세트는<br><em>더 확신 있게.</em>',downloadBody:'나의 Training Profile을 만들고, 내 운동 방식에 맞는 코칭을 찾아보세요.',downloadNote:'Training Profile은 무료로 만들 수 있습니다.',privacyLink:'개인정보 처리방침',termsLink:'이용약관',contactLink:'문의',footerLine:'여성을 위한 온라인 근력 코칭.'
 };
+
 const en={};document.querySelectorAll('[data-i18n]').forEach(el=>en[el.dataset.i18n]=el.innerHTML);
-let lang='en';
-langToggle?.addEventListener('click',()=>{lang=lang==='en'?'ko':'en';document.documentElement.lang=lang;langToggle.textContent=lang==='en'?'KR':'EN';document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.dataset.i18n;const value=lang==='ko'?ko[key]:en[key];if(value!=null)el.innerHTML=value;});});
+const isLegalPage = document.body.classList.contains('legal-page');
+const pageKo = isLegalPage ? (window.SILUA_LEGAL_KO || {}) : ko;
+const pageTitles = isLegalPage ? (window.SILUA_PAGE_TITLES || null) : null;
+const readSavedLang = () => { try { return localStorage.getItem('silua-lang') || 'en'; } catch { return 'en'; } };
+const saveLang = value => { try { localStorage.setItem('silua-lang', value); } catch {} };
+let lang = readSavedLang(); if (lang !== 'ko') lang = 'en';
+const applyLanguage = value => {
+  lang = value === 'ko' ? 'ko' : 'en'; document.documentElement.lang = lang;
+  if (langToggle) langToggle.textContent = lang === 'en' ? 'KR' : 'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el => { const key=el.dataset.i18n; const translated=lang==='ko'?pageKo[key]:en[key]; if(translated!=null) el.innerHTML=translated; });
+  if(pageTitles) document.title = lang==='ko' ? pageTitles.ko : pageTitles.en;
+};
+applyLanguage(lang);
+langToggle?.addEventListener('click',()=>{const next=lang==='en'?'ko':'en';saveLang(next);applyLanguage(next);});

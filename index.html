@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f6f1ea" />
-  <title>SILUA — Personal Strength Coaching for Women</title>
-  <meta name="description" content="Train independently. Get coached personally. Personalized strength coaching for women with real coaches, programs, video feedback and progress tracking." />
+  <title>SILUA — Online Strength Coaching for Women</title>
+  <meta name="description" content="Train independently. Get coached personally. Online strength coaching for women with real coaches, personalized programs, form checks and progress tracking." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,154 +16,232 @@
   <header class="site-header" data-header>
     <a class="brand-logo" href="#top" aria-label="SILUA home">SILUA</a>
     <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="#services" data-i18n="navServices">Services</a>
       <a href="#how" data-i18n="navHow">How it works</a>
+      <a href="#pricing" data-i18n="navPricing">Pricing</a>
       <a href="#coaches" data-i18n="navCoaches">Coaches</a>
-      <a href="#coaching" data-i18n="navCoaching">Coaching</a>
-      <a href="#progress" data-i18n="navProgress">Progress</a>
     </nav>
     <div class="nav-actions">
       <button class="lang-toggle" type="button" data-lang-toggle aria-label="Switch language">KR</button>
-      <a class="button button-burgundy nav-cta" href="#download" data-i18n="downloadApp">Download the app</a>
+      <a class="button button-burgundy nav-cta" href="#download" data-i18n="startFree">Start Free</a>
       <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" data-menu-button><span></span><span></span></button>
     </div>
   </header>
 
   <div class="mobile-menu" data-mobile-menu>
+    <a href="#services" data-i18n="navServices">Services</a>
     <a href="#how" data-i18n="navHow">How it works</a>
+    <a href="#pricing" data-i18n="navPricing">Pricing</a>
     <a href="#coaches" data-i18n="navCoaches">Coaches</a>
-    <a href="#coaching" data-i18n="navCoaching">Coaching</a>
-    <a href="#progress" data-i18n="navProgress">Progress</a>
-    <a class="button button-burgundy" href="#download" data-i18n="downloadApp">Download the app</a>
+    <a class="button button-burgundy" href="#download" data-i18n="startFree">Start Free</a>
   </div>
 
   <main>
+    <!-- 01 HERO -->
     <section class="hero shell">
       <div class="hero-copy reveal">
-        <p class="kicker" data-i18n="heroKicker">PERSONAL STRENGTH COACHING FOR WOMEN</p>
+        <p class="kicker" data-i18n="heroKicker">ONLINE STRENGTH COACHING FOR WOMEN</p>
         <h1 class="display" data-i18n="heroTitle">Train independently.<br><em>Get coached personally.</em></h1>
-        <p class="hero-text" data-i18n="heroBody">Get a program from a real coach, train on your own, send a set, and keep progressing — wherever you train.</p>
+        <p class="hero-text" data-i18n="heroBody">Train on your time, wherever you are. Get a personalized program and real feedback from a coach when you need it.</p>
         <div class="hero-actions">
-          <a class="button button-burgundy" href="#download" data-i18n="downloadApp">Download the app</a>
-          <a class="text-link" href="#how" data-i18n="seeHow">See how SILUA works ↓</a>
+          <a class="button button-burgundy" href="#download" data-i18n="startFree">Start Free</a>
+          <span class="hero-note" data-i18n="heroNote">Create your free Training Profile.</span>
         </div>
       </div>
       <figure class="hero-visual reveal">
-        <img src="assets/hero.webp" alt="Woman strength training with SILUA coach feedback on a phone" />
+        <img src="assets/hero.webp" alt="Woman strength training with SILUA coaching on a phone" />
       </figure>
     </section>
 
-    <section class="intro shell section-space" id="how">
-      <div class="intro-head reveal">
-        <p class="kicker burgundy" data-i18n="howKicker">HOW SILUA WORKS</p>
-        <h2 class="display" data-i18n="howTitle">Your workout.<br><em>A real coach behind it.</em></h2>
-      </div>
-      <div class="flow reveal">
-        <article><span>01</span><h3 data-i18n="step1Title">Choose a coach</h3><p data-i18n="step1Body">Find a coach by specialty, coaching style and price.</p></article>
-        <article><span>02</span><h3 data-i18n="step2Title">Get your program</h3><p data-i18n="step2Body">Your coach builds a program around your goals, experience and training environment.</p></article>
-        <article><span>03</span><h3 data-i18n="step3Title">Train & log</h3><p data-i18n="step3Body">Follow your plan and record sets, reps and weight as you train.</p></article>
-        <article><span>04</span><h3 data-i18n="step4Title">Send a set</h3><p data-i18n="step4Body">Upload a training video when you want your coach to look closer.</p></article>
-        <article><span>05</span><h3 data-i18n="step5Title">Improve</h3><p data-i18n="step5Body">Use feedback and program updates to make the next session better.</p></article>
-      </div>
-    </section>
-
-    <section class="feature feature-dark" id="send-set">
-      <div class="shell feature-grid">
-        <div class="feature-copy reveal">
-          <p class="kicker soft" data-i18n="sendKicker">SEND A SET</p>
-          <h2 class="display" data-i18n="sendTitle">A tutorial can show the movement.<br><em>Your coach can see your set.</em></h2>
-          <p data-i18n="sendBody">Ask about form, range of motion, muscle activation, weight selection or discomfort. Your coach sees what you actually did and tells you what to change next time.</p>
-          <div class="micro-list" aria-label="Feedback topics"><span>Form</span><span>ROM</span><span>Activation</span><span>Load</span></div>
+    <!-- 02 RECOMMENDED FOR -->
+    <section class="for-you section-space" id="for-you">
+      <div class="shell">
+        <div class="for-you-head reveal">
+          <p class="kicker burgundy" data-i18n="forYouKicker">IS SILUA FOR YOU?</p>
+          <h2 class="display" data-i18n="forYouTitle">Train on your own.<br><em>Not without support.</em></h2>
         </div>
-        <figure class="feature-media reveal"><img src="assets/feedback.webp" alt="SILUA client reviewing coach feedback after a workout" loading="lazy"></figure>
-      </div>
-    </section>
-
-    <section class="feature section-space" id="program">
-      <div class="shell feature-grid feature-grid-reverse">
-        <figure class="feature-media feature-media-light reveal"><img src="assets/program.webp" alt="Personalized workout program in the SILUA app" loading="lazy"></figure>
-        <div class="feature-copy reveal">
-          <p class="kicker burgundy" data-i18n="programKicker">PERSONALIZED PROGRAM</p>
-          <h2 class="display" data-i18n="programTitle">Built around the way<br><em>you actually train.</em></h2>
-          <p data-i18n="programBody">Your coach uses your goals, experience, schedule and equipment to choose the exercises, sets, reps, rest and cues that make sense for you.</p>
-          <div class="program-facts"><span data-i18n="factGoal">Goals</span><span data-i18n="factExp">Experience</span><span data-i18n="factSchedule">Schedule</span><span data-i18n="factEquipment">Equipment</span></div>
-          <p class="coach-note" data-i18n="coachNote">Built for you. Finalized by your coach.</p>
+        <div class="need-list reveal">
+          <article><span>01</span><p data-i18n="need1">You train consistently, but want guidance from a professional.</p></article>
+          <article><span>02</span><p data-i18n="need2">You are not sure whether your form is right.</p></article>
+          <article><span>03</span><p data-i18n="need3">You want coaching that fits your own time and place.</p></article>
+          <article><span>04</span><p data-i18n="need4">In-person PT feels too expensive or hard to schedule.</p></article>
+          <article><span>05</span><p data-i18n="need5">You want help from a coach who understands women’s bodies and strength training.</p></article>
         </div>
       </div>
     </section>
 
+    <!-- 03 SERVICES -->
+    <section class="services section-space" id="services">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="kicker burgundy" data-i18n="servicesKicker">COACHING, WHEN YOU NEED IT</p>
+            <h2 class="display" data-i18n="servicesTitle">Get as much coaching<br><em>as you need.</em></h2>
+          </div>
+          <p data-i18n="servicesBody">From one form check to a complete program or ongoing monthly coaching. Start with the support that fits your training now.</p>
+        </div>
+
+        <div class="service-editorial service-dark reveal">
+          <div class="service-copy">
+            <div><span class="service-no">01</span><p class="kicker soft">FORM CHECK</p></div>
+            <h3 class="display" data-i18n="formTitle">When you only need help<br><em>with one movement.</em></h3>
+            <p data-i18n="formBody">Send one training video and get specific feedback from a real coach on form, range of motion, muscle activation or load selection.</p>
+            <div class="service-bottom"><strong>$9.99–$19.99</strong><a href="#download" data-i18n="formCta">Get a Form Check →</a></div>
+          </div>
+          <figure><img src="assets/feedback.webp" alt="Client reviewing form feedback from a SILUA coach" loading="lazy"></figure>
+        </div>
+
+        <div class="service-editorial service-light reveal">
+          <figure><img src="assets/program.webp" alt="Personalized workout program in SILUA" loading="lazy"></figure>
+          <div class="service-copy">
+            <div><span class="service-no">02</span><p class="kicker burgundy">PERSONALIZED PROGRAM</p></div>
+            <h3 class="display" data-i18n="programTitle">When you need a routine<br><em>built around you.</em></h3>
+            <p data-i18n="programBody">A professional coach builds your strength program around your goal, experience, focus areas, schedule, session time and equipment.</p>
+            <div class="service-bottom"><strong>$29.99–$69.99</strong><a href="#download" data-i18n="programCta">Get Your Program →</a></div>
+          </div>
+        </div>
+
+        <div class="service-editorial service-burgundy reveal">
+          <div class="service-copy">
+            <div><span class="service-no">03</span><p class="kicker soft">MONTHLY COACHING</p></div>
+            <h3 class="display" data-i18n="monthlyTitle">When you want to keep<br><em>getting stronger.</em></h3>
+            <p data-i18n="monthlyBody">Train with one coach over time with a personalized program, video feedback, messaging, program adjustments and progress reviews.</p>
+            <div class="service-bottom"><strong>$69.99–$149.99 <span>/ month</span></strong><a href="#download" data-i18n="monthlyCta">Start Coaching →</a></div>
+          </div>
+          <figure><img src="assets/community.webp" alt="Women strength training with SILUA" loading="lazy"></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 HOW IT WORKS -->
+    <section class="how section-space" id="how">
+      <div class="shell">
+        <div class="how-head reveal">
+          <p class="kicker burgundy" data-i18n="howKicker">HOW SILUA WORKS</p>
+          <h2 class="display" data-i18n="howTitle">Train freely.<br><em>Stay connected to coaching.</em></h2>
+        </div>
+        <div class="steps-seven reveal">
+          <article><span>01</span><h3 data-i18n="how1Title">Start SILUA</h3><p data-i18n="how1Body">Install SILUA and create your Training Profile.</p></article>
+          <article><span>02</span><h3 data-i18n="how2Title">Tell us about your training</h3><p data-i18n="how2Body">Add your goals, experience, focus areas, schedule, time and equipment.</p></article>
+          <article><span>03</span><h3 data-i18n="how3Title">Find your coach</h3><p data-i18n="how3Body">Compare specialties and coaching styles to find your match.</p></article>
+          <article><span>04</span><h3 data-i18n="how4Title">Choose your coaching</h3><p data-i18n="how4Body">Pick a Form Check, Personalized Program or Monthly Coaching.</p></article>
+          <article><span>05</span><h3 data-i18n="how5Title">Train</h3><p data-i18n="how5Body">Follow your program when and where it works for you.</p></article>
+          <article><span>06</span><h3 data-i18n="how6Title">Log & send</h3><p data-i18n="how6Body">Record sets, reps and weight. Send a set when you want feedback.</p></article>
+          <article><span>07</span><h3 data-i18n="how7Title">Improve</h3><p data-i18n="how7Body">Use your training history and coach feedback to make the next session better.</p></article>
+        </div>
+        <div class="set-by-set reveal"><span data-i18n="setBySet">Set by set.</span><strong data-i18n="getStronger">You get stronger.</strong></div>
+      </div>
+    </section>
+
+    <!-- 05 PRICING -->
+    <section class="pricing section-space" id="pricing">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div><p class="kicker burgundy" data-i18n="pricingKicker">COACHING THAT FITS YOUR NEEDS</p><h2 class="display" data-i18n="pricingTitle">Start with the coaching<br><em>you need now.</em></h2></div>
+          <p data-i18n="pricingBody">Choose a coach and the level of support that fits your training. Coaches select from SILUA price tiers.</p>
+        </div>
+        <div class="pricing-table reveal">
+          <article><div><span>01</span><h3>Form Check</h3></div><strong>$9.99 / $14.99 / $19.99</strong></article>
+          <article><div><span>02</span><h3>Personalized Program</h3></div><strong>$29.99 / $39.99 / $49.99 / $69.99</strong></article>
+          <article class="pricing-featured"><div><span>03</span><h3>Monthly Coaching</h3></div><strong>$69.99 / $89.99 / $119.99 / $149.99 <small>/ month</small></strong></article>
+        </div>
+        <p class="price-note reveal" data-i18n="priceNote">Actual purchase prices are shown in your local currency in the app.</p>
+      </div>
+    </section>
+
+    <!-- 06 BRAND MESSAGE -->
+    <section class="freedom-message shell-wide reveal">
+      <img src="assets/hero.webp" alt="Independent strength training" loading="lazy">
+      <div class="freedom-shade"></div>
+      <div class="freedom-copy">
+        <p class="kicker soft" data-i18n="freedomKicker">TRAIN INDEPENDENTLY</p>
+        <h2 class="display" data-i18n="freedomTitle">Your workout is yours.<br><em>Your coach is there when you need them.</em></h2>
+        <p data-i18n="freedomBody">Get coaching as freely as you train — and keep building strength in your own way.</p>
+      </div>
+    </section>
+
+    <!-- 07 WHY WOMEN & STRENGTH -->
+    <section class="why-strength section-space" id="why-strength">
+      <div class="shell why-grid">
+        <div class="why-heading reveal">
+          <p class="kicker burgundy" data-i18n="whyKicker">WHY WOMEN NEED STRENGTH</p>
+          <h2 class="display" data-i18n="whyTitle">Strength means more<br><em>than how your body looks.</em></h2>
+        </div>
+        <div class="why-copy reveal">
+          <p data-i18n="whyBody1">Strength training is not only about getting smaller or changing your shape.</p>
+          <p data-i18n="whyBody2">Building muscle and strength can help you move with more capability, keep training for the long term, and feel more confident in what your body can do.</p>
+          <strong data-i18n="whyStatement">SILUA wants more women to build strength for life.</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 VALUES -->
+    <section class="values-section section-space" id="values">
+      <div class="shell">
+        <div class="values-heading reveal">
+          <p class="kicker soft">WOMEN IN STRENGTH</p>
+          <h2 class="display" data-i18n="valuesTitle">Strength changes more<br><em>than your body.</em></h2>
+        </div>
+        <div class="value-list reveal">
+          <article><span>S</span><div><h3>Strength</h3><p data-i18n="valueStrength">Build a stronger body.</p></div></article>
+          <article><span>I</span><div><h3>Identity</h3><p data-i18n="valueIdentity">Strength becomes part of who you are.</p></div></article>
+          <article><span>L</span><div><h3>Longevity</h3><p data-i18n="valueLongevity">Build strength that lasts.</p></div></article>
+          <article class="value-understanding"><span>U</span><div><h3>Understanding</h3><p data-i18n="valueUnderstanding">Understanding women’s bodies and strength training.</p></div></article>
+          <article><span>A</span><div><h3>Ability</h3><p data-i18n="valueAbility">Build what your body can do.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 COACHES -->
     <section class="coaches section-space" id="coaches">
       <div class="shell">
         <div class="section-head reveal">
-          <div><p class="kicker burgundy" data-i18n="coachKicker">MEET THE COACHES</p><h2 class="display" data-i18n="coachTitle">Different goals.<br><em>Different coaching styles.</em></h2></div>
-          <p data-i18n="coachBody">Choose by specialty, coaching style and price. Your coaching starts in the SILUA app.</p>
+          <div><p class="kicker burgundy" data-i18n="coachKicker">MEET YOUR COACH</p><h2 class="display" data-i18n="coachTitle">Different goals.<br><em>Different coaching needs.</em></h2></div>
+          <p data-i18n="coachBody">Choose by specialty, coaching style and price. Find the coach who fits the way you want to train.</p>
         </div>
         <div class="coach-grid">
-          <article class="coach-card reveal"><img src="assets/coach-mina.webp" alt="Coach Mina"><div><p>GLUTES & LOWER BODY</p><h3>Mina</h3><span data-i18n="minaMsg">Build stronger glutes with better technique.</span><small data-i18n="minaProducts">Form Check · Monthly Coaching</small></div></article>
-          <article class="coach-card reveal"><img src="assets/coach-sophie.webp" alt="Coach Sophie"><div><p>BEGINNER STRENGTH</p><h3>Sophie</h3><span data-i18n="sophieMsg">Feel confident training on your own.</span><small data-i18n="sophieProducts">Personalized Program · Form Check</small></div></article>
-          <article class="coach-card reveal"><img src="assets/coach-jiwon.webp" alt="Coach Jiwon"><div><p>BODY RECOMPOSITION</p><h3>Jiwon</h3><span data-i18n="jiwonMsg">Build muscle. Lose fat. Change your shape.</span><small data-i18n="jiwonProducts">Personalized Program · Monthly Coaching</small></div></article>
-          <article class="coach-card reveal"><img src="assets/coach-emma.webp" alt="Coach Emma"><div><p>UPPER BODY & POSTURE</p><h3>Emma</h3><span data-i18n="emmaMsg">Build a strong, balanced upper body.</span><small data-i18n="emmaProducts">Form Check · Personalized Program</small></div></article>
-          <article class="coach-card reveal"><img src="assets/coach-daniel.webp" alt="Coach Daniel"><div><p>STRENGTH & PERFORMANCE</p><h3>Daniel</h3><span data-i18n="danielMsg">Get stronger with structured progression.</span><small data-i18n="danielProducts">Personalized Program · Monthly Coaching</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-mina.webp" alt="Coach Mina"><div><p>GLUTES & LOWER BODY</p><h3>Mina</h3><span data-i18n="minaMsg">Build stronger glutes with better technique.</span><small data-i18n="minaFrom">From $9.99</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-sophie.webp" alt="Coach Sophie"><div><p>BEGINNER STRENGTH</p><h3>Sophie</h3><span data-i18n="sophieMsg">Feel confident training on your own.</span><small data-i18n="sophieFrom">From $9.99</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-jiwon.webp" alt="Coach Jiwon"><div><p>BODY RECOMPOSITION</p><h3>Jiwon</h3><span data-i18n="jiwonMsg">Build muscle. Lose fat. Change your shape.</span><small data-i18n="jiwonFrom">From $9.99</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-emma.webp" alt="Coach Emma"><div><p>UPPER BODY & POSTURE</p><h3>Emma</h3><span data-i18n="emmaMsg">Build a strong, balanced upper body.</span><small data-i18n="emmaFrom">From $9.99</small></div></article>
+          <article class="coach-card reveal"><img src="assets/coach-daniel.webp" alt="Coach Daniel"><div><p>STRENGTH & PERFORMANCE</p><h3>Daniel</h3><span data-i18n="danielMsg">Get stronger with structured progression.</span><small data-i18n="danielFrom">From $29.99</small></div></article>
         </div>
-        <div class="center-cta reveal"><a class="text-link strong" href="#download" data-i18n="browseCoaches">Browse coaches in the app →</a></div>
+        <div class="center-cta reveal"><a class="text-link strong" href="#download" data-i18n="coachCta">Explore Coaches in SILUA →</a></div>
       </div>
     </section>
 
-    <section class="coaching section-space" id="coaching">
-      <div class="shell">
-        <div class="section-head products-head reveal">
-          <div><p class="kicker burgundy" data-i18n="productsKicker">COACHING</p><h2 class="display" data-i18n="productsTitle">Start with the support<br><em>you need now.</em></h2></div>
-          <p data-i18n="productsBody">One set, one complete program, or ongoing coaching. Choose the level that fits your training right now.</p>
-        </div>
-        <div class="product-lines reveal">
-          <article><span class="product-no">01</span><div><h3>Form Check</h3><p data-i18n="formBody">Send one workout video and get specific feedback from a real coach.</p></div><strong>$9.99–$19.99</strong></article>
-          <article><span class="product-no">02</span><div><h3>Personalized Program</h3><p data-i18n="personalBody">A complete strength program built around your Training Profile.</p></div><strong>$29.99–$69.99</strong></article>
-          <article class="highlight"><span class="product-no">03</span><div><h3>Monthly Coaching</h3><p data-i18n="monthlyBody">Program, video feedback, messaging, adjustments and progress review — ongoing.</p></div><strong>$69.99–$149.99<span>/mo</span></strong></article>
-        </div>
-        <p class="price-note reveal" data-i18n="priceNote">Prices are shown in your local currency in the app.</p>
-      </div>
-    </section>
-
+    <!-- 10 PROGRESS -->
     <section class="progress-section" id="progress">
       <div class="shell progress-grid">
         <div class="progress-copy reveal">
-          <p class="kicker soft" data-i18n="progressKicker">PROGRESS</p>
-          <h2 class="display" data-i18n="progressTitle">See what your training<br><em>is becoming.</em></h2>
-          <p data-i18n="progressBody">See how your strength, consistency and body change over time — without reducing progress to a single number.</p>
-          <div class="progress-points"><span data-i18n="trainingProgress">Training: workouts · history · PRs · strength trends</span><span data-i18n="bodyProgress">Body: photos · weight · measurements · check-ins</span></div>
+          <p class="kicker soft" data-i18n="progressKicker">YOUR PROGRESS</p>
+          <h2 class="display" data-i18n="progressTitle">One workout becomes a record.<br><em>Records become progress.</em></h2>
+          <p data-i18n="progressBody">See your training consistency, exercise history, strength trends, personal records, photos, measurements and body check-ins over time.</p>
+          <div class="progress-points"><span data-i18n="trainingProgress">Training · workouts · history · PRs · strength trends</span><span data-i18n="bodyProgress">Body · photos · weight · measurements · check-ins</span></div>
         </div>
         <figure class="progress-media reveal"><img src="assets/progress.webp" alt="SILUA training and body progress dashboard" loading="lazy"></figure>
       </div>
     </section>
 
-    <section class="brand-section section-space">
-      <div class="shell-wide brand-image-wrap reveal"><img src="assets/community.webp" alt="Women in strength training together" loading="lazy"><div class="brand-shade"></div><div class="brand-overlay"><p class="kicker soft">WOMEN IN STRENGTH</p><h2 class="display" data-i18n="brandTitle">Strength changes more<br><em>than your body.</em></h2><p data-i18n="brandBody">SILUA is built for women becoming stronger on their own terms — with coaching that supports independence, consistency and long-term progress.</p></div></div>
-      <div class="shell values-line reveal"><span>Strength</span><span>Identity</span><span>Longevity</span><span>Uniqueness</span><span>Ability</span></div>
-    </section>
-
-    <section class="faq shell section-space" id="faq">
-      <div class="faq-heading reveal"><p class="kicker burgundy">FAQ</p><h2 class="display" data-i18n="faqTitle">Good questions.</h2></div>
-      <div class="faq-list" data-accordion>
-        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q1">Can I train on my own and still use SILUA?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a1">Yes. SILUA is designed around independent training. Your coach gives you a program and feedback, while you choose when and where you train.</p></div></div></div>
-        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q2">Do I need Monthly Coaching to send a video?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a2">No. You can start with a one-off Form Check. Monthly Coaching includes ongoing video feedback according to your coaching plan.</p></div></div></div>
-        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q3">Who creates my program?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a3">A real coach makes the final program using your Training Profile, including your goals, experience, schedule, equipment and areas of focus.</p></div></div></div>
-        <div class="faq-item reveal"><button class="faq-question" type="button" aria-expanded="false"><span data-i18n="q4">Can I change my coach?</span><i>+</i></button><div class="faq-answer"><div><p data-i18n="a4">Coach availability and service status are managed in the app. Monthly Coaching is designed around one active coach at a time.</p></div></div></div>
-      </div>
-    </section>
-
+    <!-- 11 FINAL CTA -->
     <section class="download shell-wide" id="download">
       <div class="download-card reveal">
-        <p class="kicker soft" data-i18n="downloadKicker">SILUA</p>
-        <h2 class="display" data-i18n="downloadTitle">Your next set<br><em>doesn’t have to be a guess.</em></h2>
-        <p data-i18n="downloadBody">Download SILUA, choose your coach, and start with the support you need.</p>
-        <a class="button button-light" href="#" aria-label="Download SILUA on the App Store" data-i18n="downloadStore">Download on the App Store</a>
+        <p class="kicker soft">SILUA</p>
+        <h2 class="display" data-i18n="downloadTitle">Your next set<br><em>can feel more certain.</em></h2>
+        <p data-i18n="downloadBody">Create your Training Profile and find the coaching that fits the way you train.</p>
+        <a class="button button-light" href="#" aria-label="Start SILUA" data-i18n="startFree">Start Free</a>
+        <small data-i18n="downloadNote">Free to create your Training Profile.</small>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="site-footer-inner">
-      <div class="site-footer-main"><div class="site-footer-brand"><a class="site-footer-name" href="#top">SILUA</a><a class="site-footer-email" href="mailto:hello@silua.app">hello@silua.app</a></div><nav class="site-footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="mailto:hello@silua.app">Contact</a><span>© <span data-year></span> SILUA</span></nav></div>
-      <div class="site-footer-bottom"><span data-i18n="footerLine">Personal strength coaching for women.</span><a class="site-footer-top" href="#top">↑</a></div>
+      <div class="site-footer-main">
+        <div class="site-footer-brand"><a class="site-footer-name" href="#top">SILUA</a><a class="site-footer-email" href="mailto:hello@silua.app">hello@silua.app</a></div>
+        <nav class="site-footer-links"><a href="privacy.html" data-i18n="privacyLink">Privacy Policy</a><a href="terms.html" data-i18n="termsLink">Terms of Use</a><a href="mailto:hello@silua.app" data-i18n="contactLink">Contact</a><span>© <span data-year></span> SILUA</span></nav>
+      </div>
+      <div class="site-footer-bottom"><span data-i18n="footerLine">Online strength coaching for women.</span><a class="site-footer-top" href="#top">↑</a></div>
     </div>
   </footer>
 </body>

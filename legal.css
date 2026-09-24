@@ -45,3 +45,15 @@
   .legal-page .legal-article li{font-size:13px;line-height:1.65;padding:14px 0 14px 18px}
   .legal-page .legal-article li:before{top:24px}
 }
+
+
+html[lang="ko"] .legal-page .legal-hero h1,
+html[lang="ko"] .legal-page .legal-aside p,
+html[lang="ko"] .legal-page .legal-article h2{
+  font-family:var(--ko);
+  font-style:normal;
+  font-weight:650;
+  letter-spacing:-.04em;
+}
+html[lang="ko"] .legal-page .legal-hero h1{line-height:1.02}
+html[lang="ko"] .legal-page .legal-aside p{line-height:1.45}
